@@ -495,16 +495,18 @@ function ContributionSection({ years, unit, taxpayerName, spouseName }) {
 
 // Expandable row for the data table — collapsed shows main fields,
 // expanded reveals advanced fields (適用稅率 / 累進差額 / 特殊抵減差異).
-function TableRow({ y, isSingle, unit, colCount }) {
+function TableRow({ y, isSingle, unit, colCount, taxpayerName, spouseName }) {
   const [open, setOpen] = React.useState(false);
   const cell = (v) => v == null ? <span className="miss">—</span> : fmt(v, unit);
   const adv = computeAdvanced(y);
   const canExpand = adv != null;
+  const mainLabel = taxpayerName ? `${taxpayerName}（本人）` : '本人總所得';
+  const spouseLabel = spouseName ? `${spouseName}（配偶）` : '配偶總所得';
 
   return (
     <>
       <tr className={open ? 'row-expanded' : ''}>
-        <td>
+        <td data-label="年度">
           <button
             className={`row-expand-btn ${open ? 'open' : ''}`}
             onClick={() => canExpand && setOpen(!open)}
@@ -518,17 +520,17 @@ function TableRow({ y, isSingle, unit, colCount }) {
           {y.year - 1911} 年度
         </td>
         {isSingle ? (
-          <td><strong>{cell(y._main)}</strong></td>
+          <td data-label="所得總額"><strong>{cell(y._main)}</strong></td>
         ) : (
           <>
-            <td>{cell(y._main)}</td>
-            <td>{cell(y._spouse)}</td>
-            <td><strong>{cell(y._combined)}</strong></td>
+            <td data-label={mainLabel}>{cell(y._main)}</td>
+            <td data-label={spouseLabel}>{cell(y._spouse)}</td>
+            <td data-label="兩人合計"><strong>{cell(y._combined)}</strong></td>
           </>
         )}
-        <td>{cell(y._deduction)}</td>
-        <td>{cell(y.netIncome)}</td>
-        <td><strong>{cell(y.taxAmount)}</strong></td>
+        <td data-label="全部扣除額">{cell(y._deduction)}</td>
+        <td data-label="所得淨額">{cell(y.netIncome)}</td>
+        <td data-label="應納稅額"><strong>{cell(y.taxAmount)}</strong></td>
       </tr>
       {open && adv && (
         <tr className="row-detail">
@@ -668,7 +670,7 @@ function TableSection({ years, unit, filingMode, taxpayerName, spouseName }) {
             <tbody>
               {enriched.map((y) => {
                 const colCount = isSingle ? 5 : 7;
-                return <TableRow key={y.year} y={y} isSingle={isSingle} unit={unit} colCount={colCount} />;
+                return <TableRow key={y.year} y={y} isSingle={isSingle} unit={unit} colCount={colCount} taxpayerName={taxpayerName} spouseName={spouseName} />;
               })}
             </tbody>
           </table>
