@@ -206,11 +206,17 @@ function App() {
         }}>
           ⚠️ 本工具僅供視覺化參考，<strong style={{ color: 'var(--text-2)' }}>不構成稅務建議</strong>，正確稅額請以財政部公告為準。
           <br />
-          非官方工具，與財政部無關。原始碼與隱私說明：
+          非官方工具，與財政部無關。
           <a href="https://github.com/mstzeng1017/tax-dashboard"
              target="_blank" rel="noopener noreferrer"
              style={{ color: 'var(--accent-1)', textDecoration: 'underline', marginLeft: 4 }}>
-            github.com/mstzeng1017/tax-dashboard
+            原始碼
+          </a>
+          {' · '}
+          <a href="https://github.com/mstzeng1017/tax-dashboard/issues/new"
+             target="_blank" rel="noopener noreferrer"
+             style={{ color: 'var(--accent-1)', textDecoration: 'underline' }}>
+            回報問題 / 建議
           </a>
         </footer>
       </main>
