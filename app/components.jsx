@@ -75,7 +75,7 @@ function Sidebar({ active, onNav, onUpload, onExport, onImport, onClear, hasData
 }
 
 function TopBar({ taxpayerName, spouseName, filingMode, lastUpdated, unit, setUnit, theme, setTheme, hideUnit, onMenuClick }) {
-  const dateStr = lastUpdated ? new Date(lastUpdated).toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : null;
+  const dateStr = lastUpdated ? new Date(lastUpdated).toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }) : null;
   const isFamily = filingMode !== 'single' && spouseName;
   return (
     <div className="topbar">
