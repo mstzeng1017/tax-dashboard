@@ -194,8 +194,6 @@ function SourceBadge({ type, compact, tone }) {
 function UploadModal({ onClose, onApplyParsed, defaultPassword }) {
   const [files, setFiles] = useState([]); // {name, file, status, parsed?, error?}
   const [password, setPassword] = useState(defaultPassword || '');
-  const [rememberPwd, setRememberPwd] = useState(!!defaultPassword);
-  const [forgetPwd, setForgetPwd] = useState(false);
   const [over, setOver] = useState(false);
   const [showManual, setShowManual] = useState(null); // index of failed file to manually input
   const inputRef = useRef();
@@ -234,17 +232,8 @@ function UploadModal({ onClose, onApplyParsed, defaultPassword }) {
         }
       }
     }
-    if (rememberPwd && pwd) window.TaxStore.setPassword(pwd);
+    if (pwd) window.TaxStore.setPassword(pwd);
   };
-
-  useEffect(() => {
-    if (forgetPwd) {
-      window.TaxStore.clearPassword();
-      setPassword('');
-      setRememberPwd(false);
-      setForgetPwd(false);
-    }
-  }, [forgetPwd]);
 
   return (
     <div className="modal-bg" onClick={onClose}>
@@ -266,18 +255,9 @@ function UploadModal({ onClose, onApplyParsed, defaultPassword }) {
           <input ref={inputRef} type="file" accept="application/pdf" multiple style={{ display: 'none' }} onChange={onPick} />
         </div>
 
-        <div className="row" style={{ marginTop: 14 }}>
-          <div className="field" style={{ flex: 2, marginBottom: 0 }}>
-            <label>PDF 密碼（如有設定）</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="例：身分證字號" />
-          </div>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: 6 }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-2)' }}>
-              <input type="checkbox" checked={rememberPwd} onChange={e => setRememberPwd(e.target.checked)} />
-              記住密碼
-            </label>
-            <button className="btn ghost" onClick={() => setForgetPwd(true)} style={{ alignSelf: 'flex-start' }}>忘記密碼</button>
-          </div>
+        <div className="field" style={{ marginTop: 14, marginBottom: 0 }}>
+          <label>PDF 密碼（如有設定）</label>
+          <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="例：身分證字號" />
         </div>
 
         {files.length > 0 && (
