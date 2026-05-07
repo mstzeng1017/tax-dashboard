@@ -269,7 +269,7 @@ function UploadModal({ onClose, onApplyParsed, defaultPassword }) {
         <div className="row" style={{ marginTop: 14 }}>
           <div className="field" style={{ flex: 2, marginBottom: 0 }}>
             <label>PDF 密碼（如有設定）</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="例：身分證後 6 碼" />
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="例：身分證字號" />
           </div>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: 6 }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-2)' }}>
