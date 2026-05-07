@@ -53,8 +53,9 @@
     } catch (e) {
       const name = e && e.name;
       if (name === 'PasswordException') {
-        const err = new Error('需要密碼');
+        const err = new Error('密碼錯誤或需要密碼');
         err.code = 'PASSWORD_REQUIRED';
+        err.hint = '財政部稅務入口網下載的 PDF 預設密碼為「身分證字號」（含英文字母大寫）。';
         err.reason = e.code;
         throw err;
       }
@@ -396,8 +397,9 @@
     const docType = identifyDocType(text);
     console.log('[TaxParser] file:', file.name, 'docType:', docType, 'textHead:', text.slice(0, 200));
     if (!docType) {
-      const err = new Error('無法辨識文件類型，請確認是「綜合所得稅納稅證明書」或「各類所得資料清單」');
+      const err = new Error('無法辨識為「綜合所得稅納稅證明書」');
       err.code = 'UNKNOWN_TYPE';
+      err.hint = '可能上傳了報稅申報書、扣繳憑單、紙本掃描、財產清冊或其他文件。請從「財政部稅務入口網 → 電子稅務文件」下載「綜合所得稅 → 納稅證明書」PDF。';
       err.text = text;
       throw err;
     }
@@ -425,8 +427,9 @@
     });
 
     if (!parsed.year) {
-      const err = new Error('找不到年度');
+      const err = new Error('找不到年度資訊');
       err.code = 'NO_YEAR';
+      err.hint = 'PDF 標題沒有「XX 年度」字樣。可能是 PDF 損毀或非標準格式，請重新從財政部稅務入口網下載。';
       err.partial = parsed;
       throw err;
     }

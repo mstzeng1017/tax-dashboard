@@ -237,9 +237,9 @@ function UploadModal({ onClose, onApplyParsed, defaultPassword }) {
         onApplyParsed(parsed);
       } catch (e) {
         if (e.code === 'PASSWORD_REQUIRED') {
-          setFiles(prev => prev.map((f, idx) => idx === i ? { ...f, status: 'password', error: '需要密碼或密碼錯誤' } : f));
+          setFiles(prev => prev.map((f, idx) => idx === i ? { ...f, status: 'password', error: e.message || '需要密碼或密碼錯誤', hint: e.hint } : f));
         } else {
-          setFiles(prev => prev.map((f, idx) => idx === i ? { ...f, status: 'err', error: e.message || '解析失敗', errorCode: e.code, partial: e.partial } : f));
+          setFiles(prev => prev.map((f, idx) => idx === i ? { ...f, status: 'err', error: e.message || '解析失敗', hint: e.hint, errorCode: e.code, partial: e.partial } : f));
         }
       }
     }
@@ -274,25 +274,48 @@ function UploadModal({ onClose, onApplyParsed, defaultPassword }) {
         {files.length > 0 && (
           <div className="upload-list">
             {files.map((f, i) => (
-              <div key={i} className="upload-row">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: 'var(--text-3)', flexShrink: 0 }}>
-                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span className="name">{f.name}</span>
-                {f.status === 'pending' && <span className="status processing">待處理</span>}
-                {f.status === 'processing' && <span className="status processing pulse">解析中…</span>}
-                {f.status === 'ok' && (
-                  <>
-                    {f.parsed.type === 'tax-cert' ? <SourceBadge type="tax-cert" /> : <SourceBadge type="income-list" />}
-                    <span className="status ok">{f.parsed.year - 1911} 年度 ✓</span>
-                  </>
-                )}
-                {f.status === 'password' && <span className="status password">需密碼</span>}
-                {f.status === 'err' && (
-                  <>
-                    <span className="status err" title={f.error}>失敗</span>
-                    <button className="btn ghost" onClick={() => setShowManual(i)}>手動輸入</button>
-                  </>
+              <div key={i} className="upload-row" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: 'var(--text-3)', flexShrink: 0 }}>
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span className="name">{f.name}</span>
+                  {f.status === 'pending' && <span className="status processing">待處理</span>}
+                  {f.status === 'processing' && <span className="status processing pulse">解析中…</span>}
+                  {f.status === 'ok' && (
+                    <>
+                      {f.parsed.type === 'tax-cert' ? <SourceBadge type="tax-cert" /> : <SourceBadge type="income-list" />}
+                      <span className="status ok">{f.parsed.year - 1911} 年度 ✓</span>
+                    </>
+                  )}
+                  {f.status === 'password' && <span className="status password">需密碼</span>}
+                  {f.status === 'err' && (
+                    <>
+                      <span className="status err">解析失敗</span>
+                      <button className="btn ghost" onClick={() => setShowManual(i)}>手動輸入</button>
+                    </>
+                  )}
+                </div>
+                {(f.status === 'err' || f.status === 'password') && (
+                  <div style={{
+                    marginLeft: 26,
+                    padding: '8px 11px',
+                    background: f.status === 'err' ? 'rgba(201, 122, 122, 0.08)' : 'rgba(212, 190, 122, 0.10)',
+                    border: `1px solid ${f.status === 'err' ? 'rgba(201, 122, 122, 0.3)' : 'rgba(212, 190, 122, 0.3)'}`,
+                    borderRadius: 8,
+                    fontSize: 12.5,
+                    lineHeight: 1.55,
+                    color: 'var(--text-2)'
+                  }}>
+                    <div style={{ fontWeight: 600, color: f.status === 'err' ? '#e09a9a' : '#d4be7a', marginBottom: 3 }}>
+                      ⚠️ {f.error}
+                    </div>
+                    {f.hint && (
+                      <div style={{ color: 'var(--text-2)' }}>
+                        💡 {f.hint}
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             ))}
