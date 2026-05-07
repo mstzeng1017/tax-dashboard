@@ -239,19 +239,20 @@ function OverviewSection({ years, unit, chartType, filingMode }) {
         </div>
       }
 
-      {/* Income composition: deduction vs net income across years */}
+      {/* Combo: stacked bar (淨額+扣除額) + line (應納稅額) */}
       <div className="chart-card" style={{ marginBottom: 18 }}>
         <div className="chart-head">
           <div>
             <h3 style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              歷年所得淨額構成
-              <HelpHint text="把每年所得合計拆成兩塊：紫色是『所得淨額』（真正課稅的部分），淺色是『全部扣除額』（不用繳稅的部分）。淺色塊愈大，表示扣除額用得愈滿，省下的稅愈多。" />
+              歷年所得構成 + 應納稅額
+              <HelpHint text="長條：每年所得合計拆成兩塊 — 紫色「所得淨額」(真正課稅的部分) + 淺色「全部扣除額」(不用繳稅的部分)；虛線：實際應納稅額（右側軸）。看淺色塊愈大、虛線愈低，表示扣除額用得愈滿、省下的稅愈多。" />
             </h3>
-            <div className="chart-sub">所得淨額 + 全部扣除額 = 所得合計</div>
+            <div className="chart-sub">所得淨額 + 全部扣除額 = 所得合計　・　虛線為應納稅額</div>
           </div>
           <div className="legend">
             <div className="legend-item"><span className="legend-swatch" style={{ background: SERIES_COLORS.net }}></span>所得淨額（課稅）</div>
             <div className="legend-item"><span className="legend-swatch" style={{ background: SERIES_COLORS.deduction }}></span>全部扣除額（不課稅）</div>
+            <div className="legend-item"><span className="legend-swatch dashed" style={{ color: SERIES_COLORS.tax }}></span>應納稅額</div>
           </div>
         </div>
         <StackedBarChart
@@ -260,34 +261,9 @@ function OverviewSection({ years, unit, chartType, filingMode }) {
           stacks={[
             { key: 'netIncome', label: '所得淨額', color: SERIES_COLORS.net },
             { key: '_deduction', label: '全部扣除額', color: SERIES_COLORS.deduction }
-          ]} />
-      </div>
-
-      {/* Trend line */}
-      <div className="chart-card">
-        <div className="chart-head">
-          <div>
-            <h3 style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              歷年所得與稅額趨勢
-              <HelpHint text="看這幾年下來，所得合計、所得淨額（扣除後）、應納稅額怎麼變化。淨額和應納稅額的差距越大，代表免稅額/扣除額幫你省下越多稅。" />
-            </h3>
-            <div className="chart-sub">資料來源：納稅證明書</div>
-          </div>
-          <div className="legend">
-            <div className="legend-item"><span className="legend-swatch" style={{ background: SERIES_COLORS.combined }}></span>所得合計</div>
-            <div className="legend-item"><span className="legend-swatch" style={{ background: SERIES_COLORS.net }}></span>所得淨額</div>
-            <div className="legend-item"><span className="legend-swatch" style={{ background: SERIES_COLORS.tax }}></span>應納稅額</div>
-          </div>
-        </div>
-        <LineChart
-          data={enriched}
-          unit={unit}
-          type={chartType}
-          series={[
-            { key: '_combined', label: '所得合計', color: SERIES_COLORS.combined },
-            { key: 'netIncome', label: '所得淨額', color: SERIES_COLORS.net },
-            { key: 'taxAmount', label: '應納稅額', color: SERIES_COLORS.tax }
-          ]} />
+          ]}
+          line={{ key: 'taxAmount', label: '應納稅額', color: SERIES_COLORS.tax, dashed: true }}
+        />
       </div>
 
       {/* Dependents */}
