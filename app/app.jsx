@@ -23,8 +23,13 @@ function App() {
   const [showBackupHint, setShowBackupHint] = useState(false);
   const [toast, setToast] = useState(null);
   const [tweaksOpen, setTweaksOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const importInputRef = useRef();
   const importCountRef = useRef(0);
+
+  useEffect(() => {
+    document.body.classList.toggle('sidebar-open', sidebarOpen);
+  }, [sidebarOpen]);
 
   const [tweaks, setTweaks] = useState(() => {
     try {
@@ -167,14 +172,15 @@ function App() {
     <div className="app">
       <Sidebar
         active={active}
-        onNav={setActive}
-        onUpload={() => setShowUpload(true)}
+        onNav={(id) => { setActive(id); setSidebarOpen(false); }}
+        onUpload={() => { setShowUpload(true); setSidebarOpen(false); }}
         onExport={onExport}
         onImport={onImport}
-        onClear={() => setShowClear(true)}
+        onClear={() => { setShowClear(true); setSidebarOpen(false); }}
         hasData={hasData}
         filingMode={filingMode}
       />
+      <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)}></div>
       <main className="main">
         <TopBar
           taxpayerName={hasData ? state.meta.taxpayerName : null}
@@ -186,6 +192,7 @@ function App() {
           theme={tweaks.theme}
           setTheme={(t) => setTweaks({ ...tweaks, theme: t })}
           hideUnit={!hasData}
+          onMenuClick={() => setSidebarOpen(true)}
         />
         {renderSection()}
         <footer style={{

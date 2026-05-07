@@ -74,12 +74,22 @@ function Sidebar({ active, onNav, onUpload, onExport, onImport, onClear, hasData
   );
 }
 
-function TopBar({ taxpayerName, spouseName, filingMode, lastUpdated, unit, setUnit, theme, setTheme, hideUnit }) {
+function TopBar({ taxpayerName, spouseName, filingMode, lastUpdated, unit, setUnit, theme, setTheme, hideUnit, onMenuClick }) {
   const dateStr = lastUpdated ? new Date(lastUpdated).toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : null;
   const isFamily = filingMode !== 'single' && spouseName;
   return (
     <div className="topbar">
-      <div>
+      <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+        {onMenuClick && (
+          <button className="hamburger" onClick={onMenuClick} aria-label="開啟選單" title="選單">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+        )}
+        <div>
         <h1>
           {taxpayerName && <span className="name-accent">{taxpayerName}</span>}
           {isFamily && (
@@ -95,6 +105,7 @@ function TopBar({ taxpayerName, spouseName, filingMode, lastUpdated, unit, setUn
             最後更新：{dateStr}
           </div>
         )}
+        </div>
       </div>
       <div className="topbar-actions">
         {!hideUnit && (
