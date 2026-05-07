@@ -571,15 +571,15 @@ function EmptyState({ onUpload, onSampleData }) {
             還沒下載 PDF？前往<strong style={{ color: 'var(--text)' }}>財政部稅務入口網</strong>，選擇登入方式：
           </div>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href="https://www.etax.nat.gov.tw/etwmain/login/ic" target="_blank" rel="noopener noreferrer"
+            <a href="https://www.etax.nat.gov.tw/etwmain/etw108w" target="_blank" rel="noopener noreferrer"
               style={{ ...loginBtnBase, border: '1px solid rgba(201, 122, 122, 0.5)', color: '#c97a7a' }}>
               自然人憑證
             </a>
-            <a href="https://www.etax.nat.gov.tw/etwmain/login/nhi" target="_blank" rel="noopener noreferrer"
+            <a href="https://www.etax.nat.gov.tw/etwmain/etw108w" target="_blank" rel="noopener noreferrer"
               style={{ ...loginBtnBase, border: '1px solid rgba(111, 168, 150, 0.5)', color: '#6fa896' }}>
               健保卡
             </a>
-            <a href="https://www.etax.nat.gov.tw/etwmain/login/fido" target="_blank" rel="noopener noreferrer"
+            <a href="https://www.etax.nat.gov.tw/etwmain/etw108w" target="_blank" rel="noopener noreferrer"
               style={{ ...loginBtnBase, border: '1px solid rgba(201, 122, 122, 0.5)', color: '#c97a7a' }}>
               行動自然人憑證
             </a>
