@@ -188,6 +188,24 @@ function App() {
           hideUnit={!hasData}
         />
         {renderSection()}
+        <footer style={{
+          marginTop: 40,
+          paddingTop: 18,
+          borderTop: '1px solid var(--divider)',
+          fontSize: 11.5,
+          color: 'var(--text-3)',
+          lineHeight: 1.6,
+          textAlign: 'center'
+        }}>
+          ⚠️ 本工具僅供視覺化參考，<strong style={{ color: 'var(--text-2)' }}>不構成稅務建議</strong>，正確稅額請以財政部公告為準。
+          <br />
+          非官方工具，與財政部無關。原始碼與隱私說明：
+          <a href="https://github.com/mstzeng1017/tax-dashboard"
+             target="_blank" rel="noopener noreferrer"
+             style={{ color: 'var(--accent-1)', textDecoration: 'underline', marginLeft: 4 }}>
+            github.com/mstzeng1017/tax-dashboard
+          </a>
+        </footer>
       </main>
 
       <input ref={importInputRef} type="file" accept="application/json" style={{ display: 'none' }} onChange={onImportFile} />
