@@ -673,13 +673,13 @@ function TableSection({ years, unit, filingMode, taxpayerName, spouseName }) {
             </tbody>
           </table>
         </div>
-        <div style={{ padding: '12px 18px 8px', display: 'flex', gap: 14, fontSize: 12.5, color: 'var(--text-3)', flexWrap: 'wrap' }}>
+        <div className="table-footnote" style={{ padding: '12px 18px 8px', display: 'flex', gap: 14, fontSize: 12.5, color: 'var(--text-3)', flexWrap: 'wrap' }}>
           <span>單位：{fmtUnit(unit)}</span>
-          <span>·</span>
+          <span className="sep">·</span>
           <span>本人/配偶總所得 = 納稅證明書「所得細項」按身分證號分類加總</span>
-          <span>·</span>
+          <span className="sep">·</span>
           <span>全部扣除額 = {isSingle ? '所得總額' : '兩人合計'} − 所得淨額</span>
-          <span>·</span>
+          <span className="sep">·</span>
           <span>所得淨額／應納稅額直接讀自納稅證明書</span>
         </div>
       </div>

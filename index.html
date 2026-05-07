@@ -1507,8 +1507,15 @@
     }
   }
 
-  /* chart-head 手機改直排 */
+  /* 手機共用調整 */
   @media (max-width: 767px) {
+    .table-footnote {
+      flex-direction: column !important;
+      gap: 6px !important;
+    }
+    .table-footnote .sep {
+      display: none;
+    }
     .chart-head {
       flex-direction: column;
       gap: 10px;
