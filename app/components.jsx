@@ -560,6 +560,9 @@ function EmptyState({ onUpload, onSampleData }) {
           <div style={{ color: 'var(--text-2)', fontSize: 13.5, marginBottom: 6 }}>
             還沒下載 PDF？前往<strong style={{ color: 'var(--text)' }}>財政部稅務入口網</strong>申請
           </div>
+          <div style={{ color: 'var(--text-3)', fontSize: 12, marginBottom: 4 }}>
+            進入後選擇「<strong style={{ color: 'var(--text-2)' }}>電子稅務文件</strong>」→「<strong style={{ color: 'var(--text-2)' }}>綜所稅</strong>」分類
+          </div>
           <div style={{ color: 'var(--text-3)', fontSize: 12, marginBottom: 14 }}>
             支援 <span style={{ color: '#c97a7a' }}>自然人憑證</span> / <span style={{ color: '#6fa896' }}>健保卡</span> / <span style={{ color: '#c97a7a' }}>行動自然人憑證</span> 登入
           </div>
