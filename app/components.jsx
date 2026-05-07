@@ -531,17 +531,6 @@ function PrivacyBanner() {
 }
 
 function EmptyState({ onUpload, onSampleData }) {
-  const loginBtnBase = {
-    padding: '9px 18px',
-    borderRadius: 9,
-    textDecoration: 'none',
-    fontSize: 13.5,
-    fontWeight: 500,
-    transition: 'all 0.15s',
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: 6
-  };
   return (
     <div className="empty">
       <div style={{ width: '100%', maxWidth: 580 }}>
@@ -565,25 +554,35 @@ function EmptyState({ onUpload, onSampleData }) {
 
         <div style={{
           paddingTop: 20,
-          borderTop: '1px solid var(--divider)'
+          borderTop: '1px solid var(--divider)',
+          textAlign: 'center'
         }}>
-          <div style={{ textAlign: 'center', color: 'var(--text-2)', fontSize: 13, marginBottom: 12 }}>
-            還沒下載 PDF？前往<strong style={{ color: 'var(--text)' }}>財政部稅務入口網</strong>，選擇登入方式：
+          <div style={{ color: 'var(--text-2)', fontSize: 13.5, marginBottom: 6 }}>
+            還沒下載 PDF？前往<strong style={{ color: 'var(--text)' }}>財政部稅務入口網</strong>申請
           </div>
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href="https://www.etax.nat.gov.tw/etwmain/etw108w" target="_blank" rel="noopener noreferrer"
-              style={{ ...loginBtnBase, border: '1px solid rgba(201, 122, 122, 0.5)', color: '#c97a7a' }}>
-              自然人憑證
-            </a>
-            <a href="https://www.etax.nat.gov.tw/etwmain/etw108w" target="_blank" rel="noopener noreferrer"
-              style={{ ...loginBtnBase, border: '1px solid rgba(111, 168, 150, 0.5)', color: '#6fa896' }}>
-              健保卡
-            </a>
-            <a href="https://www.etax.nat.gov.tw/etwmain/etw108w" target="_blank" rel="noopener noreferrer"
-              style={{ ...loginBtnBase, border: '1px solid rgba(201, 122, 122, 0.5)', color: '#c97a7a' }}>
-              行動自然人憑證
-            </a>
+          <div style={{ color: 'var(--text-3)', fontSize: 12, marginBottom: 14 }}>
+            支援 <span style={{ color: '#c97a7a' }}>自然人憑證</span> / <span style={{ color: '#6fa896' }}>健保卡</span> / <span style={{ color: '#c97a7a' }}>行動自然人憑證</span> 登入
           </div>
+          <a href="https://www.etax.nat.gov.tw/etwmain/etw108w"
+             target="_blank" rel="noopener noreferrer"
+             style={{
+               display: 'inline-flex',
+               alignItems: 'center',
+               gap: 8,
+               padding: '10px 22px',
+               borderRadius: 9,
+               background: 'var(--accent-grad)',
+               color: 'white',
+               textDecoration: 'none',
+               fontSize: 13.5,
+               fontWeight: 500,
+               boxShadow: '0 4px 14px -2px rgba(124, 128, 201, 0.3)'
+             }}>
+            前往下載納稅證明書
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7 17L17 7M17 7H8M17 7v9" />
+            </svg>
+          </a>
         </div>
       </div>
     </div>
