@@ -1,0 +1,22 @@
+# 防呆：避免誤把真實稅務資料推上 GitHub
+
+# PDF (含真實納稅資料)
+*.pdf
+
+# JSON 備份檔（含本人/配偶資料）
+*-所得稅備份-*.json
+*-tax-data*.json
+backup*.json
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# Node (本地測試用)
+node_modules/
+
+# 範例上傳資料夾（如果哪天再加）
+uploads/
+sample/*.pdf
