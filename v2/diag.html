@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>v2 診斷頁</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body { font: 14px/1.6 -apple-system, "PingFang TC", sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background: #1a1d2e; color: #fff; }
+h1 { font-size: 18px; margin-bottom: 12px; }
+h2 { font-size: 15px; margin-top: 22px; margin-bottom: 8px; color: #b8b9d8; }
+.row { padding: 8px 12px; border-radius: 8px; margin-bottom: 4px; font-family: ui-monospace, Menlo, monospace; font-size: 13px; word-break: break-all; }
+.ok { background: rgba(111,168,150,0.15); color: #9bc7b6; }
+.err { background: rgba(201,122,122,0.18); color: #e09a9a; }
+.pending { background: rgba(124,128,201,0.15); color: #b8b9d8; }
+.info { background: rgba(0,0,0,0.2); color: #c4cad6; font-family: -apple-system, sans-serif; }
+.btn { display: inline-block; margin-top: 18px; padding: 10px 20px; background: #7c80c9; color: white; border-radius: 8px; text-decoration: none; cursor: pointer; }
+</style>
+</head>
+<body>
+<h1>📊 v2 載入診斷</h1>
+<div class="info row">如果 dashboard 空白，這頁會告訴我哪個檔案沒載到。</div>
+
+<h2>環境</h2>
+<div id="env" class="info row">偵測中…</div>
+
+<h2>外部 CDN</h2>
+<div id="cdn"></div>
+
+<h2>本地 JS</h2>
+<div id="local"></div>
+
+<h2>Console errors</h2>
+<div id="errors" class="info row">0 errors</div>
+
+<h2>截圖此頁傳給 Claude</h2>
+
+<script>
+const cdnDiv = document.getElementById('cdn');
+const localDiv = document.getElementById('local');
+const errorsDiv = document.getElementById('errors');
+const errors = [];
+window.addEventListener('error', e => {
+  errors.push((e.message || 'Script error') + ' @ ' + (e.filename || '?'));
+  errorsDiv.className = 'err row';
+  errorsDiv.textContent = errors.length + ' errors:\n' + errors.join('\n');
+});
+
+document.getElementById('env').textContent =
+  'UA: ' + navigator.userAgent + '\n' +
+  'URL: ' + location.href + '\n' +
+  '時間: ' + new Date().toLocaleString();
+
+function check(div, label, url, opts) {
+  const row = document.createElement('div');
+  row.className = 'pending row';
+  row.textContent = '⏳ ' + label + ' (載入中…)';
+  div.appendChild(row);
+  const s = document.createElement('script');
+  if (opts && opts.module) s.type = 'module';
+  s.src = url;
+  s.crossOrigin = 'anonymous';
+  if (opts && opts.integrity) s.integrity = opts.integrity;
+  s.onload = () => { row.className = 'ok row'; row.textContent = '✓ ' + label + ' OK'; };
+  s.onerror = () => { row.className = 'err row'; row.textContent = '✗ ' + label + ' 失敗 (network/SRI/CSP)'; };
+  document.head.appendChild(s);
+}
+
+// 跟 v2/index.html 一樣的順序
+check(cdnDiv, 'React 18.3.1 (unpkg)', 'https://unpkg.com/react@18.3.1/umd/react.development.js', {
+  integrity: 'sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L'
+});
+check(cdnDiv, 'ReactDOM 18.3.1 (unpkg)', 'https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js', {
+  integrity: 'sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm'
+});
+check(cdnDiv, 'Babel standalone 7.29.0 (unpkg)', 'https://unpkg.com/@babel/standalone@7.29.0/babel.min.js', {
+  integrity: 'sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y'
+});
+check(cdnDiv, 'PDF.js (mozilla)', 'https://mozilla.github.io/pdf.js/build/pdf.mjs', { module: true });
+check(localDiv, 'app/parser.js', 'app/parser.js?cb=' + Date.now());
+check(localDiv, 'app/store.js', 'app/store.js?cb=' + Date.now());
+check(localDiv, 'app/charts.jsx (raw)', 'app/charts.jsx?cb=' + Date.now());
+check(localDiv, 'app/components.jsx (raw)', 'app/components.jsx?cb=' + Date.now());
+check(localDiv, 'app/sections.jsx (raw)', 'app/sections.jsx?cb=' + Date.now());
+check(localDiv, 'app/app.jsx (raw)', 'app/app.jsx?cb=' + Date.now());
+</script>
+</body>
+</html>
