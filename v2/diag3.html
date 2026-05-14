@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>v2 Babel auto-execute 測試</title>
+<style>
+body { font: 16px/1.7 -apple-system, "PingFang TC", sans-serif; padding: 30px; max-width: 700px; margin: 0 auto; background: #1a1d2e; color: #fff; }
+h1 { font-size: 18px; }
+.row { padding: 14px 18px; border-radius: 10px; margin-bottom: 10px; font-family: ui-monospace, Menlo, monospace; font-size: 14px; word-break: break-word; }
+.ok { background: rgba(111,168,150,0.18); color: #b5e3cf; border: 1px solid rgba(111,168,150,0.4); }
+.err { background: rgba(201,122,122,0.22); color: #f5b6b6; border: 1px solid rgba(201,122,122,0.5); }
+.pending { background: rgba(124,128,201,0.15); color: #b8b9d8; }
+.info { background: rgba(0,0,0,0.3); color: #c4cad6; font-family: -apple-system, sans-serif; padding: 12px 14px; font-size: 13px; }
+</style>
+</head>
+<body>
+<h1>📊 Babel auto-execute 測試</h1>
+<p class="info">這頁專門測 v2 的核心機制：載入 Babel → Babel 自動 scan + 編譯 + 執行 <code>type="text/babel"</code> 的 script。</p>
+
+<h2>測試 1: Inline JSX (Babel 編譯 + 執行內聯 jsx)</h2>
+<div id="t1" class="pending row">⏳ 等 Babel 執行...</div>
+
+<h2>測試 2: External JSX (Babel fetch + 編譯 + 執行外部 jsx)</h2>
+<div id="t2" class="pending row">⏳ 等 Babel 執行...</div>
+
+<h2>測試 3: React render (Babel 編譯 + ReactDOM.createRoot)</h2>
+<div id="t3" class="pending row">⏳ 等 Babel 執行...</div>
+<div id="react-mount"></div>
+
+<h2>5 秒檢查</h2>
+<div id="check" class="pending row">⏳ 等 5 秒...</div>
+
+<h2>Window errors</h2>
+<div id="errs" class="info row">尚無 error</div>
+
+<script>
+const errs = [];
+window.addEventListener('error', e => {
+  errs.push((e.message || 'Error') + ' @ ' + (e.filename || '?') + ':' + (e.lineno || '?'));
+  document.getElementById('errs').className = 'err row';
+  document.getElementById('errs').textContent = errs.join('\n');
+});
+</script>
+
+<!-- 跟 v2 一模一樣的 React + Babel CDN -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js"
+  integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L"
+  crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"
+  integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm"
+  crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"
+  integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"
+  crossorigin="anonymous"></script>
+
+<!-- 測試 1: 內聯 JSX -->
+<script type="text/babel">
+  const el1 = document.getElementById('t1');
+  el1.className = 'ok row';
+  el1.textContent = '✓ 內聯 JSX 編譯 + 執行 OK (Babel auto 正常)';
+</script>
+
+<!-- 測試 2: 外部 JSX (簡單一個檔) -->
+<script type="text/babel" src="diag3-external.jsx"></script>
+
+<!-- 測試 3: React render -->
+<script type="text/babel">
+  try {
+    const root = ReactDOM.createRoot(document.getElementById('react-mount'));
+    root.render(React.createElement('div', {
+      style: { padding: '12px', background: 'rgba(111,168,150,0.18)', borderRadius: '8px', color: '#b5e3cf' }
+    }, '✓ React 在頁面上 render 出這段文字'));
+    const el3 = document.getElementById('t3');
+    el3.className = 'ok row';
+    el3.textContent = '✓ React.createRoot + render OK';
+  } catch (e) {
+    const el3 = document.getElementById('t3');
+    el3.className = 'err row';
+    el3.textContent = '✗ React render FAIL: ' + e.message;
+  }
+</script>
+
+<!-- 5 秒後總結 -->
+<script>
+setTimeout(() => {
+  const t1 = document.getElementById('t1').textContent;
+  const t2 = document.getElementById('t2').textContent;
+  const t3 = document.getElementById('t3').textContent;
+  const allOk = t1.includes('✓') && t2.includes('✓') && t3.includes('✓');
+  const ck = document.getElementById('check');
+  if (allOk) {
+    ck.className = 'ok row';
+    ck.textContent = '✓ 全部通過 — Babel auto-execute 在你 chrome 完全正常 → v2 不該空白，問題在別處';
+  } else {
+    ck.className = 'err row';
+    let fails = [];
+    if (!t1.includes('✓')) fails.push('內聯 JSX');
+    if (!t2.includes('✓')) fails.push('外部 JSX');
+    if (!t3.includes('✓')) fails.push('React render');
+    ck.textContent = '✗ 失敗的: ' + fails.join(', ') + ' — 這就是 v2 空白的原因';
+  }
+}, 5000);
+</script>
+</body>
+</html>
