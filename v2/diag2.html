@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>v2 真實載入診斷</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body { font: 14px/1.6 -apple-system, "PingFang TC", sans-serif; padding: 20px; max-width: 900px; margin: 0 auto; background: #1a1d2e; color: #fff; }
+h1 { font-size: 18px; }
+h2 { font-size: 15px; margin-top: 20px; color: #b8b9d8; }
+.row { padding: 10px 14px; border-radius: 8px; margin-bottom: 6px; font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; word-break: break-word; white-space: pre-wrap; }
+.ok { background: rgba(111,168,150,0.15); color: #9bc7b6; }
+.err { background: rgba(201,122,122,0.2); color: #e09a9a; }
+.pending { background: rgba(124,128,201,0.15); color: #b8b9d8; }
+.info { background: rgba(0,0,0,0.25); color: #c4cad6; font-family: -apple-system, sans-serif; }
+</style>
+</head>
+<body>
+<h1>📊 v2 真實載入診斷 (跟 v2/index.html 一樣的載入流程)</h1>
+
+<h2>環境</h2>
+<div id="env" class="info row">偵測中…</div>
+
+<h2>Step 1: 同步載 React/ReactDOM/Babel</h2>
+<div id="step1"></div>
+
+<h2>Step 2: 載 PDF.js (ES module)</h2>
+<div id="step2" class="pending row">⏳ 等待…</div>
+
+<h2>Step 3: 載 + 執行 parser.js / store.js</h2>
+<div id="step3"></div>
+
+<h2>Step 4: Babel 編譯 + 執行 4 個 jsx</h2>
+<div id="step4"></div>
+
+<h2>Step 5: 全域檢查</h2>
+<div id="step5" class="pending row">⏳ 等待…</div>
+
+<h2>Window errors (即時)</h2>
+<div id="errors" class="info row">尚無 error</div>
+
+<script>
+const errors = [];
+const errorsDiv = document.getElementById('errors');
+function logError(msg) {
+  errors.push(msg);
+  errorsDiv.className = 'err row';
+  errorsDiv.textContent = errors.length + ' errors:\n\n' + errors.join('\n\n');
+}
+window.addEventListener('error', e => logError((e.message || 'Error') + '\n  at: ' + (e.filename || '?') + ':' + (e.lineno || '?')));
+window.addEventListener('unhandledrejection', e => logError('Unhandled promise rejection: ' + (e.reason && (e.reason.message || e.reason))));
+
+document.getElementById('env').textContent =
+  'UA: ' + navigator.userAgent + '\n' +
+  'URL: ' + location.href;
+
+function add(divId, cls, msg) {
+  const div = document.getElementById(divId);
+  const r = document.createElement('div');
+  r.className = cls + ' row';
+  r.textContent = msg;
+  div.appendChild(r);
+}
+
+function loadScript(url, opts) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = url;
+    if (opts && opts.crossOrigin) s.crossOrigin = 'anonymous';
+    if (opts && opts.integrity) s.integrity = opts.integrity;
+    s.onload = () => resolve(url);
+    s.onerror = () => reject(new Error('failed to load ' + url));
+    document.head.appendChild(s);
+  });
+}
+
+(async () => {
+  // Step 1: React/ReactDOM/Babel 同步載
+  try {
+    await loadScript('https://unpkg.com/react@18.3.1/umd/react.development.js', {
+      crossOrigin: true, integrity: 'sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L'
+    });
+    add('step1', 'ok', '✓ React loaded, version=' + (window.React && React.version));
+  } catch (e) { add('step1', 'err', '✗ React load fail: ' + e.message); return; }
+  try {
+    await loadScript('https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js', {
+      crossOrigin: true, integrity: 'sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm'
+    });
+    add('step1', 'ok', '✓ ReactDOM loaded');
+  } catch (e) { add('step1', 'err', '✗ ReactDOM load fail: ' + e.message); return; }
+  try {
+    await loadScript('https://unpkg.com/@babel/standalone@7.29.0/babel.min.js', {
+      crossOrigin: true, integrity: 'sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y'
+    });
+    add('step1', 'ok', '✓ Babel loaded, version=' + (window.Babel && Babel.version));
+  } catch (e) { add('step1', 'err', '✗ Babel load fail: ' + e.message); return; }
+
+  // Step 2: PDF.js as module
+  try {
+    const m = await import('https://mozilla.github.io/pdf.js/build/pdf.mjs');
+    window.pdfjsLib = m;
+    document.getElementById('step2').className = 'ok row';
+    document.getElementById('step2').textContent = '✓ PDF.js module imported, version=' + (m.version || '?');
+  } catch (e) {
+    document.getElementById('step2').className = 'err row';
+    document.getElementById('step2').textContent = '✗ PDF.js import FAIL: ' + e.message;
+  }
+
+  // Step 3: parser.js + store.js
+  for (const f of ['app/parser.js', 'app/store.js']) {
+    try {
+      await loadScript(f + '?cb=' + Date.now());
+      add('step3', 'ok', '✓ ' + f + ' OK');
+    } catch (e) {
+      add('step3', 'err', '✗ ' + f + ' FAIL: ' + e.message);
+    }
+  }
+
+  // Step 4: Babel 編譯 + 執行 4 個 jsx (這才是 v2 真實流程的關鍵)
+  for (const f of ['app/charts.jsx', 'app/components.jsx', 'app/sections.jsx', 'app/app.jsx']) {
+    try {
+      const resp = await fetch(f + '?cb=' + Date.now());
+      const src = await resp.text();
+      add('step4', 'ok', '✓ ' + f + ' fetched (' + src.length + ' bytes)');
+      let compiled;
+      try {
+        compiled = Babel.transform(src, { presets: ['react'] }).code;
+        add('step4', 'ok', '  ✓ Babel 編譯 OK (' + compiled.length + ' bytes)');
+      } catch (e) {
+        add('step4', 'err', '  ✗ Babel 編譯 FAIL: ' + e.message);
+        continue;
+      }
+      try {
+        // Use new Function to execute in global scope (similar to <script>)
+        (new Function(compiled))();
+        add('step4', 'ok', '  ✓ 執行 OK');
+      } catch (e) {
+        add('step4', 'err', '  ✗ 執行 FAIL: ' + e.message + '\n    stack: ' + (e.stack || '').slice(0, 400));
+      }
+    } catch (e) {
+      add('step4', 'err', '✗ ' + f + ' fetch FAIL: ' + e.message);
+    }
+  }
+
+  // Step 5: 檢查全域變數
+  const checks = [
+    ['React', typeof window.React],
+    ['ReactDOM', typeof window.ReactDOM],
+    ['Babel', typeof window.Babel],
+    ['pdfjsLib', typeof window.pdfjsLib],
+    ['parsePdf', typeof window.parsePdf],
+    ['mergeParsed', typeof window.mergeParsed],
+    ['App', typeof window.App],
+  ];
+  const lines = checks.map(([k, v]) => (v === 'undefined' ? '✗' : '✓') + ' window.' + k + ' = ' + v);
+  document.getElementById('step5').className = checks.every(c => c[1] !== 'undefined') ? 'ok row' : 'err row';
+  document.getElementById('step5').textContent = lines.join('\n');
+})();
+</script>
+</body>
+</html>
