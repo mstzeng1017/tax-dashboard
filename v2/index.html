@@ -1707,10 +1707,9 @@ setTimeout(() => {
 }, 5000);
 </script>
 
-<!-- React + Babel -->
+<!-- React (no Babel - jsx 已預編譯成 .js, 對任何 chrome 環境都更穩定) -->
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 
 <!-- PDF.js -->
 <script src="https://mozilla.github.io/pdf.js/build/pdf.mjs" type="module"></script>
@@ -1721,12 +1720,12 @@ setTimeout(() => {
   window.dispatchEvent(new Event('pdfjs-ready'));
 </script>
 
-<!-- App scripts -->
+<!-- App scripts (jsx 預編譯成 js, 來源 .jsx 還在 git, 用 /tmp/precompile-jsx.mjs 重編) -->
 <script src="app/parser.js"></script>
 <script src="app/store.js"></script>
-<script type="text/babel" src="app/charts.jsx"></script>
-<script type="text/babel" src="app/components.jsx"></script>
-<script type="text/babel" src="app/sections.jsx"></script>
-<script type="text/babel" src="app/app.jsx"></script>
+<script src="app/charts.js"></script>
+<script src="app/components.js"></script>
+<script src="app/sections.js"></script>
+<script src="app/app.js"></script>
 </body>
 </html>

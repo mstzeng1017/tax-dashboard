@@ -270,5 +270,50 @@ function App() {
   );
 }
 
-// Mount
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+// ErrorBoundary - 包 App, render 失敗顯示 error 而不是空白
+class ErrorBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { error: null }; }
+  static getDerivedStateFromError(error) { return { error }; }
+  componentDidCatch(error, info) { console.error('App render error:', error, info); }
+  render() {
+    if (this.state.error) {
+      return (
+        <div style={{ padding: 30, maxWidth: 720, margin: '40px auto', background: '#1a1d2e', color: '#fff', borderRadius: 12, border: '1px solid rgba(201,122,122,0.5)', fontFamily: '-apple-system, sans-serif' }}>
+          <h2 style={{ color: '#f5b6b6', fontSize: 18, margin: 0 }}>⚠ Dashboard 載入失敗</h2>
+          <pre style={{ background: 'rgba(0,0,0,0.3)', padding: 14, borderRadius: 8, color: '#f5b6b6', whiteSpace: 'pre-wrap', fontSize: 12.5, marginTop: 14, overflow: 'auto' }}>
+            {this.state.error.message + '\n\n' + (this.state.error.stack || '')}
+          </pre>
+          <button onClick={() => { localStorage.clear(); location.reload(); }} style={{ marginTop: 14, padding: '9px 16px', background: '#7c80c9', color: 'white', border: 0, borderRadius: 8, cursor: 'pointer' }}>清空資料 + 重載</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+// Mount with try-catch (sync error fallback)
+try {
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    <ErrorBoundary><App /></ErrorBoundary>
+  );
+} catch (e) {
+  console.error('createRoot failed:', e);
+  document.getElementById('root').innerHTML =
+    '<div style="padding:30px;max-width:720px;margin:40px auto;background:#1a1d2e;color:#fff;border-radius:12px;border:1px solid rgba(201,122,122,0.5);font-family:-apple-system,sans-serif">'
+    + '<h2 style="color:#f5b6b6;font-size:18px;margin:0">⚠ React mount 失敗</h2>'
+    + '<pre style="background:rgba(0,0,0,0.3);padding:14px;border-radius:8px;color:#f5b6b6;white-space:pre-wrap;font-size:12.5px;margin-top:14px;overflow:auto">'
+    + (e.message + '\n\n' + (e.stack || '')).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    + '</pre></div>';
+}
+
+// Auto-cleanup any rogue Service Workers on this origin (other apps may have left SWs that interfere)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(r => {
+      if (!r.scope.includes('/v2/')) {
+        console.log('[v2] unregistering rogue SW (not /v2/ scope):', r.scope);
+        r.unregister();
+      }
+    });
+  }).catch(() => {});
+}
