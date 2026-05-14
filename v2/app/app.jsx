@@ -26,6 +26,8 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const importInputRef = useRef();
   const importCountRef = useRef(0);
+  // 持有 latest state, 解決連續 applyParsed 時 React setState 是 async 造成的 stale closure
+  const stateRef = useRef(null);
 
   useEffect(() => {
     document.body.classList.toggle('sidebar-open', sidebarOpen);
@@ -77,19 +79,23 @@ function App() {
 
   const showToast = (message, type = 'info') => setToast({ message, type });
 
+  // first-render 初始化 stateRef
+  if (stateRef.current === null) stateRef.current = state;
+
   const applyParsed = (parsed) => {
     if (demoMode) { showToast('示範頁面為唯讀，無法匯入', 'warn'); return; }
-    // 1. setState reducer 必須是 pure - 不能 throw 也不能有 side effect
-    //    所以先在 reducer 外 deep clone + mergeParsed (可能 throw),
-    //    成功才 setState 替換, 失敗顯示 toast 不動 state.
+    // 用 stateRef.current 而非 closure state, 因為連續 applyParsed 時
+    // React setState 是 async, closure state 會 stale (後面覆蓋前面).
+    // mergeParsed 可能 throw, 拉到 setState 外 try-catch (避免 React reducer throw + retry).
     let newState, result;
     try {
-      newState = JSON.parse(JSON.stringify(state));
+      newState = JSON.parse(JSON.stringify(stateRef.current));
       result = window.TaxStore.mergeParsed(newState, parsed);
     } catch (e) {
       showToast(e.message || '匯入失敗', 'err');
       return;
     }
+    stateRef.current = newState;     // 立刻 update ref 給下次 applyParsed 用
     window.TaxStore.save(newState);
     setState(newState);
     importCountRef.current += 1;
@@ -97,6 +103,9 @@ function App() {
     const docName = parsed.type === 'tax-cert' ? '納稅證明書' : '各類所得清單';
     showToast(`${yr} 年度 ${docName} ${result.overwrote ? '已覆蓋更新' : '已匯入'}`, result.overwrote ? 'warn' : 'ok');
   };
+
+  // setState 任何地方都要同步 update stateRef (例如 onClearConfirm, onImportFile)
+  useEffect(() => { stateRef.current = state; }, [state]);
 
   const onUploadModalClose = () => {
     setShowUpload(false);
