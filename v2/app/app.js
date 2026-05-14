@@ -94,18 +94,23 @@ function App() {
       showToast('示範頁面為唯讀，無法匯入', 'warn');
       return;
     }
-    let overwrote = false;
-    setState(prev => {
-      const newState = JSON.parse(JSON.stringify(prev));
-      const result = window.TaxStore.mergeParsed(newState, parsed);
-      overwrote = result.overwrote;
-      window.TaxStore.save(newState);
-      return newState;
-    });
+    // 1. setState reducer 必須是 pure - 不能 throw 也不能有 side effect
+    //    所以先在 reducer 外 deep clone + mergeParsed (可能 throw),
+    //    成功才 setState 替換, 失敗顯示 toast 不動 state.
+    let newState, result;
+    try {
+      newState = JSON.parse(JSON.stringify(state));
+      result = window.TaxStore.mergeParsed(newState, parsed);
+    } catch (e) {
+      showToast(e.message || '匯入失敗', 'err');
+      return;
+    }
+    window.TaxStore.save(newState);
+    setState(newState);
     importCountRef.current += 1;
     const yr = parsed.year - 1911;
     const docName = parsed.type === 'tax-cert' ? '納稅證明書' : '各類所得清單';
-    showToast(`${yr} 年度 ${docName} ${overwrote ? '已覆蓋更新' : '已匯入'}`, overwrote ? 'warn' : 'ok');
+    showToast(`${yr} 年度 ${docName} ${result.overwrote ? '已覆蓋更新' : '已匯入'}`, result.overwrote ? 'warn' : 'ok');
   };
   const onUploadModalClose = () => {
     setShowUpload(false);
