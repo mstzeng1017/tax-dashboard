@@ -209,6 +209,7 @@ function SourceBadge({ type, compact, tone }) {
 function UploadModal({ onClose, onApplyParsed, defaultPassword, filingMode, spouseName, taxpayerName }) {
   const [files, setFiles] = useState([]); // {name, file, status, parsed?, error?}
   const [password, setPassword] = useState(defaultPassword || '');
+  const [spousePassword, setSpousePassword] = useState('');
   const [over, setOver] = useState(false);
   const [showManual, setShowManual] = useState(null); // index of failed file to manually input
   const inputRef = useRef();
@@ -231,51 +232,53 @@ function UploadModal({ onClose, onApplyParsed, defaultPassword, filingMode, spou
   };
 
   const processAll = async () => {
-    const pwd = password;
+    // v2: 兩組密碼自動 retry — 本人密碼失敗就試配偶密碼
+    const passwords = [password, spousePassword].filter(p => p && p.trim());
+    if (passwords.length === 0) passwords.push('');
     setFiles(prev => prev.map(f => f.status === 'pending' ? { ...f, status: 'processing' } : f));
     for (let i = 0; i < files.length; i++) {
       if (files[i].status !== 'pending' && files[i].status !== 'processing') continue;
-      try {
-        const parsed = await window.TaxParser.parsePDF(files[i].file, pwd);
+      let parsed = null;
+      let lastErr = null;
+      for (const pwd of passwords) {
+        try {
+          parsed = await window.TaxParser.parsePDF(files[i].file, pwd);
+          break; // 成功跳出 retry 迴圈
+        } catch (e) {
+          lastErr = e;
+          if (e.code !== 'PASSWORD_REQUIRED') break; // 非密碼錯誤就不必再試
+        }
+      }
+      if (parsed) {
         setFiles(prev => prev.map((f, idx) => idx === i ? { ...f, status: 'ok', parsed } : f));
         onApplyParsed(parsed);
-      } catch (e) {
+      } else if (lastErr) {
+        const e = lastErr;
         if (e.code === 'PASSWORD_REQUIRED') {
-          setFiles(prev => prev.map((f, idx) => idx === i ? { ...f, status: 'password', error: e.message || '需要密碼或密碼錯誤', hint: e.hint } : f));
+          setFiles(prev => prev.map((f, idx) => idx === i ? { ...f, status: 'password', error: '所有密碼都試過, 都不對', hint: e.hint } : f));
         } else {
           setFiles(prev => prev.map((f, idx) => idx === i ? { ...f, status: 'err', error: e.message || '解析失敗', hint: e.hint, errorCode: e.code, partial: e.partial } : f));
         }
       }
     }
-    if (pwd) window.TaxStore.setPassword(pwd);
+    if (password) window.TaxStore.setPassword(password);
   };
 
   return (
     <div className="modal-bg" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
         <h2>上傳 PDF 文件</h2>
-        <div className="modal-sub">支援「綜合所得稅納稅證明書」與「各類所得資料清單」，可一次上傳多份。</div>
+        <div className="modal-sub">一次拖入全部 PDF (本人證明書 + 本人清單 + 配偶清單)，下方填密碼即可一次解析全部。</div>
 
-        {/* v2: 智慧上傳提示 */}
-        {(filingMode === 'family' && spouseName) ? (
-          <div style={{
-            marginTop: 12, padding: '10px 12px', borderRadius: 8,
-            background: 'var(--warn-bg)', color: 'var(--warn-text)',
-            fontSize: 12.5, lineHeight: 1.5,
-            border: '1px solid color-mix(in srgb, var(--warn-text) 25%, transparent)'
-          }}>
-            <strong>📌 已婚模式：</strong>各類所得清單請分別上傳「{taxpayerName || '本人'}」+「{spouseName}」<strong>各一份</strong>，全戶退稅才能算對。
-          </div>
-        ) : (
-          <div style={{
-            marginTop: 12, padding: '10px 12px', borderRadius: 8,
-            background: 'rgba(124, 128, 201, 0.08)', color: 'var(--text-2)',
-            fontSize: 12.5, lineHeight: 1.5,
-            border: '1px solid var(--card-border)'
-          }}>
-            <strong>💡 建議流程：</strong>先上傳<strong>納稅證明書</strong>(系統會自動偵測你是單身或已婚)，再上傳<strong>各類所得清單</strong>(已婚需本人+配偶各一份)。
-          </div>
-        )}
+        {/* v2: 智慧上傳提示 (簡化, 因為已支援雙密碼自動 retry) */}
+        <div style={{
+          marginTop: 12, padding: '10px 12px', borderRadius: 8,
+          background: 'rgba(124, 128, 201, 0.08)', color: 'var(--text-2)',
+          fontSize: 12.5, lineHeight: 1.5,
+          border: '1px solid var(--card-border)'
+        }}>
+          <strong>💡 一次完成：</strong>把<strong>所有 PDF</strong>(本人 + 配偶) 一起拖進來。下方填密碼: <strong>單身</strong>只填本人身分證；<strong>已婚</strong>本人 + 配偶兩格都填。系統會對每份 PDF 自動嘗試兩個密碼，省去分批操作。
+        </div>
 
         <div className={`dropzone ${over ? 'over' : ''}`}
           onClick={() => inputRef.current.click()}
@@ -291,9 +294,15 @@ function UploadModal({ onClose, onApplyParsed, defaultPassword, filingMode, spou
           <input ref={inputRef} type="file" accept="application/pdf" multiple style={{ display: 'none' }} onChange={onPick} />
         </div>
 
-        <div className="field" style={{ marginTop: 14, marginBottom: 0 }}>
-          <label>PDF 密碼（如有設定）</label>
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="例：身分證字號" />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginTop: 14, marginBottom: 0 }}>
+          <div className="field" style={{ margin: 0 }}>
+            <label>本人身分證 (主密碼)</label>
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="例: A123456789" autoComplete="off" />
+          </div>
+          <div className="field" style={{ margin: 0 }}>
+            <label>配偶身分證 (已婚才填)</label>
+            <input type="password" value={spousePassword} onChange={e => setSpousePassword(e.target.value)} placeholder="單身可空" autoComplete="off" />
+          </div>
         </div>
 
         {files.length > 0 && (
@@ -602,8 +611,8 @@ function EmptyState({ onUpload, onSampleData }) {
               <path d="M14 2v6h6M12 18v-6M9 15l3-3 3 3" />
             </svg>
           </div>
-          <h2 style={{ marginBottom: 8 }}>請上傳「綜合所得稅納稅證明書」PDF</h2>
-          <p style={{ marginBottom: 0 }}>系統會自動解析欄位、識別年度，並把每年數字整理成圖表。</p>
+          <h2 style={{ marginBottom: 8 }}>請上傳所得稅 PDF</h2>
+          <p style={{ marginBottom: 0 }}>需要 2 種文件：「<strong style={{ color: 'var(--text-2)' }}>納稅證明書</strong>」+「<strong style={{ color: 'var(--text-2)' }}>各類所得清單</strong>」。已婚要本人 + 配偶各一份清單，才能算全戶退稅。</p>
         </div>
 
         <div className="empty-actions" style={{ marginBottom: 24 }}>
@@ -616,32 +625,70 @@ function EmptyState({ onUpload, onSampleData }) {
           borderTop: '1px solid var(--divider)',
           textAlign: 'center'
         }}>
-          <div style={{ color: 'var(--text-2)', fontSize: 13.5, marginBottom: 6 }}>
-            還沒下載 PDF？前往<strong style={{ color: 'var(--text)' }}>財政部稅務入口網</strong>申請
+          {/* 匯入流程說明 */}
+          <div style={{
+            textAlign: 'left',
+            background: 'rgba(124, 128, 201, 0.08)',
+            border: '1px solid var(--card-border)',
+            borderRadius: 8,
+            padding: '12px 14px',
+            marginBottom: 18,
+            fontSize: 12.5,
+            color: 'var(--text-2)',
+            lineHeight: 1.6
+          }}>
+            <div style={{ fontWeight: 600, color: 'var(--text)', marginBottom: 8 }}>📋 怎麼匯入（一次完成）</div>
+            <div style={{ marginBottom: 4 }}>
+              <strong style={{ color: 'var(--text)' }}>① 拖入全部 PDF</strong>（不用分批）
+            </div>
+            <div style={{ marginBottom: 6 }}>
+              <strong style={{ color: 'var(--text)' }}>② 填密碼：</strong>
+            </div>
+            <div style={{ marginLeft: 14, marginBottom: 4 }}>
+              ・<strong style={{ color: 'var(--good)' }}>單身</strong> → 證明書 + 清單，<strong style={{ color: 'var(--text)' }}>只填本人身分證</strong>（配偶欄空）
+            </div>
+            <div style={{ marginLeft: 14, marginBottom: 6 }}>
+              ・<strong style={{ color: 'var(--accent-1)' }}>已婚</strong> → 證明書 + 本人清單 + 配偶清單，<strong style={{ color: 'var(--text)' }}>兩格都填</strong>
+            </div>
+            <div style={{ color: 'var(--text-3)', marginTop: 6, fontSize: 11.5 }}>※ 系統對每份 PDF 會自動嘗試兩個密碼，省去分批操作。預設密碼 = 該人身分證（含英文字母大寫）</div>
           </div>
-          <div style={{ color: 'var(--text-3)', fontSize: 12, marginBottom: 14 }}>
-            進入後選擇「<strong style={{ color: 'var(--text-2)' }}>電子稅務文件</strong>」→「<strong style={{ color: 'var(--text-2)' }}>綜所稅</strong>」分類
+
+          <div style={{ color: 'var(--text-2)', fontSize: 13.5, marginBottom: 12 }}>
+            還沒下載 PDF？兩種文件分別到下面入口申請：
           </div>
-          <a href="https://www.etax.nat.gov.tw/etwmain/etw108w"
-             target="_blank" rel="noopener noreferrer"
-             style={{
-               display: 'inline-flex',
-               alignItems: 'center',
-               gap: 8,
-               padding: '10px 22px',
-               borderRadius: 9,
-               background: 'var(--accent-grad)',
-               color: 'white',
-               textDecoration: 'none',
-               fontSize: 13.5,
-               fontWeight: 500,
-               boxShadow: '0 4px 14px -2px rgba(124, 128, 201, 0.3)'
-             }}>
-            前往下載納稅證明書
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M7 17L17 7M17 7H8M17 7v9" />
-            </svg>
-          </a>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, marginBottom: 8 }}>
+            <a href="https://www.etax.nat.gov.tw/etwmain/etw108w"
+               target="_blank" rel="noopener noreferrer"
+               style={{
+                 display: 'inline-flex', justifyContent: 'center', alignItems: 'center', gap: 6,
+                 padding: '10px 14px', borderRadius: 9,
+                 background: 'var(--accent-grad)', color: 'white',
+                 textDecoration: 'none', fontSize: 13, fontWeight: 500,
+                 boxShadow: '0 4px 14px -2px rgba(124, 128, 201, 0.3)'
+               }}>
+              下載納稅證明書
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M7 17L17 7M17 7H8M17 7v9" />
+              </svg>
+            </a>
+            <a href="https://www.etax.nat.gov.tw/etwmain/etw103w"
+               target="_blank" rel="noopener noreferrer"
+               style={{
+                 display: 'inline-flex', justifyContent: 'center', alignItems: 'center', gap: 6,
+                 padding: '10px 14px', borderRadius: 9,
+                 background: 'var(--card-hover)', color: 'var(--text)',
+                 textDecoration: 'none', fontSize: 13, fontWeight: 500,
+                 border: '1px solid var(--card-border)'
+               }}>
+              下載各類所得清單
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M7 17L17 7M17 7H8M17 7v9" />
+              </svg>
+            </a>
+          </div>
+          <div style={{ color: 'var(--text-3)', fontSize: 11, marginTop: 4 }}>
+            ※ 各類所得清單也可從 <a href="https://mydata.nat.gov.tw" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-2)', textDecoration: 'underline' }}>MyData 平台</a> 下載
+          </div>
         </div>
       </div>
     </div>

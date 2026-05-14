@@ -46,7 +46,8 @@
     const pdfjsLib = await ensurePDFJS();
     const buf = await file.arrayBuffer();
     const task = pdfjsLib.getDocument({ data: buf, password: password || undefined });
-    task.onPassword = (cb) => cb(password || '');
+    // 不在 onPassword 內 retry — 否則密碼錯時會 infinite loop。直接拋錯讓 caller catch + 改用其他密碼。
+    task.onPassword = (cb) => cb(new Error('密碼錯誤'));
     let pdf;
     try {
       pdf = await task.promise;
