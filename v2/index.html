@@ -1682,6 +1682,31 @@
 <body>
 <div id="root"></div>
 
+<!-- Diagnostic overlay: 如果 5s 後 #root 還空就顯示 errors (Astro chrome white-screen debug) -->
+<script>
+window.__diagErrors = [];
+window.addEventListener('error', e => window.__diagErrors.push((e.message||'Error') + ' @ ' + (e.filename||'?') + ':' + (e.lineno||'?')));
+window.addEventListener('unhandledrejection', e => window.__diagErrors.push('Promise rejection: ' + (e.reason && (e.reason.stack || e.reason.message || e.reason))));
+setTimeout(() => {
+  const r = document.getElementById('root');
+  if (r && r.innerHTML.trim() === '') {
+    const env = 'UA: ' + navigator.userAgent + '\nURL: ' + location.href + '\n時間: ' + new Date().toLocaleString();
+    const errs = window.__diagErrors.length ? window.__diagErrors.join('\n\n') : '(沒抓到任何 error，可能是 Babel 編譯/fetch 失敗)';
+    const checks = [
+      'window.React = ' + typeof window.React,
+      'window.ReactDOM = ' + typeof window.ReactDOM,
+      'window.Babel = ' + typeof window.Babel,
+      'window.pdfjsLib = ' + typeof window.pdfjsLib,
+      'window.TaxParser = ' + typeof window.TaxParser,
+      'window.taxStore = ' + typeof window.taxStore,
+      'window.App = ' + typeof window.App,
+      'document.querySelectorAll(script[type=text/babel]).length = ' + document.querySelectorAll('script[type="text/babel"]').length,
+    ].join('\n');
+    r.innerHTML = '<div style="padding:24px;max-width:800px;margin:40px auto;background:#1a1d2e;color:#fff;font:14px/1.6 -apple-system,sans-serif;border:1px solid rgba(201,122,122,0.5);border-radius:12px"><h2 style="font-size:18px;margin:0 0 12px;color:#f5b6b6">⚠ Dashboard 載入失敗 (5 秒後 #root 還空白)</h2><h3 style="font-size:14px;margin:18px 0 6px;color:#b8b9d8">Errors:</h3><pre style="background:rgba(0,0,0,0.3);padding:12px;border-radius:8px;font-size:12.5px;white-space:pre-wrap;color:#f5b6b6;overflow-x:auto">' + errs.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</pre><h3 style="font-size:14px;margin:18px 0 6px;color:#b8b9d8">全域變數:</h3><pre style="background:rgba(0,0,0,0.3);padding:12px;border-radius:8px;font-size:12.5px;white-space:pre-wrap;color:#c4cad6">' + checks + '</pre><h3 style="font-size:14px;margin:18px 0 6px;color:#b8b9d8">環境:</h3><pre style="background:rgba(0,0,0,0.3);padding:12px;border-radius:8px;font-size:12.5px;white-space:pre-wrap;color:#c4cad6">' + env + '</pre><p style="margin-top:18px;color:#b8b9d8;font-size:13px">截圖此頁傳給開發者。</p></div>';
+  }
+}, 5000);
+</script>
+
 <!-- React + Babel -->
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
