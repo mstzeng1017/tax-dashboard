@@ -191,138 +191,148 @@ function V2KpiRow({ latest, isSingle, unit }) {
 }
 
 // === V2 退稅趨勢線圖 (支援正負雙向 + 零線) ===
-function RefundLineChart({ data, unit, height = 280 }) {
+// === V2 雙軸折線: 退稅金額 (左) + 實效稅率 (右) — 原 RefundLineChart + EffectiveRateLineChart 合併 ===
+function RefundAndRateChart({ data, unit, height = 320 }) {
   const W = 760, H = height;
-  const padL = 60, padR = 24, padT = 30, padB = 36;
+  const padL = 60, padR = 60, padT = 30, padB = 36;
   const innerW = W - padL - padR;
   const innerH = H - padT - padB;
 
   const validRefunds = data.map(d => d._refund).filter(v => v != null);
-  if (validRefunds.length === 0) {
+  const validRates = data.map(d => d._effRate).filter(v => v != null);
+
+  if (validRefunds.length === 0 && validRates.length === 0) {
     return (
       <div style={{ padding: '60px 0', textAlign: 'center', color: 'var(--text-3)' }}>
-        🔒 沒有可顯示的退稅資料 — 上傳本人 {'•'} 配偶各類所得清單後解鎖
+        🔒 沒有可顯示的資料 — 上傳本人 {'•'} 配偶各類所得清單後解鎖
       </div>
     );
   }
 
+  // 左軸 (退稅金額)
   const refunds = data.map(d => d._refund || 0);
-  const maxV = Math.max(0, ...refunds);
-  const minV = Math.min(0, ...refunds);
-  const range = (maxV - minV) || 1;
+  const refundMaxV = validRefunds.length ? Math.max(0, ...refunds) : 0;
+  const refundMinV = validRefunds.length ? Math.min(0, ...refunds) : 0;
+  const refundRange = (refundMaxV - refundMinV) || 1;
+
+  // 右軸 (實效稅率) — 從 0 到 max*1.2, 跟原本 EffectiveRateLineChart 一致
+  const rateMaxV = validRates.length ? Math.max(0.05, ...validRates) * 1.2 : 0.1;
 
   const x = i => padL + (data.length === 1 ? innerW / 2 : (i / (data.length - 1)) * innerW);
-  const y = v => padT + innerH - ((v - minV) / range) * innerH;
-  const yZero = y(0);
+  const yRefund = v => padT + innerH - ((v - refundMinV) / refundRange) * innerH;
+  const yRate = v => padT + innerH - (v / rateMaxV) * innerH;
+  const yZeroRefund = yRefund(0);
 
-  // 連續區段 (碰到 null 就斷)
-  const segments = [];
+  // segments — 退稅
+  const refundSegs = [];
   let cur = [];
   data.forEach((d, i) => {
-    if (d._refund != null) cur.push({ x: x(i), y: y(d._refund) });
-    else { if (cur.length >= 2) segments.push(cur); cur = []; }
+    if (d._refund != null) cur.push({ x: x(i), y: yRefund(d._refund) });
+    else { if (cur.length >= 2) refundSegs.push(cur); cur = []; }
   });
-  if (cur.length >= 2) segments.push(cur);
+  if (cur.length >= 2) refundSegs.push(cur);
+
+  // segments — 稅率
+  const rateSegs = [];
+  cur = [];
+  data.forEach((d, i) => {
+    if (d._effRate != null) cur.push({ x: x(i), y: yRate(d._effRate) });
+    else { if (cur.length >= 2) rateSegs.push(cur); cur = []; }
+  });
+  if (cur.length >= 2) rateSegs.push(cur);
 
   return (
     <div style={{ position: 'relative' }}>
       <svg className="chart-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
-        <line x1={padL} x2={W - padR} y1={yZero} y2={yZero} stroke="var(--text-3)" strokeWidth="1.2" strokeDasharray="3,3" opacity="0.7" />
-        <text className="axis-text" x={padL - 8} y={yZero + 3.5} textAnchor="end" fill="var(--text-3)">0</text>
-        {maxV > 0 && (
-          <text className="axis-text value" x={padL - 8} y={y(maxV) + 3.5} textAnchor="end" fill="var(--good)">
-            退 {fmt(maxV, unit)}
+        {/* 退稅 0 線 (虛線) */}
+        {validRefunds.length > 0 && (
+          <line x1={padL} x2={W - padR} y1={yZeroRefund} y2={yZeroRefund} stroke="var(--text-3)" strokeWidth="1.2" strokeDasharray="3,3" opacity="0.5" />
+        )}
+
+        {/* 左軸 (退稅) labels */}
+        {validRefunds.length > 0 && (
+          <text className="axis-text" x={padL - 8} y={yZeroRefund + 3.5} textAnchor="end" fill="var(--text-3)">0</text>
+        )}
+        {refundMaxV > 0 && (
+          <text className="axis-text value" x={padL - 8} y={yRefund(refundMaxV) + 3.5} textAnchor="end" fill="var(--good)">
+            退 {fmt(refundMaxV, unit)}
           </text>
         )}
-        {minV < 0 && (
-          <text className="axis-text value" x={padL - 8} y={y(minV) + 3.5} textAnchor="end" fill="var(--bad)">
-            補 {fmt(Math.abs(minV), unit)}
+        {refundMinV < 0 && (
+          <text className="axis-text value" x={padL - 8} y={yRefund(refundMinV) + 3.5} textAnchor="end" fill="var(--bad)">
+            補 {fmt(Math.abs(refundMinV), unit)}
           </text>
         )}
+
+        {/* 右軸 (稅率) ticks - 4 段 */}
+        {validRates.length > 0 && [0, 0.25, 0.5, 0.75, 1].map(p => {
+          const v = rateMaxV * p;
+          return (
+            <text key={'rt' + p} className="axis-text value" x={W - padR + 8} y={yRate(v) + 3.5} textAnchor="start" fill="var(--accent-2)" opacity="0.75">
+              {(v * 100).toFixed(1)}%
+            </text>
+          );
+        })}
+
+        {/* X 軸年度 */}
         {data.map((d, i) => (
-          <text key={i} className="axis-text" x={x(i)} y={H - padB + 18} textAnchor="middle">
+          <text key={'yr' + i} className="axis-text" x={x(i)} y={H - padB + 18} textAnchor="middle">
             {d.year - 1911}
           </text>
         ))}
-        {segments.map((seg, idx) => (
-          <polyline key={idx} fill="none" stroke="var(--accent-1)" strokeWidth="2.25"
+
+        {/* 稅率折線 — 背景, 細虛線 */}
+        {rateSegs.map((seg, idx) => (
+          <polyline key={'rate-line' + idx} fill="none" stroke="var(--accent-2)" strokeWidth="1.8" strokeDasharray="5,3" opacity="0.75"
             points={seg.map(p => `${p.x},${p.y}`).join(' ')} />
         ))}
+
+        {/* 退稅折線 — 前景, 實線 */}
+        {refundSegs.map((seg, idx) => (
+          <polyline key={'refund-line' + idx} fill="none" stroke="var(--accent-1)" strokeWidth="2.25"
+            points={seg.map(p => `${p.x},${p.y}`).join(' ')} />
+        ))}
+
+        {/* 退稅資料點 */}
         {data.map((d, i) => {
           if (d._refund == null) {
             return (
-              <g key={i}>
-                <text x={x(i)} y={yZero + 5} textAnchor="middle" fontSize="14" fill="var(--text-3)" opacity="0.6">×</text>
-                <text x={x(i)} y={yZero - 8} textAnchor="middle" fontSize="9" fill="var(--text-3)">缺清單</text>
+              <g key={'rfx' + i}>
+                <text x={x(i)} y={yZeroRefund + 5} textAnchor="middle" fontSize="14" fill="var(--text-3)" opacity="0.6">×</text>
+                <text x={x(i)} y={yZeroRefund - 8} textAnchor="middle" fontSize="9" fill="var(--text-3)">缺清單</text>
               </g>
             );
           }
           const r = d._refund;
           const color = r > 0 ? 'var(--good)' : r < 0 ? 'var(--bad)' : 'var(--text-2)';
-          const labelY = r >= 0 ? y(r) - 10 : y(r) + 18;
+          const labelY = r >= 0 ? yRefund(r) - 10 : yRefund(r) + 18;
           return (
-            <g key={i}>
-              <circle cx={x(i)} cy={y(r)} r="4.5" fill={color} stroke="var(--bg)" strokeWidth="2" />
+            <g key={'rf' + i}>
+              <circle cx={x(i)} cy={yRefund(r)} r="4.5" fill={color} stroke="var(--bg)" strokeWidth="2" />
               <text x={x(i)} y={labelY} textAnchor="middle" fontSize="11" fill={color} fontWeight="600">
                 {r > 0 ? '退 ' : r < 0 ? '補 ' : ''}{fmt(Math.abs(r), unit)}
               </text>
             </g>
           );
         })}
-      </svg>
-    </div>
-  );
-}
 
-// === V2 實效稅率折線圖 ===
-function EffectiveRateLineChart({ data, height = 240 }) {
-  const W = 760, H = height;
-  const padL = 60, padR = 24, padT = 30, padB = 36;
-  const innerW = W - padL - padR;
-  const innerH = H - padT - padB;
-  const validRates = data.map(d => d._effRate).filter(v => v != null);
-  if (validRates.length === 0) return null;
-  const maxV = Math.max(0.05, ...validRates) * 1.2;
-  const minV = 0;
-  const range = maxV - minV;
-  const x = i => padL + (data.length === 1 ? innerW / 2 : (i / (data.length - 1)) * innerW);
-  const y = v => padT + innerH - ((v - minV) / range) * innerH;
-  const segments = [];
-  let cur = [];
-  data.forEach((d, i) => {
-    if (d._effRate != null) cur.push({ x: x(i), y: y(d._effRate) });
-    else { if (cur.length >= 2) segments.push(cur); cur = []; }
-  });
-  if (cur.length >= 2) segments.push(cur);
-  const ticks = 4;
-  const tickVals = Array.from({ length: ticks + 1 }, (_, i) => maxV * (i / ticks));
-  return (
-    <div style={{ position: 'relative' }}>
-      <svg className="chart-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
-        {tickVals.map((v, i) => (
-          <g key={i}>
-            <line className="grid-line" x1={padL} x2={W - padR} y1={y(v)} y2={y(v)} />
-            <text className="axis-text value" x={padL - 8} y={y(v) + 3.5} textAnchor="end">
-              {(v * 100).toFixed(1)}%
-            </text>
-          </g>
-        ))}
-        {data.map((d, i) => (
-          <text key={i} className="axis-text" x={x(i)} y={H - padB + 18} textAnchor="middle">
-            {d.year - 1911}
-          </text>
-        ))}
-        {segments.map((seg, idx) => (
-          <polyline key={idx} fill="none" stroke="var(--accent-1)" strokeWidth="2.25"
-            points={seg.map(p => `${p.x},${p.y}`).join(' ')} />
-        ))}
+        {/* 稅率資料點 (空心圓 + label 跟退稅錯開避免重疊) */}
         {data.map((d, i) => {
           if (d._effRate == null) return null;
+          // 稅率 label 預設在資料點下方; 但如果跟退稅資料點 (上方 label) 太近則改下方再下移
+          const ry = yRate(d._effRate);
+          const refundY = d._refund != null ? yRefund(d._refund) : null;
+          const isRefundLabelAbove = d._refund != null && d._refund >= 0;
+          // 稅率資料點 label 預設下方 +14, 若會跟退稅資料點 label 衝突 (距離 < 18px) 則往下再加
+          let labelY = ry + 14;
+          if (refundY != null && Math.abs(ry - refundY) < 22) {
+            labelY = isRefundLabelAbove ? ry + 18 : ry - 10;
+          }
           return (
-            <g key={i}>
-              <circle cx={x(i)} cy={y(d._effRate)} r="4.5" fill="var(--accent-1)" stroke="var(--bg)" strokeWidth="2" />
-              <text x={x(i)} y={y(d._effRate) - 10} textAnchor="middle" fontSize="11" fill="var(--accent-1)" fontWeight="600">
-                {(d._effRate * 100).toFixed(2)}%
+            <g key={'rate' + i}>
+              <circle cx={x(i)} cy={ry} r="3.5" fill="var(--bg)" stroke="var(--accent-2)" strokeWidth="2" />
+              <text x={x(i)} y={labelY} textAnchor="middle" fontSize="10" fill="var(--accent-2)" fontWeight="500" opacity="0.85">
+                {(d._effRate * 100).toFixed(1)}%
               </text>
             </g>
           );
@@ -533,19 +543,23 @@ function OverviewSection({ years, unit, chartType, filingMode }) {
       {/* v2 KPI Row: 退稅 / 實效稅率 / 全戶扣繳 */}
       <V2KpiRow latest={latest} isSingle={isSingle} unit={unit} />
 
-      {/* v2 退稅趨勢圖 */}
-      {enriched.length >= 2 && (
+      {/* v2 退稅 + 實效稅率 雙軸合併圖 (原為兩張) */}
+      {enriched.length >= 2 && enriched.some(y => y._refund != null || y._effRate != null) && (
         <div className="chart-card" style={{ marginBottom: 18 }}>
           <div className="chart-head">
             <div>
               <h3 style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                歷年退稅 / 補繳趨勢
-                <HelpHint text="退稅 = 全戶扣繳 − 應納稅額。零線以上 = 退、以下 = 補。年年退太多 = 扣繳設高了現金被綁；年年補 = 扣繳設低了該存好現金。" />
+                歷年退稅 + 實效稅率
+                <HelpHint text="退稅 = 全戶扣繳 − 應納稅額（綠退、紅補；缺清單標 ×）。實效稅率 = 應納稅額 ÷ 全家所得（虛線）。一張圖看出兩個指標一起變化：稅率高的年份通常退稅也少。" />
               </h3>
-              <div className="chart-sub">綠色 = 退稅、紅色 = 補繳；缺清單的年份標 ×</div>
+              <div className="chart-sub">左軸 = 退稅金額（綠退/紅補）　·　右軸 = 實效稅率（紫虛線）</div>
+            </div>
+            <div className="legend">
+              <div className="legend-item"><span className="legend-swatch line" style={{ background: 'var(--accent-1)' }}></span>退稅</div>
+              <div className="legend-item"><span className="legend-swatch dashed" style={{ color: 'var(--accent-2)' }}></span>實效稅率</div>
             </div>
           </div>
-          <RefundLineChart data={enriched} unit={unit} />
+          <RefundAndRateChart data={enriched} unit={unit} />
         </div>
       )}
 
@@ -577,22 +591,6 @@ function OverviewSection({ years, unit, chartType, filingMode }) {
               { key: '_otherCat', label: '其他', color: 'var(--series-other)' }
             ]}
           />
-        </div>
-      )}
-
-      {/* v2 實效稅率趨勢圖 */}
-      {enriched.length >= 2 && enriched.some(y => y._effRate != null) && (
-        <div className="chart-card" style={{ marginBottom: 18 }}>
-          <div className="chart-head">
-            <div>
-              <h3 style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                歷年實效稅率
-                <HelpHint text="實效稅率 = 應納稅額 ÷ 全家所得總額。比看絕對值直觀。一般小資族 3-8%、中產 8-15%、高所得 15%+。" />
-              </h3>
-              <div className="chart-sub">應納稅額 ÷ 所得總額</div>
-            </div>
-          </div>
-          <EffectiveRateLineChart data={enriched} />
         </div>
       )}
 
