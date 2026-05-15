@@ -250,7 +250,7 @@ function RefundAndRateChart({ data, unit, height = 320 }) {
           <line x1={padL} x2={W - padR} y1={yZeroRefund} y2={yZeroRefund} stroke="var(--text-3)" strokeWidth="1.2" strokeDasharray="3,3" opacity="0.5" />
         )}
 
-        {/* 左軸只保留 0 線 reference, 不顯示 max/min — 資料點 label 已有精確值 */}
+        {/* 左軸只保留 0 線 reference. max/min scale 寫在副標 (避免 corner 擠). */}
         {validRefunds.length > 0 && (
           <text className="axis-text" x={padL - 8} y={yZeroRefund + 3.5} textAnchor="end" fill="var(--text-3)">0</text>
         )}
@@ -539,24 +539,38 @@ function OverviewSection({ years, unit, chartType, filingMode }) {
       <V2KpiRow latest={latest} isSingle={isSingle} unit={unit} />
 
       {/* v2 退稅 + 實效稅率 雙軸合併圖 (原為兩張) */}
-      {enriched.length >= 2 && enriched.some(y => y._refund != null || y._effRate != null) && (
-        <div className="chart-card" style={{ marginBottom: 18 }}>
-          <div className="chart-head">
-            <div>
-              <h3 style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                歷年退稅 + 實效稅率
-                <HelpHint text="退稅 = 全戶扣繳 − 應納稅額（綠退、紅補；缺清單標 ×）。實效稅率 = 應納稅額 ÷ 全家所得（虛線）。一張圖看出兩個指標一起變化：稅率高的年份通常退稅也少。" />
-              </h3>
-              <div className="chart-sub">左軸 = 退稅金額（綠退/紅補）　·　右軸 = 實效稅率（紫虛線）</div>
+      {enriched.length >= 2 && enriched.some(y => y._refund != null || y._effRate != null) && (() => {
+        const refundsArr = enriched.map(y => y._refund).filter(v => v != null);
+        const ratesArr = enriched.map(y => y._effRate).filter(v => v != null);
+        const refMax = refundsArr.length ? Math.max(0, ...refundsArr) : 0;
+        const refMin = refundsArr.length ? Math.min(0, ...refundsArr) : 0;
+        const rateMax = ratesArr.length ? Math.max(...ratesArr) : 0;
+        const rangeBits = [];
+        if (refMin < 0) rangeBits.push(`補 ${fmt(Math.abs(refMin), unit)}`);
+        if (refMax > 0) rangeBits.push(`退 ${fmt(refMax, unit)}`);
+        const refRange = rangeBits.length ? rangeBits.join(' ~ ') + ' ' + fmtUnit(unit) : '—';
+        const rateRange = rateMax > 0 ? `0 ~ ${(rateMax * 100).toFixed(1)}%` : '—';
+        return (
+          <div className="chart-card" style={{ marginBottom: 18 }}>
+            <div className="chart-head">
+              <div>
+                <h3 style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                  歷年退稅 + 實效稅率
+                  <HelpHint text="退稅 = 全戶扣繳 − 應納稅額（綠退、紅補；缺清單標 ×）。實效稅率 = 應納稅額 ÷ 全家所得（虛線）。一張圖看出兩個指標一起變化：稅率高的年份通常退稅也少。" />
+                </h3>
+                <div className="chart-sub">
+                  左軸退稅範圍 <span style={{ color: 'var(--text-2)' }}>{refRange}</span>　·　右軸稅率 <span style={{ color: 'var(--text-2)' }}>{rateRange}</span>
+                </div>
+              </div>
+              <div className="legend">
+                <div className="legend-item"><span className="legend-swatch line" style={{ background: 'var(--accent-1)' }}></span>退稅</div>
+                <div className="legend-item"><span className="legend-swatch dashed" style={{ color: 'var(--accent-2)' }}></span>實效稅率</div>
+              </div>
             </div>
-            <div className="legend">
-              <div className="legend-item"><span className="legend-swatch line" style={{ background: 'var(--accent-1)' }}></span>退稅</div>
-              <div className="legend-item"><span className="legend-swatch dashed" style={{ color: 'var(--accent-2)' }}></span>實效稅率</div>
-            </div>
+            <RefundAndRateChart data={enriched} unit={unit} />
           </div>
-          <RefundAndRateChart data={enriched} unit={unit} />
-        </div>
-      )}
+        );
+      })()}
 
       {/* v2 收入結構跨年堆疊圖 */}
       {enriched.length >= 2 && enriched.some(y => y._salary || y._dividend || y._interest || y._otherCat) && (

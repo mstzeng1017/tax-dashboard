@@ -863,43 +863,63 @@ function OverviewSection({
     latest: latest,
     isSingle: isSingle,
     unit: unit
-  }), enriched.length >= 2 && enriched.some(y => y._refund != null || y._effRate != null) && /*#__PURE__*/React.createElement("div", {
-    className: "chart-card",
-    style: {
-      marginBottom: 18
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "chart-head"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
-    style: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 8
-    }
-  }, "\u6B77\u5E74\u9000\u7A05 + \u5BE6\u6548\u7A05\u7387", /*#__PURE__*/React.createElement(HelpHint, {
-    text: "\u9000\u7A05 = \u5168\u6236\u6263\u7E73 \u2212 \u61C9\u7D0D\u7A05\u984D\uFF08\u7DA0\u9000\u3001\u7D05\u88DC\uFF1B\u7F3A\u6E05\u55AE\u6A19 \xD7\uFF09\u3002\u5BE6\u6548\u7A05\u7387 = \u61C9\u7D0D\u7A05\u984D \xF7 \u5168\u5BB6\u6240\u5F97\uFF08\u865B\u7DDA\uFF09\u3002\u4E00\u5F35\u5716\u770B\u51FA\u5169\u500B\u6307\u6A19\u4E00\u8D77\u8B8A\u5316\uFF1A\u7A05\u7387\u9AD8\u7684\u5E74\u4EFD\u901A\u5E38\u9000\u7A05\u4E5F\u5C11\u3002"
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "chart-sub"
-  }, "\u5DE6\u8EF8 = \u9000\u7A05\u91D1\u984D\uFF08\u7DA0\u9000/\u7D05\u88DC\uFF09\u3000\xB7\u3000\u53F3\u8EF8 = \u5BE6\u6548\u7A05\u7387\uFF08\u7D2B\u865B\u7DDA\uFF09")), /*#__PURE__*/React.createElement("div", {
-    className: "legend"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "legend-item"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "legend-swatch line",
-    style: {
-      background: 'var(--accent-1)'
-    }
-  }), "\u9000\u7A05"), /*#__PURE__*/React.createElement("div", {
-    className: "legend-item"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "legend-swatch dashed",
-    style: {
-      color: 'var(--accent-2)'
-    }
-  }), "\u5BE6\u6548\u7A05\u7387"))), /*#__PURE__*/React.createElement(RefundAndRateChart, {
-    data: enriched,
-    unit: unit
-  })), enriched.length >= 2 && enriched.some(y => y._salary || y._dividend || y._interest || y._otherCat) && /*#__PURE__*/React.createElement("div", {
+  }), enriched.length >= 2 && enriched.some(y => y._refund != null || y._effRate != null) && (() => {
+    const refundsArr = enriched.map(y => y._refund).filter(v => v != null);
+    const ratesArr = enriched.map(y => y._effRate).filter(v => v != null);
+    const refMax = refundsArr.length ? Math.max(0, ...refundsArr) : 0;
+    const refMin = refundsArr.length ? Math.min(0, ...refundsArr) : 0;
+    const rateMax = ratesArr.length ? Math.max(...ratesArr) : 0;
+    const rangeBits = [];
+    if (refMin < 0) rangeBits.push(`補 ${fmt(Math.abs(refMin), unit)}`);
+    if (refMax > 0) rangeBits.push(`退 ${fmt(refMax, unit)}`);
+    const refRange = rangeBits.length ? rangeBits.join(' ~ ') + ' ' + fmtUnit(unit) : '—';
+    const rateRange = rateMax > 0 ? `0 ~ ${(rateMax * 100).toFixed(1)}%` : '—';
+    return /*#__PURE__*/React.createElement("div", {
+      className: "chart-card",
+      style: {
+        marginBottom: 18
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "chart-head"
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+      style: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 8
+      }
+    }, "\u6B77\u5E74\u9000\u7A05 + \u5BE6\u6548\u7A05\u7387", /*#__PURE__*/React.createElement(HelpHint, {
+      text: "\u9000\u7A05 = \u5168\u6236\u6263\u7E73 \u2212 \u61C9\u7D0D\u7A05\u984D\uFF08\u7DA0\u9000\u3001\u7D05\u88DC\uFF1B\u7F3A\u6E05\u55AE\u6A19 \xD7\uFF09\u3002\u5BE6\u6548\u7A05\u7387 = \u61C9\u7D0D\u7A05\u984D \xF7 \u5168\u5BB6\u6240\u5F97\uFF08\u865B\u7DDA\uFF09\u3002\u4E00\u5F35\u5716\u770B\u51FA\u5169\u500B\u6307\u6A19\u4E00\u8D77\u8B8A\u5316\uFF1A\u7A05\u7387\u9AD8\u7684\u5E74\u4EFD\u901A\u5E38\u9000\u7A05\u4E5F\u5C11\u3002"
+    })), /*#__PURE__*/React.createElement("div", {
+      className: "chart-sub"
+    }, "\u5DE6\u8EF8\u9000\u7A05\u7BC4\u570D ", /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: 'var(--text-2)'
+      }
+    }, refRange), "\u3000\xB7\u3000\u53F3\u8EF8\u7A05\u7387 ", /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: 'var(--text-2)'
+      }
+    }, rateRange))), /*#__PURE__*/React.createElement("div", {
+      className: "legend"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "legend-item"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "legend-swatch line",
+      style: {
+        background: 'var(--accent-1)'
+      }
+    }), "\u9000\u7A05"), /*#__PURE__*/React.createElement("div", {
+      className: "legend-item"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "legend-swatch dashed",
+      style: {
+        color: 'var(--accent-2)'
+      }
+    }), "\u5BE6\u6548\u7A05\u7387"))), /*#__PURE__*/React.createElement(RefundAndRateChart, {
+      data: enriched,
+      unit: unit
+    }));
+  })(), enriched.length >= 2 && enriched.some(y => y._salary || y._dividend || y._interest || y._otherCat) && /*#__PURE__*/React.createElement("div", {
     className: "chart-card",
     style: {
       marginBottom: 18
