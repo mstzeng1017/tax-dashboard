@@ -194,8 +194,8 @@ function V2KpiRow({ latest, isSingle, unit }) {
 // === V2 雙軸折線: 退稅金額 (左) + 實效稅率 (右) — 原 RefundLineChart + EffectiveRateLineChart 合併 ===
 function RefundAndRateChart({ data, unit, height = 320 }) {
   const W = 760, H = height;
-  // padB 50 給 X 軸 label 足夠空間 (避免退稅資料點下方 label 跟年度標撞)
-  const padL = 60, padR = 60, padT = 36, padB = 50;
+  // padB 60 給 X 軸 label 足夠空間 (避免左軸最底 tick label 跟年度標角落擠)
+  const padL = 70, padR = 60, padT = 36, padB = 60;
   const innerW = W - padL - padR;
   const innerH = H - padT - padB;
 
@@ -250,7 +250,26 @@ function RefundAndRateChart({ data, unit, height = 320 }) {
           <line x1={padL} x2={W - padR} y1={yZeroRefund} y2={yZeroRefund} stroke="var(--text-3)" strokeWidth="1.2" strokeDasharray="3,3" opacity="0.5" />
         )}
 
-        {/* 左軸只保留 0 線 reference. max/min scale 寫在副標 (避免 corner 擠). */}
+        {/* 左軸 5 段 ticks + grid lines (跟右軸對等視覺). 跟 0 線太近的 tick 跳過避免重疊. */}
+        {validRefunds.length > 0 && [0, 0.25, 0.5, 0.75, 1].map((p, idx) => {
+          const v = refundMinV + (refundMaxV - refundMinV) * p;
+          const ty = yRefund(v);
+          // skip 跟 0 線太近的 tick (避免「退 0.00」+「0」重疊)
+          if (Math.abs(ty - yZeroRefund) < 14) return null;
+          // skip 接近 0 的值 (用 0 線本身代表)
+          if (Math.abs(v) < refundRange * 0.02) return null;
+          const isPos = v > 0;
+          const color = isPos ? 'var(--good)' : 'var(--bad)';
+          return (
+            <g key={'lt' + idx}>
+              <line x1={padL} x2={W - padR} y1={ty} y2={ty} stroke="var(--text-3)" strokeWidth="0.5" opacity="0.18" />
+              <text x={padL - 8} y={ty + 3.5} textAnchor="end" fill={color} fontSize="10.5" opacity="0.75">
+                {isPos ? '退 ' : '補 '}{fmt(Math.abs(v), unit)}
+              </text>
+            </g>
+          );
+        })}
+        {/* 0 線 label */}
         {validRefunds.length > 0 && (
           <text className="axis-text" x={padL - 8} y={yZeroRefund + 3.5} textAnchor="end" fill="var(--text-3)">0</text>
         )}
@@ -265,9 +284,9 @@ function RefundAndRateChart({ data, unit, height = 320 }) {
           );
         })}
 
-        {/* X 軸年度 */}
+        {/* X 軸年度 — y offset 24 給最底 tick label 足夠垂直空間 */}
         {data.map((d, i) => (
-          <text key={'yr' + i} className="axis-text" x={x(i)} y={H - padB + 18} textAnchor="middle">
+          <text key={'yr' + i} className="axis-text" x={x(i)} y={H - padB + 24} textAnchor="middle">
             {d.year - 1911}
           </text>
         ))}

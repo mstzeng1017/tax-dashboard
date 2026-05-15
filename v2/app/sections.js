@@ -324,11 +324,11 @@ function RefundAndRateChart({
 }) {
   const W = 760,
     H = height;
-  // padB 50 給 X 軸 label 足夠空間 (避免退稅資料點下方 label 跟年度標撞)
-  const padL = 60,
+  // padB 60 給 X 軸 label 足夠空間 (避免左軸最底 tick label 跟年度標角落擠)
+  const padL = 70,
     padR = 60,
     padT = 36,
-    padB = 50;
+    padB = 60;
   const innerW = W - padL - padR;
   const innerH = H - padT - padB;
   const validRefunds = data.map(d => d._refund).filter(v => v != null);
@@ -400,6 +400,33 @@ function RefundAndRateChart({
     strokeWidth: "1.2",
     strokeDasharray: "3,3",
     opacity: "0.5"
+  }), validRefunds.length > 0 && [0, 0.25, 0.5, 0.75, 1].map((p, idx) => {
+    const v = refundMinV + (refundMaxV - refundMinV) * p;
+    const ty = yRefund(v);
+    // skip 跟 0 線太近的 tick (避免「退 0.00」+「0」重疊)
+    if (Math.abs(ty - yZeroRefund) < 14) return null;
+    // skip 接近 0 的值 (用 0 線本身代表)
+    if (Math.abs(v) < refundRange * 0.02) return null;
+    const isPos = v > 0;
+    const color = isPos ? 'var(--good)' : 'var(--bad)';
+    return /*#__PURE__*/React.createElement("g", {
+      key: 'lt' + idx
+    }, /*#__PURE__*/React.createElement("line", {
+      x1: padL,
+      x2: W - padR,
+      y1: ty,
+      y2: ty,
+      stroke: "var(--text-3)",
+      strokeWidth: "0.5",
+      opacity: "0.18"
+    }), /*#__PURE__*/React.createElement("text", {
+      x: padL - 8,
+      y: ty + 3.5,
+      textAnchor: "end",
+      fill: color,
+      fontSize: "10.5",
+      opacity: "0.75"
+    }, isPos ? '退 ' : '補 ', fmt(Math.abs(v), unit)));
   }), validRefunds.length > 0 && /*#__PURE__*/React.createElement("text", {
     className: "axis-text",
     x: padL - 8,
@@ -421,7 +448,7 @@ function RefundAndRateChart({
     key: 'yr' + i,
     className: "axis-text",
     x: x(i),
-    y: H - padB + 18,
+    y: H - padB + 24,
     textAnchor: "middle"
   }, d.year - 1911)), rateSegs.map((seg, idx) => /*#__PURE__*/React.createElement("polyline", {
     key: 'rate-line' + idx,
