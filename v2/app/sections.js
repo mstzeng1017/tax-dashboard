@@ -626,8 +626,11 @@ function PersonalDeepDive({
     }
   }, byPayer.slice(0, 5).map((p, i) => {
     const pctVal = totalPayer > 0 ? p.amount / totalPayer * 100 : 0;
-    // rank-based opacity: 1=最深 (主要收入), 5=最淡 (邊緣). 視覺有梯度但保持風格 cohesive.
+    // rank-based opacity: 1=最深 (主要收入), 5=最淡 (邊緣).
     const rankOp = [1.0, 0.78, 0.6, 0.46, 0.36][i];
+    // 顏色用圓餅最大切片同色 (= owner 主要所得類別色) — 兩邊 visual cohesive.
+    // fallback: accent-1 (slices 為空時)
+    const mainColor = slices[0] && slices[0].color || 'var(--accent-1)';
     return /*#__PURE__*/React.createElement("div", {
       key: i,
       style: {
@@ -640,7 +643,7 @@ function PersonalDeepDive({
         width: 22,
         height: 22,
         borderRadius: 11,
-        background: 'var(--accent-grad)',
+        background: mainColor,
         color: '#fff',
         display: 'flex',
         alignItems: 'center',
@@ -675,7 +678,7 @@ function PersonalDeepDive({
       style: {
         width: pctVal + '%',
         height: '100%',
-        background: 'var(--accent-1)',
+        background: mainColor,
         opacity: rankOp
       }
     }))), /*#__PURE__*/React.createElement("div", {
