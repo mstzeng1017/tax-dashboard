@@ -194,7 +194,8 @@ function V2KpiRow({ latest, isSingle, unit }) {
 // === V2 雙軸折線: 退稅金額 (左) + 實效稅率 (右) — 原 RefundLineChart + EffectiveRateLineChart 合併 ===
 function RefundAndRateChart({ data, unit, height = 320 }) {
   const W = 760, H = height;
-  const padL = 60, padR = 60, padT = 30, padB = 36;
+  // padB 50 給 X 軸 label 足夠空間 (避免退稅資料點下方 label 跟年度標撞)
+  const padL = 60, padR = 60, padT = 36, padB = 50;
   const innerW = W - padL - padR;
   const innerH = H - padT - padB;
 
@@ -249,19 +250,9 @@ function RefundAndRateChart({ data, unit, height = 320 }) {
           <line x1={padL} x2={W - padR} y1={yZeroRefund} y2={yZeroRefund} stroke="var(--text-3)" strokeWidth="1.2" strokeDasharray="3,3" opacity="0.5" />
         )}
 
-        {/* 左軸 (退稅) labels */}
+        {/* 左軸只保留 0 線 reference, 不顯示 max/min — 資料點 label 已有精確值 */}
         {validRefunds.length > 0 && (
           <text className="axis-text" x={padL - 8} y={yZeroRefund + 3.5} textAnchor="end" fill="var(--text-3)">0</text>
-        )}
-        {refundMaxV > 0 && (
-          <text className="axis-text value" x={padL - 8} y={yRefund(refundMaxV) + 3.5} textAnchor="end" fill="var(--good)">
-            退 {fmt(refundMaxV, unit)}
-          </text>
-        )}
-        {refundMinV < 0 && (
-          <text className="axis-text value" x={padL - 8} y={yRefund(refundMinV) + 3.5} textAnchor="end" fill="var(--bad)">
-            補 {fmt(Math.abs(refundMinV), unit)}
-          </text>
         )}
 
         {/* 右軸 (稅率) ticks - 4 段 */}
@@ -293,22 +284,26 @@ function RefundAndRateChart({ data, unit, height = 320 }) {
             points={seg.map(p => `${p.x},${p.y}`).join(' ')} />
         ))}
 
-        {/* 退稅資料點 */}
+        {/* 退稅資料點. label 一律在資料點上方避免跟 X 軸年度標撞.
+            缺清單 × 改為固定底部位置, 不依 0 線 (避免 0 線浮動時跟頂部資料點 label 撞). */}
         {data.map((d, i) => {
           if (d._refund == null) {
             return (
               <g key={'rfx' + i}>
-                <text x={x(i)} y={yZeroRefund + 5} textAnchor="middle" fontSize="14" fill="var(--text-3)" opacity="0.6">×</text>
-                <text x={x(i)} y={yZeroRefund - 8} textAnchor="middle" fontSize="9" fill="var(--text-3)">缺清單</text>
+                <text x={x(i)} y={H - padB - 6} textAnchor="middle" fontSize="13" fill="var(--text-3)" opacity="0.65">×</text>
+                <text x={x(i)} y={H - padB - 18} textAnchor="middle" fontSize="9.5" fill="var(--text-3)">缺清單</text>
               </g>
             );
           }
           const r = d._refund;
           const color = r > 0 ? 'var(--good)' : r < 0 ? 'var(--bad)' : 'var(--text-2)';
-          const labelY = r >= 0 ? yRefund(r) - 10 : yRefund(r) + 18;
+          // label 一律放上方 (避免下方撞 X 軸); 例外: 點離頂太近就改下方但加更多 offset
+          const yPt = yRefund(r);
+          const tooCloseToTop = yPt - padT < 16;
+          const labelY = tooCloseToTop ? yPt + 18 : yPt - 10;
           return (
             <g key={'rf' + i}>
-              <circle cx={x(i)} cy={yRefund(r)} r="4.5" fill={color} stroke="var(--bg)" strokeWidth="2" />
+              <circle cx={x(i)} cy={yPt} r="4.5" fill={color} stroke="var(--bg)" strokeWidth="2" />
               <text x={x(i)} y={labelY} textAnchor="middle" fontSize="11" fill={color} fontWeight="600">
                 {r > 0 ? '退 ' : r < 0 ? '補 ' : ''}{fmt(Math.abs(r), unit)}
               </text>

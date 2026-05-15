@@ -324,10 +324,11 @@ function RefundAndRateChart({
 }) {
   const W = 760,
     H = height;
+  // padB 50 給 X 軸 label 足夠空間 (避免退稅資料點下方 label 跟年度標撞)
   const padL = 60,
     padR = 60,
-    padT = 30,
-    padB = 36;
+    padT = 36,
+    padB = 50;
   const innerW = W - padL - padR;
   const innerH = H - padT - padB;
   const validRefunds = data.map(d => d._refund).filter(v => v != null);
@@ -405,19 +406,7 @@ function RefundAndRateChart({
     y: yZeroRefund + 3.5,
     textAnchor: "end",
     fill: "var(--text-3)"
-  }, "0"), refundMaxV > 0 && /*#__PURE__*/React.createElement("text", {
-    className: "axis-text value",
-    x: padL - 8,
-    y: yRefund(refundMaxV) + 3.5,
-    textAnchor: "end",
-    fill: "var(--good)"
-  }, "\u9000 ", fmt(refundMaxV, unit)), refundMinV < 0 && /*#__PURE__*/React.createElement("text", {
-    className: "axis-text value",
-    x: padL - 8,
-    y: yRefund(refundMinV) + 3.5,
-    textAnchor: "end",
-    fill: "var(--bad)"
-  }, "\u88DC ", fmt(Math.abs(refundMinV), unit)), validRates.length > 0 && [0, 0.25, 0.5, 0.75, 1].map(p => {
+  }, "0"), validRates.length > 0 && [0, 0.25, 0.5, 0.75, 1].map(p => {
     const v = rateMaxV * p;
     return /*#__PURE__*/React.createElement("text", {
       key: 'rt' + p,
@@ -454,27 +443,30 @@ function RefundAndRateChart({
         key: 'rfx' + i
       }, /*#__PURE__*/React.createElement("text", {
         x: x(i),
-        y: yZeroRefund + 5,
+        y: H - padB - 6,
         textAnchor: "middle",
-        fontSize: "14",
+        fontSize: "13",
         fill: "var(--text-3)",
-        opacity: "0.6"
+        opacity: "0.65"
       }, "\xD7"), /*#__PURE__*/React.createElement("text", {
         x: x(i),
-        y: yZeroRefund - 8,
+        y: H - padB - 18,
         textAnchor: "middle",
-        fontSize: "9",
+        fontSize: "9.5",
         fill: "var(--text-3)"
       }, "\u7F3A\u6E05\u55AE"));
     }
     const r = d._refund;
     const color = r > 0 ? 'var(--good)' : r < 0 ? 'var(--bad)' : 'var(--text-2)';
-    const labelY = r >= 0 ? yRefund(r) - 10 : yRefund(r) + 18;
+    // label 一律放上方 (避免下方撞 X 軸); 例外: 點離頂太近就改下方但加更多 offset
+    const yPt = yRefund(r);
+    const tooCloseToTop = yPt - padT < 16;
+    const labelY = tooCloseToTop ? yPt + 18 : yPt - 10;
     return /*#__PURE__*/React.createElement("g", {
       key: 'rf' + i
     }, /*#__PURE__*/React.createElement("circle", {
       cx: x(i),
-      cy: yRefund(r),
+      cy: yPt,
       r: "4.5",
       fill: color,
       stroke: "var(--bg)",
