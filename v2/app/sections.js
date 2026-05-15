@@ -626,6 +626,8 @@ function PersonalDeepDive({
     }
   }, byPayer.slice(0, 5).map((p, i) => {
     const pctVal = totalPayer > 0 ? p.amount / totalPayer * 100 : 0;
+    // rank-based opacity: 1=最深 (主要收入), 5=最淡 (邊緣). 視覺有梯度但保持風格 cohesive.
+    const rankOp = [1.0, 0.78, 0.6, 0.46, 0.36][i];
     return /*#__PURE__*/React.createElement("div", {
       key: i,
       style: {
@@ -645,7 +647,8 @@ function PersonalDeepDive({
         justifyContent: 'center',
         fontSize: 11,
         fontWeight: 700,
-        flexShrink: 0
+        flexShrink: 0,
+        opacity: rankOp
       }
     }, i + 1), /*#__PURE__*/React.createElement("div", {
       style: {
@@ -672,7 +675,8 @@ function PersonalDeepDive({
       style: {
         width: pctVal + '%',
         height: '100%',
-        background: 'var(--accent-1)'
+        background: 'var(--accent-1)',
+        opacity: rankOp
       }
     }))), /*#__PURE__*/React.createElement("div", {
       style: {
