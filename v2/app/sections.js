@@ -538,15 +538,17 @@ function RefundAndRateChart({
   })));
 }
 
-// === V2 本人收入分析 (圓餅 + 扣繳單位 top 5) ===
+// === V2 收入分析 (圓餅 + 扣繳單位 top 5) — owner='main' 本人 / 'spouse' 配偶 ===
 function PersonalDeepDive({
   latest,
   isSingle,
-  unit
+  unit,
+  owner = 'main',
+  personName = null
 }) {
   if (!latest) return null;
-  const byCat = latest.byCategory && latest.byCategory.main || {};
-  const byPayer = (latest.byPayer || []).filter(p => p.owner === 'main');
+  const byCat = latest.byCategory && latest.byCategory[owner] || {};
+  const byPayer = (latest.byPayer || []).filter(p => p.owner === owner);
   const hasData = Object.keys(byCat).length > 0 || byPayer.length > 0;
   if (!hasData) return null;
   const colors = ['var(--series-salary)', 'var(--series-dividend)', 'var(--series-interest)', 'var(--series-other)', '#a193c4', '#7ab5c1'];
@@ -557,6 +559,11 @@ function PersonalDeepDive({
   }));
   const totalCat = slices.reduce((s, c) => s + c.value, 0);
   const totalPayer = byPayer.reduce((s, p) => s + p.amount, 0);
+
+  // 標題與 DonutChart center label
+  const ownerWord = owner === 'main' ? '本人' : '配偶';
+  const title = isSingle ? '收入分析' : `${ownerWord}收入分析`;
+  const centerLabel = isSingle ? '總所得' : `${ownerWord}總所得`;
   return /*#__PURE__*/React.createElement("div", {
     className: "card",
     style: {
@@ -572,8 +579,14 @@ function PersonalDeepDive({
       alignItems: 'center',
       gap: 8
     }
-  }, isSingle ? '收入分析' : '本人收入分析', /*#__PURE__*/React.createElement(HelpHint, {
-    text: "\u5F9E\u7D0D\u7A05\u8B49\u660E\u66F8\u660E\u7D30\u6293\u51FA\u4F86\uFF1A\u5DE6\u908A\u5713\u9905 = \u6240\u5F97\u985E\u5225\u4F54\u6BD4\uFF1B\u53F3\u908A = \u6263\u7E73\u55AE\u4F4D top 5\uFF08\u54EA\u5E7E\u5BB6\u516C\u53F8\u7D66\u4F60\u9322\u3001\u5404\u4F54\u591A\u5C11\uFF09\u3002"
+  }, title, personName && !isSingle && /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: 'var(--text-3)',
+      fontSize: 12,
+      fontWeight: 400
+    }
+  }, "\xB7 ", personName), /*#__PURE__*/React.createElement(HelpHint, {
+    text: `從納稅證明書明細抓出來：左邊圓餅 = ${ownerWord === '本人' && isSingle ? '你的' : ownerWord + '的'}所得類別佔比；右邊 = 扣繳單位 top 5（哪幾家公司給${ownerWord === '本人' && isSingle ? '你' : ownerWord}錢、各佔多少）。`
   }), /*#__PURE__*/React.createElement("span", {
     style: {
       marginLeft: 4,
@@ -590,7 +603,7 @@ function PersonalDeepDive({
     }
   }, /*#__PURE__*/React.createElement("div", null, slices.length > 0 && /*#__PURE__*/React.createElement(DonutChart, {
     slices: slices,
-    centerLabel: "\u672C\u4EBA\u7E3D\u6240\u5F97",
+    centerLabel: centerLabel,
     centerValue: totalCat,
     unit: unit,
     size: 220
@@ -777,7 +790,9 @@ function OverviewSection({
   years,
   unit,
   chartType,
-  filingMode
+  filingMode,
+  taxpayerName,
+  spouseName
 }) {
   const isSingle = filingMode === 'single';
   const fp = isSingle ? '' : '全家';
@@ -1132,7 +1147,15 @@ function OverviewSection({
   })), /*#__PURE__*/React.createElement(PersonalDeepDive, {
     latest: latest,
     isSingle: isSingle,
-    unit: unit
+    unit: unit,
+    owner: "main",
+    personName: taxpayerName
+  }), !isSingle && /*#__PURE__*/React.createElement(PersonalDeepDive, {
+    latest: latest,
+    isSingle: false,
+    unit: unit,
+    owner: "spouse",
+    personName: spouseName
   }), latest.dependents && latest.dependents.length > 0 && /*#__PURE__*/React.createElement("div", {
     className: "card",
     style: {

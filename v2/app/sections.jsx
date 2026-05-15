@@ -356,11 +356,11 @@ function RefundAndRateChart({ data, unit, height = 320 }) {
   );
 }
 
-// === V2 本人收入分析 (圓餅 + 扣繳單位 top 5) ===
-function PersonalDeepDive({ latest, isSingle, unit }) {
+// === V2 收入分析 (圓餅 + 扣繳單位 top 5) — owner='main' 本人 / 'spouse' 配偶 ===
+function PersonalDeepDive({ latest, isSingle, unit, owner = 'main', personName = null }) {
   if (!latest) return null;
-  const byCat = (latest.byCategory && latest.byCategory.main) || {};
-  const byPayer = (latest.byPayer || []).filter(p => p.owner === 'main');
+  const byCat = (latest.byCategory && latest.byCategory[owner]) || {};
+  const byPayer = (latest.byPayer || []).filter(p => p.owner === owner);
   const hasData = Object.keys(byCat).length > 0 || byPayer.length > 0;
   if (!hasData) return null;
 
@@ -372,17 +372,23 @@ function PersonalDeepDive({ latest, isSingle, unit }) {
   const totalCat = slices.reduce((s, c) => s + c.value, 0);
   const totalPayer = byPayer.reduce((s, p) => s + p.amount, 0);
 
+  // 標題與 DonutChart center label
+  const ownerWord = owner === 'main' ? '本人' : '配偶';
+  const title = isSingle ? '收入分析' : `${ownerWord}收入分析`;
+  const centerLabel = isSingle ? '總所得' : `${ownerWord}總所得`;
+
   return (
     <div className="card" style={{ marginTop: 18 }}>
       <h3 style={{ margin: 0, marginBottom: 12, fontSize: 14, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-        {isSingle ? '收入分析' : '本人收入分析'}
-        <HelpHint text="從納稅證明書明細抓出來：左邊圓餅 = 所得類別佔比；右邊 = 扣繳單位 top 5（哪幾家公司給你錢、各佔多少）。" />
+        {title}
+        {personName && !isSingle && <span style={{ color: 'var(--text-3)', fontSize: 12, fontWeight: 400 }}>· {personName}</span>}
+        <HelpHint text={`從納稅證明書明細抓出來：左邊圓餅 = ${ownerWord === '本人' && isSingle ? '你的' : ownerWord + '的'}所得類別佔比；右邊 = 扣繳單位 top 5（哪幾家公司給${ownerWord === '本人' && isSingle ? '你' : ownerWord}錢、各佔多少）。`} />
         <span style={{ marginLeft: 4, color: 'var(--text-3)', fontSize: 12, fontWeight: 400 }}>{latest.year - 1911} 年度</span>
       </h3>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24, alignItems: 'center' }}>
         <div>
           {slices.length > 0 && (
-            <DonutChart slices={slices} centerLabel="本人總所得" centerValue={totalCat} unit={unit} size={220} />
+            <DonutChart slices={slices} centerLabel={centerLabel} centerValue={totalCat} unit={unit} size={220} />
           )}
         </div>
         <div>
@@ -450,7 +456,7 @@ function KpiCardV2({ label, displayValue, locked, lockReason, valueColor, suffix
 }
 
 // === Section 1: 總覽 ===
-function OverviewSection({ years, unit, chartType, filingMode }) {
+function OverviewSection({ years, unit, chartType, filingMode, taxpayerName, spouseName }) {
   const isSingle = filingMode === 'single';
   const fp = isSingle ? '' : '全家';
   const fpHelp = isSingle ? '你' : '全家（你+配偶+扶養親屬）';
@@ -686,8 +692,11 @@ function OverviewSection({ years, unit, chartType, filingMode }) {
         />
       </div>
 
-      {/* v2 本人收入分析 */}
-      <PersonalDeepDive latest={latest} isSingle={isSingle} unit={unit} />
+      {/* v2 收入分析: 本人 + (已婚) 配偶 */}
+      <PersonalDeepDive latest={latest} isSingle={isSingle} unit={unit} owner="main" personName={taxpayerName} />
+      {!isSingle && (
+        <PersonalDeepDive latest={latest} isSingle={false} unit={unit} owner="spouse" personName={spouseName} />
+      )}
 
       {/* Dependents */}
       {latest.dependents && latest.dependents.length > 0 &&
