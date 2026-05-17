@@ -236,6 +236,11 @@ function UploadModal({ onClose, onApplyParsed, defaultPassword, filingMode, spou
     const passwords = [password, spousePassword].filter(p => p && p.trim());
     if (passwords.length === 0) passwords.push('');
     setFiles(prev => prev.map(f => f.status === 'pending' ? { ...f, status: 'processing' } : f));
+
+    // 兩階段處理 — 先全部 parse, 再按 type 排序 (cert 先, list 後) merge.
+    // 否則 user 拖入順序是 [list, list, cert] 時, list 會比 cert 早 merge,
+    // 撞到 mergeParsed 的 "請先匯入納稅證明書" guard.
+    const parseResults = []; // { i, parsed?, lastErr? }
     for (let i = 0; i < files.length; i++) {
       if (files[i].status !== 'pending' && files[i].status !== 'processing') continue;
       let parsed = null;
@@ -243,15 +248,24 @@ function UploadModal({ onClose, onApplyParsed, defaultPassword, filingMode, spou
       for (const pwd of passwords) {
         try {
           parsed = await window.TaxParser.parsePDF(files[i].file, pwd);
-          break; // 成功跳出 retry 迴圈
+          break;
         } catch (e) {
           lastErr = e;
-          if (e.code !== 'PASSWORD_REQUIRED') break; // 非密碼錯誤就不必再試
+          if (e.code !== 'PASSWORD_REQUIRED') break;
         }
       }
+      parseResults.push({ i, parsed, lastErr });
+    }
+
+    // 排序: tax-cert 先 (因為 list merge 需要 cert 已在 state); 保留同類別內原順序
+    parseResults.sort((a, b) => {
+      const ta = a.parsed?.type === 'tax-cert' ? 0 : 1;
+      const tb = b.parsed?.type === 'tax-cert' ? 0 : 1;
+      return ta - tb;
+    });
+
+    for (const { i, parsed, lastErr } of parseResults) {
       if (parsed) {
-        // 先試呼叫 onApplyParsed (mergeParsed 可能 throw, 例如 owner 偵測失敗).
-        // 成功才標 'ok', 失敗標 'err' 顯示真實 error message (避免 modal 騙人說 ✓).
         const applyResult = onApplyParsed(parsed);
         if (applyResult && applyResult.ok === false) {
           setFiles(prev => prev.map((f, idx) => idx === i ? { ...f, status: 'err', error: applyResult.error || '匯入失敗', hint: applyResult.hint, parsed } : f));
