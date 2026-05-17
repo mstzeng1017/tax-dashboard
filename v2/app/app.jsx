@@ -83,7 +83,7 @@ function App() {
   if (stateRef.current === null) stateRef.current = state;
 
   const applyParsed = (parsed) => {
-    if (demoMode) { showToast('示範頁面為唯讀，無法匯入', 'warn'); return; }
+    if (demoMode) { showToast('示範頁面為唯讀，無法匯入', 'warn'); return { ok: false, error: '示範頁面為唯讀' }; }
     // 用 stateRef.current 而非 closure state, 因為連續 applyParsed 時
     // React setState 是 async, closure state 會 stale (後面覆蓋前面).
     // mergeParsed 可能 throw, 拉到 setState 外 try-catch (避免 React reducer throw + retry).
@@ -93,7 +93,7 @@ function App() {
       result = window.TaxStore.mergeParsed(newState, parsed);
     } catch (e) {
       showToast(e.message || '匯入失敗', 'err');
-      return;
+      return { ok: false, error: e.message || '匯入失敗', hint: e.hint };
     }
     stateRef.current = newState;     // 立刻 update ref 給下次 applyParsed 用
     window.TaxStore.save(newState);
@@ -102,6 +102,7 @@ function App() {
     const yr = parsed.year - 1911;
     const docName = parsed.type === 'tax-cert' ? '納稅證明書' : '各類所得清單';
     showToast(`${yr} 年度 ${docName} ${result.overwrote ? '已覆蓋更新' : '已匯入'}`, result.overwrote ? 'warn' : 'ok');
+    return { ok: true };
   };
 
   // setState 任何地方都要同步 update stateRef (例如 onClearConfirm, onImportFile)

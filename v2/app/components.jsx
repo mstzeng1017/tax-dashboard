@@ -250,8 +250,14 @@ function UploadModal({ onClose, onApplyParsed, defaultPassword, filingMode, spou
         }
       }
       if (parsed) {
-        setFiles(prev => prev.map((f, idx) => idx === i ? { ...f, status: 'ok', parsed } : f));
-        onApplyParsed(parsed);
+        // 先試呼叫 onApplyParsed (mergeParsed 可能 throw, 例如 owner 偵測失敗).
+        // 成功才標 'ok', 失敗標 'err' 顯示真實 error message (避免 modal 騙人說 ✓).
+        const applyResult = onApplyParsed(parsed);
+        if (applyResult && applyResult.ok === false) {
+          setFiles(prev => prev.map((f, idx) => idx === i ? { ...f, status: 'err', error: applyResult.error || '匯入失敗', hint: applyResult.hint, parsed } : f));
+        } else {
+          setFiles(prev => prev.map((f, idx) => idx === i ? { ...f, status: 'ok', parsed } : f));
+        }
       } else if (lastErr) {
         const e = lastErr;
         if (e.code === 'PASSWORD_REQUIRED') {

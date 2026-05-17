@@ -64,14 +64,24 @@
   function getPassword() { return localStorage.getItem(PWD_KEY) || ''; }
   function setPassword(pwd) { if (pwd) localStorage.setItem(PWD_KEY, pwd); }
 
-  // 用清單上的所得人姓名 vs 證明書的本人/配偶名字 比對
-  function detectListOwner(state, parsedTaxpayerName) {
-    if (!parsedTaxpayerName) return 'unknown';
-    const t = (state.meta.taxpayerName || '').trim();
-    const s = (state.meta.spouseName || '').trim();
-    const p = parsedTaxpayerName.trim();
-    if (t && p === t) return 'main';
-    if (s && p === s) return 'spouse';
+  // 比對 owner: 優先用 ID (穩, 不會因姓名 parser 失敗而不通); fallback 姓名比對
+  function detectListOwner(state, parsedTaxpayerName, parsedTaxpayerId) {
+    // 1. ID 比對 (穩)
+    if (parsedTaxpayerId) {
+      const pid = parsedTaxpayerId.trim().toUpperCase();
+      const tid = (state.meta.taxpayerId || '').trim().toUpperCase();
+      const sid = (state.meta.spouseId || '').trim().toUpperCase();
+      if (tid && pid === tid) return 'main';
+      if (sid && pid === sid) return 'spouse';
+    }
+    // 2. 姓名比對 fallback
+    if (parsedTaxpayerName) {
+      const p = parsedTaxpayerName.trim();
+      const t = (state.meta.taxpayerName || '').trim();
+      const s = (state.meta.spouseName || '').trim();
+      if (t && p === t) return 'main';
+      if (s && p === s) return 'spouse';
+    }
     return 'unknown';
   }
 
@@ -115,7 +125,7 @@
         err.hint = '清單只記錄一個人的資料 (本人或配偶)，要先看過納稅證明書才知道這份是誰的。';
         throw err;
       }
-      owner = detectListOwner(state, parsed.taxpayer);
+      owner = detectListOwner(state, parsed.taxpayer, parsed.taxpayerId);
       if (owner === 'unknown') {
         const err = new Error('無法辨識所得清單所有人');
         err.code = 'UNKNOWN_OWNER';
