@@ -765,12 +765,11 @@ function TaxMathStrip({ latest, unit, refundOrOwe, fp }) {
 
   const idx = getBracketIndex(latest.netIncome, latest.year);
   const bracket = getBracketsForYear(latest.year)[idx] || {};
-  const bracketColors = ['#6fa896', '#7ab5c1', '#7c80c9', '#a193c4', '#c97a7a'];
 
   const cGross = 'var(--series-gross)';
   const cDeduct = 'var(--series-other)';
   const cNet = 'var(--series-net)';
-  const cRate = bracketColors[idx] || '#7ab5c1';
+  const cRate = 'var(--accent-1)';
   const cProg = 'var(--text-3)';
   const cTax = 'var(--series-tax)';
   const cWithheld = 'var(--series-withheld)';
@@ -838,7 +837,7 @@ function MathOp({ op }) {
 function BracketViz({ netIncome, unit, adYear }) {
   const idx = getBracketIndex(netIncome, adYear);
   const TB = adYear ? getBracketsForYear(adYear) : TAX_BRACKETS;
-  const colors = ['#6fa896', '#7ab5c1', '#7c80c9', '#a193c4', '#c97a7a'];
+  // 同色階梯 (5 級), 用 opacity 表達稅率高低; 中標顏色用 accent-1
   const segments = TB.map((b, i) => ({
     label: b.label,
     upper: b.upper === Infinity ? (TB[TB.length - 2]?.upper || 0) * 1.5 : b.upper
@@ -846,12 +845,17 @@ function BracketViz({ netIncome, unit, adYear }) {
   return (
     <div>
       <div className="bracket-viz">
-        {segments.map((s, i) =>
-          <div key={i} className={`bracket-cell ${i === idx ? 'active' : ''}`}
-            style={{ background: colors[i], opacity: i === idx ? 1 : 0.55 }}>
-            {s.label}
-          </div>
-        )}
+        {segments.map((s, i) => {
+          const isActive = i === idx;
+          // 同色階梯, opacity 表達稅率高低 (0.25 → 0.65); active 直接跳 1.0 → 對比強烈
+          const inactiveOpacity = 0.25 + i * 0.10;
+          return (
+            <div key={i} className={`bracket-cell ${isActive ? 'active' : ''}`}
+              style={{ background: 'var(--accent-1)', opacity: isActive ? 1 : inactiveOpacity }}>
+              {s.label}
+            </div>
+          );
+        })}
       </div>
       <div className="bracket-axis">
         {segments.map((s, i) =>
