@@ -40,7 +40,7 @@ function Sidebar({
     className: "brand-text"
   }, "\u6240\u5F97\u7A05\u7E3D\u89BD ", /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: 11,
+      fontSize: 12.5,
       padding: '1px 5px',
       borderRadius: 4,
       background: 'var(--accent-grad)',
@@ -120,7 +120,7 @@ function Sidebar({
       textAlign: 'center',
       padding: '8px 12px',
       margin: '8px 16px',
-      fontSize: 12,
+      fontSize: 13,
       color: 'var(--text-3)',
       textDecoration: 'none',
       borderRadius: 6,
@@ -477,7 +477,7 @@ function UploadModal({
       borderRadius: 8,
       background: 'rgba(124, 128, 201, 0.08)',
       color: 'var(--text-2)',
-      fontSize: 12.5,
+      fontSize: 13.5,
       lineHeight: 1.5,
       border: '1px solid var(--card-border)'
     }
@@ -604,7 +604,7 @@ function UploadModal({
       background: f.status === 'err' ? 'rgba(201, 122, 122, 0.08)' : 'rgba(212, 190, 122, 0.10)',
       border: `1px solid ${f.status === 'err' ? 'rgba(201, 122, 122, 0.3)' : 'rgba(212, 190, 122, 0.3)'}`,
       borderRadius: 8,
-      fontSize: 12.5,
+      fontSize: 13.5,
       lineHeight: 1.55,
       color: 'var(--text-2)'
     }
@@ -740,7 +740,7 @@ function ManualEntry({
     className: "modal-sub",
     style: {
       marginTop: 12,
-      fontSize: 12
+      fontSize: 13
     }
   }, "\u300C\u5168\u90E8\u6263\u9664\u984D\u300D\u6703\u7531\u7CFB\u7D71\u81EA\u52D5\u8A08\u7B97\uFF08\u672C\u4EBA\u7E3D\u6240\u5F97\uFF0B\u914D\u5076\u7E3D\u6240\u5F97 \u2212 \u6240\u5F97\u6DE8\u984D\uFF09\u3002")) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "row"
@@ -759,7 +759,7 @@ function ManualEntry({
     className: "modal-sub",
     style: {
       marginTop: 12,
-      fontSize: 12
+      fontSize: 13
     }
   }, "\u300C\u5404\u985E\u6240\u5F97\u6E05\u55AE\u300D\u662F\u9078\u7528\u7684\uFF1B\u586B\u4E86\u6703\u89E3\u9396\u901F\u67E5\u8868\u7684\u300C\u6263\u7E73\u7A05\u984D\uFF0F\u9000\u7A05\u6216\u88DC\u7E73\u300D\u5169\u6B04\u3002")), /*#__PURE__*/React.createElement("div", {
     className: "modal-actions"
@@ -1088,7 +1088,7 @@ function EmptyState({
       borderRadius: 8,
       padding: '12px 14px',
       marginBottom: 18,
-      fontSize: 12.5,
+      fontSize: 13.5,
       color: 'var(--text-2)',
       lineHeight: 1.6
     }
@@ -1144,7 +1144,7 @@ function EmptyState({
     style: {
       color: 'var(--text-3)',
       marginTop: 6,
-      fontSize: 11.5
+      fontSize: 13
     }
   }, "\u203B \u7CFB\u7D71\u5C0D\u6BCF\u4EFD PDF \u6703\u81EA\u52D5\u5617\u8A66\u5169\u500B\u5BC6\u78BC\uFF0C\u7701\u53BB\u5206\u6279\u64CD\u4F5C\u3002\u9810\u8A2D\u5BC6\u78BC = \u8A72\u4EBA\u8EAB\u5206\u8B49\uFF08\u542B\u82F1\u6587\u5B57\u6BCD\u5927\u5BEB\uFF09")), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1220,7 +1220,7 @@ function EmptyState({
   })))), /*#__PURE__*/React.createElement("div", {
     style: {
       color: 'var(--text-3)',
-      fontSize: 11,
+      fontSize: 12.5,
       marginTop: 4
     }
   }, "\u203B \u5404\u985E\u6240\u5F97\u6E05\u55AE\u4E5F\u53EF\u5F9E ", /*#__PURE__*/React.createElement("a", {

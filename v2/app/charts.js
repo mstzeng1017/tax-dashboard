@@ -218,7 +218,7 @@ function LineChart({
           }, fmt(v, unit), " ", fmtUnit(unit), delta != null && /*#__PURE__*/React.createElement("span", {
             style: {
               marginLeft: 6,
-              fontSize: 12.5,
+              fontSize: 13.5,
               color: delta > 0 ? '#c99a73' : '#6fa896'
             }
           }, delta > 0 ? '↑' : '↓', Math.abs(delta * 100).toFixed(1), "%")));
@@ -517,7 +517,7 @@ function DonutChart({
     }
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 12.5,
+      fontSize: 13.5,
       color: 'var(--text-3)',
       marginBottom: 2
     }
@@ -529,7 +529,7 @@ function DonutChart({
     }
   }, fmt(centerValue, unit)), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 12,
+      fontSize: 13,
       color: 'var(--text-3)',
       marginTop: 2
     }

@@ -245,7 +245,7 @@ function App() {
       marginTop: 40,
       paddingTop: 18,
       borderTop: '1px solid var(--divider)',
-      fontSize: 11.5,
+      fontSize: 13,
       color: 'var(--text-3)',
       lineHeight: 1.6,
       textAlign: 'center'
@@ -363,7 +363,7 @@ class ErrorBoundary extends React.Component {
           borderRadius: 8,
           color: '#f5b6b6',
           whiteSpace: 'pre-wrap',
-          fontSize: 12.5,
+          fontSize: 13.5,
           marginTop: 14,
           overflow: 'auto'
         }

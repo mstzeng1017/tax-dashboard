@@ -177,7 +177,7 @@ function LineChart({ data, series, unit, type = 'line', height = 280 }) {
                           <span className="val">
                             {fmt(v, unit)} {fmtUnit(unit)}
                             {delta != null && (
-                              <span style={{ marginLeft: 6, fontSize: 12.5, color: delta > 0 ? '#c99a73' : '#6fa896' }}>
+                              <span style={{ marginLeft: 6, fontSize: 13.5, color: delta > 0 ? '#c99a73' : '#6fa896' }}>
                                 {delta > 0 ? '↑' : '↓'}{Math.abs(delta * 100).toFixed(1)}%
                               </span>
                             )}
@@ -421,11 +421,11 @@ function DonutChart({ slices, centerLabel, centerValue, unit, size = 220 }) {
         display: 'grid', placeItems: 'center', textAlign: 'center'
       }}>
         <div>
-          <div style={{ fontSize: 12.5, color: 'var(--text-3)', marginBottom: 2 }}>{centerLabel}</div>
+          <div style={{ fontSize: 13.5, color: 'var(--text-3)', marginBottom: 2 }}>{centerLabel}</div>
           <div style={{ fontSize: 22, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
             {fmt(centerValue, unit)}
           </div>
-          <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>{fmtUnit(unit)}</div>
+          <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 2 }}>{fmtUnit(unit)}</div>
         </div>
       </div>
     </div>

@@ -182,7 +182,7 @@ function V2KpiRow({ latest, isSingle, unit }) {
         unit={unit}
         suffix={(latest.incomeListMain || latest.incomeListSpouse) ? fmtUnit(unit) : null}
         sub={needsSpouseList && !isSingle
-          ? <span style={{ fontSize: 11, color: 'var(--warn-text)' }}>⚠️ 缺配偶清單，僅本人</span>
+          ? <span style={{ fontSize: 12.5, color: 'var(--warn-text)' }}>⚠️ 缺配偶清單，僅本人</span>
           : null}
         help={isSingle ? '你的清單裡所有扣繳合計。' : '本人 + 配偶清單的扣繳合計。已婚需兩份才完整。'}
       />
@@ -263,7 +263,7 @@ function RefundAndRateChart({ data, unit, height = 320 }) {
           return (
             <g key={'lt' + idx}>
               <line x1={padL} x2={W - padR} y1={ty} y2={ty} stroke="var(--text-3)" strokeWidth="0.5" opacity="0.18" />
-              <text x={padL - 8} y={ty + 3.5} textAnchor="end" fill={color} fontSize="10.5" opacity="0.75">
+              <text x={padL - 8} y={ty + 3.5} textAnchor="end" fill={color} fontSize="12" opacity="0.75">
                 {isPos ? '退 ' : '補 '}{fmt(Math.abs(v), unit)}
               </text>
             </g>
@@ -310,7 +310,7 @@ function RefundAndRateChart({ data, unit, height = 320 }) {
             return (
               <g key={'rfx' + i}>
                 <text x={x(i)} y={H - padB - 6} textAnchor="middle" fontSize="13" fill="var(--text-3)" opacity="0.65">×</text>
-                <text x={x(i)} y={H - padB - 18} textAnchor="middle" fontSize="9.5" fill="var(--text-3)">缺清單</text>
+                <text x={x(i)} y={H - padB - 18} textAnchor="middle" fontSize="12" fill="var(--text-3)">缺清單</text>
               </g>
             );
           }
@@ -323,7 +323,7 @@ function RefundAndRateChart({ data, unit, height = 320 }) {
           return (
             <g key={'rf' + i}>
               <circle cx={x(i)} cy={yPt} r="4.5" fill={color} stroke="var(--bg)" strokeWidth="2" />
-              <text x={x(i)} y={labelY} textAnchor="middle" fontSize="11" fill={color} fontWeight="600">
+              <text x={x(i)} y={labelY} textAnchor="middle" fontSize="12.5" fill={color} fontWeight="600">
                 {r > 0 ? '退 ' : r < 0 ? '補 ' : ''}{fmt(Math.abs(r), unit)}
               </text>
             </g>
@@ -345,7 +345,7 @@ function RefundAndRateChart({ data, unit, height = 320 }) {
           return (
             <g key={'rate' + i}>
               <circle cx={x(i)} cy={ry} r="3.5" fill="var(--bg)" stroke="var(--accent-2)" strokeWidth="2" />
-              <text x={x(i)} y={labelY} textAnchor="middle" fontSize="10" fill="var(--accent-2)" fontWeight="500" opacity="0.85">
+              <text x={x(i)} y={labelY} textAnchor="middle" fontSize="12" fill="var(--accent-2)" fontWeight="500" opacity="0.85">
                 {(d._effRate * 100).toFixed(1)}%
               </text>
             </g>
@@ -381,9 +381,9 @@ function PersonalDeepDive({ latest, isSingle, unit, owner = 'main', personName =
     <div className="card" style={{ marginTop: 18 }}>
       <h3 style={{ margin: 0, marginBottom: 12, fontSize: 14, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
         {title}
-        {personName && !isSingle && <span style={{ color: 'var(--text-3)', fontSize: 12, fontWeight: 400 }}>· {personName}</span>}
+        {personName && !isSingle && <span style={{ color: 'var(--text-3)', fontSize: 13, fontWeight: 400 }}>· {personName}</span>}
         <HelpHint text={`從納稅證明書明細抓出來：左邊圓餅 = ${ownerWord === '本人' && isSingle ? '你的' : ownerWord + '的'}所得類別佔比；右邊 = 扣繳單位 top 5（哪幾家公司給${ownerWord === '本人' && isSingle ? '你' : ownerWord}錢、各佔多少）。`} />
-        <span style={{ marginLeft: 4, color: 'var(--text-3)', fontSize: 12, fontWeight: 400 }}>{latest.year - 1911} 年度</span>
+        <span style={{ marginLeft: 4, color: 'var(--text-3)', fontSize: 13, fontWeight: 400 }}>{latest.year - 1911} 年度</span>
       </h3>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24, alignItems: 'center' }}>
         <div>
@@ -392,7 +392,7 @@ function PersonalDeepDive({ latest, isSingle, unit, owner = 'main', personName =
           )}
         </div>
         <div>
-          <div style={{ fontSize: 12, color: 'var(--text-3)', marginBottom: 8 }}>主要收入來源（扣繳單位 top 5）</div>
+          <div style={{ fontSize: 13, color: 'var(--text-3)', marginBottom: 8 }}>主要收入來源（扣繳單位 top 5）</div>
           {byPayer.length === 0 ? (
             <div style={{ color: 'var(--text-3)', fontSize: 13 }}>無資料</div>
           ) : (
@@ -404,17 +404,17 @@ function PersonalDeepDive({ latest, isSingle, unit, owner = 'main', personName =
                 const rankColor = (slices[i] && slices[i].color) || colors[i % colors.length];
                 return (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ width: 22, height: 22, borderRadius: 11, background: rankColor, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>{i + 1}</div>
+                    <div style={{ width: 22, height: 22, borderRadius: 11, background: rankColor, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12.5, fontWeight: 700, flexShrink: 0 }}>{i + 1}</div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
                       <div style={{ height: 4, background: 'var(--input-bg)', borderRadius: 2, marginTop: 4, overflow: 'hidden' }}>
                         <div style={{ width: pctVal + '%', height: '100%', background: rankColor }}></div>
                       </div>
                     </div>
-                    <div style={{ fontSize: 12, color: 'var(--text-2)', minWidth: 70, textAlign: 'right', flexShrink: 0 }}>
+                    <div style={{ fontSize: 13, color: 'var(--text-2)', minWidth: 70, textAlign: 'right', flexShrink: 0 }}>
                       {fmt(p.amount, unit)} <span style={{ color: 'var(--text-3)' }}>{fmtUnit(unit)}</span>
                     </div>
-                    <div style={{ fontSize: 11, color: 'var(--text-3)', minWidth: 38, textAlign: 'right', flexShrink: 0 }}>{pctVal.toFixed(0)}%</div>
+                    <div style={{ fontSize: 12.5, color: 'var(--text-3)', minWidth: 38, textAlign: 'right', flexShrink: 0 }}>{pctVal.toFixed(0)}%</div>
                   </div>
                 );
               })}
@@ -430,7 +430,7 @@ function KpiCardV2({ label, displayValue, locked, lockReason, valueColor, suffix
   if (locked) {
     return (
       <div className="card" style={{ display: 'flex', flexDirection: 'column', minHeight: 88 }}>
-        <div style={{ fontSize: 12, color: 'var(--text-3)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ fontSize: 13, color: 'var(--text-3)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
           <span>{label}</span>
           {help && <HelpHint text={help} />}
         </div>
@@ -443,7 +443,7 @@ function KpiCardV2({ label, displayValue, locked, lockReason, valueColor, suffix
   }
   return (
     <div className="card" style={{ display: 'flex', flexDirection: 'column', minHeight: 88 }}>
-      <div style={{ fontSize: 12, color: 'var(--text-3)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+      <div style={{ fontSize: 13, color: 'var(--text-3)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
         <span>{label}</span>
         {help && <HelpHint text={help} />}
       </div>
@@ -503,65 +503,28 @@ function OverviewSection({ years, unit, chartType, filingMode, taxpayerName, spo
           （西元 {latest.year} 年）{enriched.length > 1 ? `· 共 ${enriched.length} 個年度資料` : ''}
         </div>
       </div>
-      <div className={`stat-grid ${isSingle ? 'cols-4' : 'cols-6'}`}>
-        {!isSingle && (
-          <>
-            <StatCard
-              label="本人總所得"
-              value={latest._main} unit={unit}
-              source="tax-cert" srcTone="salary"
-              help="本人逐筆所得加總（薪資+營利+利息+機會+其他）。⚠️ 不等於 PDF「所得總額」— 那個是全戶合計再扣薪資特扣後的數字。"
-              sub={latest._combined ?
-                <span style={{ color: 'var(--text-3)' }}>佔合計 {pct((latest._main || 0) / latest._combined)}</span> :
-                null} />
-            <StatCard
-              label="配偶總所得"
-              value={latest._spouse} unit={unit}
-              source="tax-cert" srcTone="dependents"
-              help="配偶逐筆所得加總（薪資+營利+利息+機會+其他）。⚠️ 不等於 PDF「所得總額」— 那個是全戶合計再扣薪資特扣後的數字。"
-              sub={latest._combined ?
-                <span style={{ color: 'var(--text-3)' }}>佔合計 {pct((latest._spouse || 0) / latest._combined)}</span> :
-                null} />
-          </>
-        )}
-
-        <StatCard
-          label="所得合計"
-          value={latest._combined} unit={unit}
-          source="tax-cert" srcTone="total"
-          help={`今年${fpHelp}所有所得加總（直接讀自納稅證明書「所得細項」表，按身分證號分類加總${isSingle ? '本人' : '本人與配偶各自'}的所得）。`}
-          sub={combinedDelta != null ? <span style={{ color: combinedDelta > 0 ? '#6fa896' : '#c97a7a' }}>
-            {combinedDelta > 0 ? '↑' : '↓'} 較上年 {Math.abs(combinedDelta * 100).toFixed(1)}%
-          </span> : null} />
-
-        <StatCard
-          label="全部扣除額"
-          value={latest._deduction} unit={unit}
-          source="tax-cert" srcTone="other"
-          help="所得合計 − 所得淨額算出來的差額：包含免稅額（每位申報人/扶養親屬定額）+ 標準/列舉扣除額 + 特別扣除額（薪資、儲蓄、教育、長照、幼兒等）。扣愈多，最後課稅的所得淨額就愈低。"
-          sub={latest._combined ?
-            <span style={{ color: 'var(--text-3)' }}>佔合計 {pct(latest._deduction / latest._combined)}</span> :
-            null} />
-
-        <StatCard
-          label="所得淨額"
-          value={latest.netIncome} unit={unit}
-          source="tax-cert" srcTone="total"
-          help="直接讀自納稅證明書。所得合計扣除免稅額和扣除額後，真正用來課稅的金額。決定你落在哪個稅率級距、繳多少稅。"
-          sub={latest._combined ?
-            <span style={{ color: 'var(--text-3)' }}>佔合計 {pct(latest.netIncome / latest._combined)}</span> :
-            null} />
-
-        <StatCard
-          label="應納稅額"
-          value={latest.taxAmount} unit={unit}
-          source="tax-cert" srcTone="tax"
-          help={`直接讀自納稅證明書。今年${fpHelp}合計要繳給國稅局的所得稅金額。`}
-          sub={taxDelta != null ? <span className={taxDelta > 0 ? 'delta-up' : 'delta-down'}>
-            {taxDelta > 0 ? '↑' : '↓'} 較上年 {Math.abs(taxDelta * 100).toFixed(1)}%
-          </span> : null} />
-
-      </div>
+      {/* KPI 第一排: 已婚顯示本人+配偶 (raw 個人收入); 單身整排 hide.
+          砍掉所得合計/全部扣除額/所得淨額/應納稅額 (跟下方稅額算式拆解重複). */}
+      {!isSingle && (
+        <div className="stat-grid cols-2">
+          <StatCard
+            label="本人總所得"
+            value={latest._main} unit={unit}
+            source="tax-cert" srcTone="salary"
+            help="本人逐筆所得加總（薪資+營利+利息+機會+其他）。⚠️ 不等於 PDF「所得總額」— 那個是全戶合計再扣薪資特扣後的數字。"
+            sub={latest._combined ?
+              <span style={{ color: 'var(--text-3)' }}>佔合計 {pct((latest._main || 0) / latest._combined)}</span> :
+              null} />
+          <StatCard
+            label="配偶總所得"
+            value={latest._spouse} unit={unit}
+            source="tax-cert" srcTone="dependents"
+            help="配偶逐筆所得加總（薪資+營利+利息+機會+其他）。⚠️ 不等於 PDF「所得總額」— 那個是全戶合計再扣薪資特扣後的數字。"
+            sub={latest._combined ?
+              <span style={{ color: 'var(--text-3)' }}>佔合計 {pct((latest._spouse || 0) / latest._combined)}</span> :
+              null} />
+        </div>
+      )}
 
       {/* v2 KPI Row: 退稅 / 實效稅率 / 全戶扣繳 */}
       <V2KpiRow latest={latest} isSingle={isSingle} unit={unit} />
@@ -1042,7 +1005,7 @@ function TableRow({ y, isSingle, unit, colCount, taxpayerName, spouseName }) {
                         background: 'var(--warn-bg)',
                         border: '1px solid var(--warn-text)',
                         borderRadius: 10,
-                        fontSize: 12.5,
+                        fontSize: 13.5,
                         lineHeight: 1.5,
                         color: 'var(--warn-text)'
                       }}>
@@ -1110,7 +1073,7 @@ function TableSection({ years, unit, filingMode, taxpayerName, spouseName }) {
             </tbody>
           </table>
         </div>
-        <div className="table-footnote" style={{ padding: '12px 18px 8px', display: 'flex', gap: 14, fontSize: 12.5, color: 'var(--text-3)', flexWrap: 'wrap' }}>
+        <div className="table-footnote" style={{ padding: '12px 18px 8px', display: 'flex', gap: 14, fontSize: 13.5, color: 'var(--text-3)', flexWrap: 'wrap' }}>
           <span>單位：{fmtUnit(unit)}</span>
           <span className="sep">·</span>
           <span>本人/配偶總所得 = 納稅證明書「所得細項」按身分證號分類加總</span>

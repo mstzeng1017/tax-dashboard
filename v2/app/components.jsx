@@ -17,7 +17,7 @@ function Sidebar({ active, onNav, onUpload, onExport, onImport, onClear, hasData
       <div className="brand">
         <div className="brand-mark">稅</div>
         <div>
-          <div className="brand-text">所得稅總覽 <span style={{ fontSize: 11, padding: '1px 5px', borderRadius: 4, background: 'var(--accent-grad)', color: '#fff', verticalAlign: 'middle', marginLeft: 4 }}>v2</span></div>
+          <div className="brand-text">所得稅總覽 <span style={{ fontSize: 12.5, padding: '1px 5px', borderRadius: 4, background: 'var(--accent-grad)', color: '#fff', verticalAlign: 'middle', marginLeft: 4 }}>v2</span></div>
           <div className="brand-sub">Personal Tax Dashboard · 進階版</div>
         </div>
       </div>
@@ -60,7 +60,7 @@ function Sidebar({ active, onNav, onUpload, onExport, onImport, onClear, hasData
         </button>
       </div>
 
-      <a href="../" style={{ display: 'block', textAlign: 'center', padding: '8px 12px', margin: '8px 16px', fontSize: 12, color: 'var(--text-3)', textDecoration: 'none', borderRadius: 6, border: '1px solid var(--card-border)' }}>
+      <a href="../" style={{ display: 'block', textAlign: 'center', padding: '8px 12px', margin: '8px 16px', fontSize: 13, color: 'var(--text-3)', textDecoration: 'none', borderRadius: 6, border: '1px solid var(--card-border)' }}>
         ← 切回 v1 (簡潔版)
       </a>
 
@@ -274,7 +274,7 @@ function UploadModal({ onClose, onApplyParsed, defaultPassword, filingMode, spou
         <div style={{
           marginTop: 12, padding: '10px 12px', borderRadius: 8,
           background: 'rgba(124, 128, 201, 0.08)', color: 'var(--text-2)',
-          fontSize: 12.5, lineHeight: 1.5,
+          fontSize: 13.5, lineHeight: 1.5,
           border: '1px solid var(--card-border)'
         }}>
           <strong>💡 一次完成：</strong>把<strong>所有 PDF</strong>(本人 + 配偶) 一起拖進來。下方填密碼: <strong>單身</strong>只填本人身分證；<strong>已婚</strong>本人 + 配偶兩格都填。系統會對每份 PDF 自動嘗試兩個密碼，省去分批操作。
@@ -337,7 +337,7 @@ function UploadModal({ onClose, onApplyParsed, defaultPassword, filingMode, spou
                     background: f.status === 'err' ? 'rgba(201, 122, 122, 0.08)' : 'rgba(212, 190, 122, 0.10)',
                     border: `1px solid ${f.status === 'err' ? 'rgba(201, 122, 122, 0.3)' : 'rgba(212, 190, 122, 0.3)'}`,
                     borderRadius: 8,
-                    fontSize: 12.5,
+                    fontSize: 13.5,
                     lineHeight: 1.55,
                     color: 'var(--text-2)'
                   }}>
@@ -433,7 +433,7 @@ function ManualEntry({ file, onCancel, onSubmit }) {
               <div className="field"><label>應納稅額</label>
                 <input type="number" value={fields.taxAmount ?? ''} onChange={e => setF('taxAmount', e.target.value)} /></div>
             </div>
-            <div className="modal-sub" style={{ marginTop: 12, fontSize: 12 }}>
+            <div className="modal-sub" style={{ marginTop: 12, fontSize: 13 }}>
               「全部扣除額」會由系統自動計算（本人總所得＋配偶總所得 − 所得淨額）。
             </div>
           </>
@@ -445,7 +445,7 @@ function ManualEntry({ file, onCancel, onSubmit }) {
               <div className="field"><label>全戶扣繳稅額</label>
                 <input type="number" value={fields.totalWithheld ?? ''} onChange={e => setF('totalWithheld', e.target.value)} /></div>
             </div>
-            <div className="modal-sub" style={{ marginTop: 12, fontSize: 12 }}>
+            <div className="modal-sub" style={{ marginTop: 12, fontSize: 13 }}>
               「各類所得清單」是選用的；填了會解鎖速查表的「扣繳稅額／退稅或補繳」兩欄。
             </div>
           </>
@@ -633,7 +633,7 @@ function EmptyState({ onUpload, onSampleData }) {
             borderRadius: 8,
             padding: '12px 14px',
             marginBottom: 18,
-            fontSize: 12.5,
+            fontSize: 13.5,
             color: 'var(--text-2)',
             lineHeight: 1.6
           }}>
@@ -650,7 +650,7 @@ function EmptyState({ onUpload, onSampleData }) {
             <div style={{ marginLeft: 14, marginBottom: 6 }}>
               ・<strong style={{ color: 'var(--accent-1)' }}>已婚</strong> → 證明書 + 本人清單 + 配偶清單，<strong style={{ color: 'var(--text)' }}>兩格都填</strong>
             </div>
-            <div style={{ color: 'var(--text-3)', marginTop: 6, fontSize: 11.5 }}>※ 系統對每份 PDF 會自動嘗試兩個密碼，省去分批操作。預設密碼 = 該人身分證（含英文字母大寫）</div>
+            <div style={{ color: 'var(--text-3)', marginTop: 6, fontSize: 13 }}>※ 系統對每份 PDF 會自動嘗試兩個密碼，省去分批操作。預設密碼 = 該人身分證（含英文字母大寫）</div>
           </div>
 
           <div style={{ color: 'var(--text-2)', fontSize: 13.5, marginBottom: 12 }}>
@@ -686,7 +686,7 @@ function EmptyState({ onUpload, onSampleData }) {
               </svg>
             </a>
           </div>
-          <div style={{ color: 'var(--text-3)', fontSize: 11, marginTop: 4 }}>
+          <div style={{ color: 'var(--text-3)', fontSize: 12.5, marginTop: 4 }}>
             ※ 各類所得清單也可從 <a href="https://mydata.nat.gov.tw" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-2)', textDecoration: 'underline' }}>MyData 平台</a> 下載
           </div>
         </div>

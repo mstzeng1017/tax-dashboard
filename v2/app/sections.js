@@ -307,7 +307,7 @@ function V2KpiRow({
     suffix: latest.incomeListMain || latest.incomeListSpouse ? fmtUnit(unit) : null,
     sub: needsSpouseList && !isSingle ? /*#__PURE__*/React.createElement("span", {
       style: {
-        fontSize: 11,
+        fontSize: 12.5,
         color: 'var(--warn-text)'
       }
     }, "\u26A0\uFE0F \u7F3A\u914D\u5076\u6E05\u55AE\uFF0C\u50C5\u672C\u4EBA") : null,
@@ -424,7 +424,7 @@ function RefundAndRateChart({
       y: ty + 3.5,
       textAnchor: "end",
       fill: color,
-      fontSize: "10.5",
+      fontSize: "12",
       opacity: "0.75"
     }, isPos ? '退 ' : '補 ', fmt(Math.abs(v), unit)));
   }), validRefunds.length > 0 && /*#__PURE__*/React.createElement("text", {
@@ -479,7 +479,7 @@ function RefundAndRateChart({
         x: x(i),
         y: H - padB - 18,
         textAnchor: "middle",
-        fontSize: "9.5",
+        fontSize: "12",
         fill: "var(--text-3)"
       }, "\u7F3A\u6E05\u55AE"));
     }
@@ -502,7 +502,7 @@ function RefundAndRateChart({
       x: x(i),
       y: labelY,
       textAnchor: "middle",
-      fontSize: "11",
+      fontSize: "12.5",
       fill: color,
       fontWeight: "600"
     }, r > 0 ? '退 ' : r < 0 ? '補 ' : '', fmt(Math.abs(r), unit)));
@@ -530,7 +530,7 @@ function RefundAndRateChart({
       x: x(i),
       y: labelY,
       textAnchor: "middle",
-      fontSize: "10",
+      fontSize: "12",
       fill: "var(--accent-2)",
       fontWeight: "500",
       opacity: "0.85"
@@ -582,7 +582,7 @@ function PersonalDeepDive({
   }, title, personName && !isSingle && /*#__PURE__*/React.createElement("span", {
     style: {
       color: 'var(--text-3)',
-      fontSize: 12,
+      fontSize: 13,
       fontWeight: 400
     }
   }, "\xB7 ", personName), /*#__PURE__*/React.createElement(HelpHint, {
@@ -591,7 +591,7 @@ function PersonalDeepDive({
     style: {
       marginLeft: 4,
       color: 'var(--text-3)',
-      fontSize: 12,
+      fontSize: 13,
       fontWeight: 400
     }
   }, latest.year - 1911, " \u5E74\u5EA6")), /*#__PURE__*/React.createElement("div", {
@@ -609,7 +609,7 @@ function PersonalDeepDive({
     size: 220
   })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 12,
+      fontSize: 13,
       color: 'var(--text-3)',
       marginBottom: 8
     }
@@ -646,7 +646,7 @@ function PersonalDeepDive({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: 11,
+        fontSize: 12.5,
         fontWeight: 700,
         flexShrink: 0
       }
@@ -679,7 +679,7 @@ function PersonalDeepDive({
       }
     }))), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontSize: 12,
+        fontSize: 13,
         color: 'var(--text-2)',
         minWidth: 70,
         textAlign: 'right',
@@ -691,7 +691,7 @@ function PersonalDeepDive({
       }
     }, fmtUnit(unit))), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontSize: 11,
+        fontSize: 12.5,
         color: 'var(--text-3)',
         minWidth: 38,
         textAlign: 'right',
@@ -720,7 +720,7 @@ function KpiCardV2({
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        fontSize: 12,
+        fontSize: 13,
         color: 'var(--text-3)',
         marginBottom: 6,
         display: 'flex',
@@ -753,7 +753,7 @@ function KpiCardV2({
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 12,
+      fontSize: 13,
       color: 'var(--text-3)',
       marginBottom: 6,
       display: 'flex',
@@ -832,9 +832,9 @@ function OverviewSection({
       fontSize: 13,
       color: 'var(--text-3)'
     }
-  }, "\uFF08\u897F\u5143 ", latest.year, " \u5E74\uFF09", enriched.length > 1 ? `· 共 ${enriched.length} 個年度資料` : '')), /*#__PURE__*/React.createElement("div", {
-    className: `stat-grid ${isSingle ? 'cols-4' : 'cols-6'}`
-  }, !isSingle && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(StatCard, {
+  }, "\uFF08\u897F\u5143 ", latest.year, " \u5E74\uFF09", enriched.length > 1 ? `· 共 ${enriched.length} 個年度資料` : '')), !isSingle && /*#__PURE__*/React.createElement("div", {
+    className: "stat-grid cols-2"
+  }, /*#__PURE__*/React.createElement(StatCard, {
     label: "\u672C\u4EBA\u7E3D\u6240\u5F97",
     value: latest._main,
     unit: unit,
@@ -858,52 +858,6 @@ function OverviewSection({
         color: 'var(--text-3)'
       }
     }, "\u4F54\u5408\u8A08 ", pct((latest._spouse || 0) / latest._combined)) : null
-  })), /*#__PURE__*/React.createElement(StatCard, {
-    label: "\u6240\u5F97\u5408\u8A08",
-    value: latest._combined,
-    unit: unit,
-    source: "tax-cert",
-    srcTone: "total",
-    help: `今年${fpHelp}所有所得加總（直接讀自納稅證明書「所得細項」表，按身分證號分類加總${isSingle ? '本人' : '本人與配偶各自'}的所得）。`,
-    sub: combinedDelta != null ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: combinedDelta > 0 ? '#6fa896' : '#c97a7a'
-      }
-    }, combinedDelta > 0 ? '↑' : '↓', " \u8F03\u4E0A\u5E74 ", Math.abs(combinedDelta * 100).toFixed(1), "%") : null
-  }), /*#__PURE__*/React.createElement(StatCard, {
-    label: "\u5168\u90E8\u6263\u9664\u984D",
-    value: latest._deduction,
-    unit: unit,
-    source: "tax-cert",
-    srcTone: "other",
-    help: "\u6240\u5F97\u5408\u8A08 \u2212 \u6240\u5F97\u6DE8\u984D\u7B97\u51FA\u4F86\u7684\u5DEE\u984D\uFF1A\u5305\u542B\u514D\u7A05\u984D\uFF08\u6BCF\u4F4D\u7533\u5831\u4EBA/\u6276\u990A\u89AA\u5C6C\u5B9A\u984D\uFF09+ \u6A19\u6E96/\u5217\u8209\u6263\u9664\u984D + \u7279\u5225\u6263\u9664\u984D\uFF08\u85AA\u8CC7\u3001\u5132\u84C4\u3001\u6559\u80B2\u3001\u9577\u7167\u3001\u5E7C\u5152\u7B49\uFF09\u3002\u6263\u6108\u591A\uFF0C\u6700\u5F8C\u8AB2\u7A05\u7684\u6240\u5F97\u6DE8\u984D\u5C31\u6108\u4F4E\u3002",
-    sub: latest._combined ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: 'var(--text-3)'
-      }
-    }, "\u4F54\u5408\u8A08 ", pct(latest._deduction / latest._combined)) : null
-  }), /*#__PURE__*/React.createElement(StatCard, {
-    label: "\u6240\u5F97\u6DE8\u984D",
-    value: latest.netIncome,
-    unit: unit,
-    source: "tax-cert",
-    srcTone: "total",
-    help: "\u76F4\u63A5\u8B80\u81EA\u7D0D\u7A05\u8B49\u660E\u66F8\u3002\u6240\u5F97\u5408\u8A08\u6263\u9664\u514D\u7A05\u984D\u548C\u6263\u9664\u984D\u5F8C\uFF0C\u771F\u6B63\u7528\u4F86\u8AB2\u7A05\u7684\u91D1\u984D\u3002\u6C7A\u5B9A\u4F60\u843D\u5728\u54EA\u500B\u7A05\u7387\u7D1A\u8DDD\u3001\u7E73\u591A\u5C11\u7A05\u3002",
-    sub: latest._combined ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: 'var(--text-3)'
-      }
-    }, "\u4F54\u5408\u8A08 ", pct(latest.netIncome / latest._combined)) : null
-  }), /*#__PURE__*/React.createElement(StatCard, {
-    label: "\u61C9\u7D0D\u7A05\u984D",
-    value: latest.taxAmount,
-    unit: unit,
-    source: "tax-cert",
-    srcTone: "tax",
-    help: `直接讀自納稅證明書。今年${fpHelp}合計要繳給國稅局的所得稅金額。`,
-    sub: taxDelta != null ? /*#__PURE__*/React.createElement("span", {
-      className: taxDelta > 0 ? 'delta-up' : 'delta-down'
-    }, taxDelta > 0 ? '↑' : '↓', " \u8F03\u4E0A\u5E74 ", Math.abs(taxDelta * 100).toFixed(1), "%") : null
   })), /*#__PURE__*/React.createElement(V2KpiRow, {
     latest: latest,
     isSingle: isSingle,
@@ -1700,7 +1654,7 @@ function TableRow({
         background: 'var(--warn-bg)',
         border: '1px solid var(--warn-text)',
         borderRadius: 10,
-        fontSize: 12.5,
+        fontSize: 13.5,
         lineHeight: 1.5,
         color: 'var(--warn-text)'
       }
@@ -1776,7 +1730,7 @@ function TableSection({
       padding: '12px 18px 8px',
       display: 'flex',
       gap: 14,
-      fontSize: 12.5,
+      fontSize: 13.5,
       color: 'var(--text-3)',
       flexWrap: 'wrap'
     }

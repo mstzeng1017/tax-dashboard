@@ -213,7 +213,7 @@ function App() {
           marginTop: 40,
           paddingTop: 18,
           borderTop: '1px solid var(--divider)',
-          fontSize: 11.5,
+          fontSize: 13,
           color: 'var(--text-3)',
           lineHeight: 1.6,
           textAlign: 'center'
@@ -294,7 +294,7 @@ class ErrorBoundary extends React.Component {
       return (
         <div style={{ padding: 30, maxWidth: 720, margin: '40px auto', background: '#1a1d2e', color: '#fff', borderRadius: 12, border: '1px solid rgba(201,122,122,0.5)', fontFamily: '-apple-system, sans-serif' }}>
           <h2 style={{ color: '#f5b6b6', fontSize: 18, margin: 0 }}>⚠ Dashboard 載入失敗</h2>
-          <pre style={{ background: 'rgba(0,0,0,0.3)', padding: 14, borderRadius: 8, color: '#f5b6b6', whiteSpace: 'pre-wrap', fontSize: 12.5, marginTop: 14, overflow: 'auto' }}>
+          <pre style={{ background: 'rgba(0,0,0,0.3)', padding: 14, borderRadius: 8, color: '#f5b6b6', whiteSpace: 'pre-wrap', fontSize: 13.5, marginTop: 14, overflow: 'auto' }}>
             {this.state.error.message + '\n\n' + (this.state.error.stack || '')}
           </pre>
           <button onClick={() => { localStorage.clear(); location.reload(); }} style={{ marginTop: 14, padding: '9px 16px', background: '#7c80c9', color: 'white', border: 0, borderRadius: 8, cursor: 'pointer' }}>清空資料 + 重載</button>
