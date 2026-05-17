@@ -1271,7 +1271,8 @@ function MathTerm({
   }, label), /*#__PURE__*/React.createElement("div", {
     className: "math-val",
     style: {
-      color: emphasized ? color : 'var(--text)',
+      color: 'var(--text)',
+      // 字色一律白 (emphasized 改用 border + bg 高亮, 不染字色)
       fontSize: small ? 22 : 28
     }
   }, prefix && /*#__PURE__*/React.createElement("span", {

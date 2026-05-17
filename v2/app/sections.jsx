@@ -751,7 +751,7 @@ function MathTerm({ color, label, value, unitLabel, emphasized, muted, small, pr
     }}>
       <div className="math-label" style={{ color }}>{label}</div>
       <div className="math-val" style={{
-        color: emphasized ? color : 'var(--text)',
+        color: 'var(--text)',  // 字色一律白 (emphasized 改用 border + bg 高亮, 不染字色)
         fontSize: small ? 22 : 28
       }}>
         {prefix && <span style={{ marginRight: 2 }}>{prefix}</span>}
