@@ -244,10 +244,10 @@ function RefundAndRateChart({ data, unit, height = 320 }) {
   const yRate = v => padT + innerH - (v / rateMaxV) * innerH;
   const yZeroRefund = yRefund(0);
 
-  // bar 寬度: 每年度區段的 45%
+  // bar 寬度: 每兩個年度間距的 ~20% (上限 48px, 避免少資料時 bar 過寬)
   const barW = data.length > 1
-    ? (innerW / (data.length - 1)) * 0.42
-    : innerW * 0.2;
+    ? Math.min(48, (innerW / (data.length - 1)) * 0.20)
+    : 40;
 
   // segments — 稅率 (line 仍用 segment 處理缺資料中斷)
   const rateSegs = [];
@@ -304,7 +304,10 @@ function RefundAndRateChart({ data, unit, height = 320 }) {
           const yPt = yRefund(r);
           const barY = Math.min(yPt, yZeroRefund);
           const barH = Math.max(2, Math.abs(yPt - yZeroRefund));
-          const labelY = isPos ? barY - 7 : barY + barH + 16;
+          // 小 bar (height < 30) 強制 label 距 0 baseline 至少 22px, 避免 label 跟 baseline / rate label 撞
+          const labelY = isPos
+            ? Math.min(barY - 7, yZeroRefund - 22)
+            : Math.max(barY + barH + 16, yZeroRefund + 28);
           return (
             <g key={'rf' + i}>
               <rect x={x(i) - barW / 2} y={barY} width={barW} height={barH}
