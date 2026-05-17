@@ -302,7 +302,7 @@ function V2KpiRow({
     locked: !isSingle && !latest.incomeListMain && !latest.incomeListSpouse,
     lockReason: "\u9700\u5404\u985E\u6240\u5F97\u6E05\u55AE",
     displayValue: latest.incomeListMain || latest.incomeListSpouse ? fmt(householdWh, unit) : null,
-    valueColor: "var(--text-2)",
+    valueColor: "var(--text)",
     unit: unit,
     suffix: latest.incomeListMain || latest.incomeListSpouse ? fmtUnit(unit) : null,
     sub: needsSpouseList && !isSingle ? /*#__PURE__*/React.createElement("span", {

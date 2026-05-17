@@ -178,7 +178,7 @@ function V2KpiRow({ latest, isSingle, unit }) {
         displayValue={(latest.incomeListMain || latest.incomeListSpouse)
           ? fmt(householdWh, unit)
           : null}
-        valueColor="var(--text-2)"
+        valueColor="var(--text)"
         unit={unit}
         suffix={(latest.incomeListMain || latest.incomeListSpouse) ? fmtUnit(unit) : null}
         sub={needsSpouseList && !isSingle
