@@ -335,7 +335,12 @@ function V2KpiRow({
 }
 
 // === V2 退稅趨勢線圖 (支援正負雙向 + 零線) ===
-// === V2 雙軸折線: 退稅金額 (左) + 實效稅率 (右) — 原 RefundLineChart + EffectiveRateLineChart 合併 ===
+// === V2 雙軸: 退稅 bars (左軸) + 實效稅率 line (右軸) ===
+//   - bars 對稱於 0 baseline (退↑綠 / 補↓rust)
+//   - 拿掉左軸數字 ticks (bars 自帶 label, 重複)
+//   - 0 baseline 粗實線 (退/補分界線最重要)
+//   - 稅率 line solid + 加粗 + rust 跳色 (跟 background card 灰藍區分)
+//   - 右軸 max = data max × 1.15 (減 padding)
 function RefundAndRateChart({
   data,
   unit,
@@ -343,11 +348,10 @@ function RefundAndRateChart({
 }) {
   const W = 760,
     H = height;
-  // padB 60 給 X 軸 label 足夠空間 (避免左軸最底 tick label 跟年度標角落擠)
-  const padL = 70,
+  const padL = 30,
     padR = 60,
-    padT = 36,
-    padB = 60;
+    padT = 30,
+    padB = 50;
   const innerW = W - padL - padR;
   const innerH = H - padT - padB;
   const validRefunds = data.map(d => d._refund).filter(v => v != null);
@@ -366,32 +370,25 @@ function RefundAndRateChart({
   const refunds = data.map(d => d._refund || 0);
   const refundMaxV = validRefunds.length ? Math.max(0, ...refunds) : 0;
   const refundMinV = validRefunds.length ? Math.min(0, ...refunds) : 0;
-  const refundRange = refundMaxV - refundMinV || 1;
+  // 對稱 padding: 兩邊都加 12% 讓 bar 跟 label 有空間
+  const refundPad = Math.max(Math.abs(refundMaxV), Math.abs(refundMinV)) * 0.18 || 1;
+  const refundTop = refundMaxV + refundPad;
+  const refundBot = refundMinV - refundPad;
+  const refundRange = refundTop - refundBot || 1;
 
-  // 右軸 (實效稅率) — 從 0 到 max*1.2, 跟原本 EffectiveRateLineChart 一致
-  const rateMaxV = validRates.length ? Math.max(0.05, ...validRates) * 1.2 : 0.1;
+  // 右軸 (實效稅率) — max × 1.15 (原 ×1.2, 減 padding)
+  const rateMaxV = validRates.length ? Math.max(0.05, ...validRates) * 1.15 : 0.1;
   const x = i => padL + (data.length === 1 ? innerW / 2 : i / (data.length - 1) * innerW);
-  const yRefund = v => padT + innerH - (v - refundMinV) / refundRange * innerH;
+  const yRefund = v => padT + innerH - (v - refundBot) / refundRange * innerH;
   const yRate = v => padT + innerH - v / rateMaxV * innerH;
   const yZeroRefund = yRefund(0);
 
-  // segments — 退稅
-  const refundSegs = [];
-  let cur = [];
-  data.forEach((d, i) => {
-    if (d._refund != null) cur.push({
-      x: x(i),
-      y: yRefund(d._refund)
-    });else {
-      if (cur.length >= 2) refundSegs.push(cur);
-      cur = [];
-    }
-  });
-  if (cur.length >= 2) refundSegs.push(cur);
+  // bar 寬度: 每年度區段的 45%
+  const barW = data.length > 1 ? innerW / (data.length - 1) * 0.42 : innerW * 0.2;
 
-  // segments — 稅率
+  // segments — 稅率 (line 仍用 segment 處理缺資料中斷)
   const rateSegs = [];
-  cur = [];
+  let cur = [];
   data.forEach((d, i) => {
     if (d._effRate != null) cur.push({
       x: x(i),
@@ -410,26 +407,11 @@ function RefundAndRateChart({
     className: "chart-svg",
     viewBox: `0 0 ${W} ${H}`,
     preserveAspectRatio: "none"
-  }, validRefunds.length > 0 && /*#__PURE__*/React.createElement("line", {
-    x1: padL,
-    x2: W - padR,
-    y1: yZeroRefund,
-    y2: yZeroRefund,
-    stroke: "var(--text-3)",
-    strokeWidth: "1.2",
-    strokeDasharray: "3,3",
-    opacity: "0.5"
-  }), validRefunds.length > 0 && [0, 0.25, 0.5, 0.75, 1].map((p, idx) => {
-    const v = refundMinV + (refundMaxV - refundMinV) * p;
-    const ty = yRefund(v);
-    // skip 跟 0 線太近的 tick (避免「退 0.00」+「0」重疊)
-    if (Math.abs(ty - yZeroRefund) < 14) return null;
-    // skip 接近 0 的值 (用 0 線本身代表)
-    if (Math.abs(v) < refundRange * 0.02) return null;
-    const isPos = v > 0;
-    const color = isPos ? 'var(--good)' : 'var(--bad)';
+  }, validRates.length > 0 && [0.25, 0.5, 0.75, 1].map(p => {
+    const v = rateMaxV * p;
+    const ty = yRate(v);
     return /*#__PURE__*/React.createElement("g", {
-      key: 'lt' + idx
+      key: 'rt' + p
     }, /*#__PURE__*/React.createElement("line", {
       x1: padL,
       x2: W - padR,
@@ -437,86 +419,66 @@ function RefundAndRateChart({
       y2: ty,
       stroke: "var(--text-3)",
       strokeWidth: "0.5",
-      opacity: "0.18"
+      opacity: "0.12"
     }), /*#__PURE__*/React.createElement("text", {
-      x: padL - 8,
-      y: ty + 3.5,
-      textAnchor: "end",
-      fill: color,
-      fontSize: "12",
-      opacity: "0.75"
-    }, isPos ? '退 ' : '補 ', fmt(Math.abs(v), unit)));
-  }), validRefunds.length > 0 && /*#__PURE__*/React.createElement("text", {
-    className: "axis-text",
-    x: padL - 8,
-    y: yZeroRefund + 3.5,
-    textAnchor: "end",
-    fill: "var(--text-3)"
-  }, "0"), validRates.length > 0 && [0, 0.25, 0.5, 0.75, 1].map(p => {
-    const v = rateMaxV * p;
-    return /*#__PURE__*/React.createElement("text", {
-      key: 'rt' + p,
       className: "axis-text value",
       x: W - padR + 8,
-      y: yRate(v) + 3.5,
+      y: ty + 3.5,
       textAnchor: "start",
-      fill: "var(--accent-2)",
-      opacity: "0.75"
-    }, (v * 100).toFixed(1), "%");
+      fill: "var(--text-3)",
+      fontSize: "12"
+    }, (v * 100).toFixed(1), "%"));
+  }), validRefunds.length > 0 && /*#__PURE__*/React.createElement("line", {
+    x1: padL,
+    x2: W - padR,
+    y1: yZeroRefund,
+    y2: yZeroRefund,
+    stroke: "var(--text-2)",
+    strokeWidth: "2",
+    opacity: "0.55"
   }), data.map((d, i) => /*#__PURE__*/React.createElement("text", {
     key: 'yr' + i,
     className: "axis-text",
     x: x(i),
-    y: H - padB + 24,
+    y: H - padB + 22,
     textAnchor: "middle"
-  }, d.year - 1911)), rateSegs.map((seg, idx) => /*#__PURE__*/React.createElement("polyline", {
-    key: 'rate-line' + idx,
-    fill: "none",
-    stroke: "var(--accent-2)",
-    strokeWidth: "1.8",
-    strokeDasharray: "5,3",
-    opacity: "0.75",
-    points: seg.map(p => `${p.x},${p.y}`).join(' ')
-  })), refundSegs.map((seg, idx) => /*#__PURE__*/React.createElement("polyline", {
-    key: 'refund-line' + idx,
-    fill: "none",
-    stroke: "var(--accent-1)",
-    strokeWidth: "2.25",
-    points: seg.map(p => `${p.x},${p.y}`).join(' ')
-  })), data.map((d, i) => {
+  }, d.year - 1911)), data.map((d, i) => {
     if (d._refund == null) {
       return /*#__PURE__*/React.createElement("g", {
         key: 'rfx' + i
       }, /*#__PURE__*/React.createElement("text", {
         x: x(i),
-        y: H - padB - 6,
+        y: yZeroRefund + 4,
         textAnchor: "middle",
         fontSize: "13",
         fill: "var(--text-3)",
-        opacity: "0.65"
+        opacity: "0.55"
       }, "\xD7"), /*#__PURE__*/React.createElement("text", {
         x: x(i),
-        y: H - padB - 18,
+        y: yZeroRefund + 20,
         textAnchor: "middle",
-        fontSize: "12",
-        fill: "var(--text-3)"
+        fontSize: "11",
+        fill: "var(--text-3)",
+        opacity: "0.7"
       }, "\u7F3A\u6E05\u55AE"));
     }
     const r = d._refund;
-    const color = r > 0 ? 'var(--good)' : r < 0 ? 'var(--bad)' : 'var(--text-2)';
-    // label 一律放上方 (避免下方撞 X 軸); 例外: 點離頂太近就改下方但加更多 offset
+    const isPos = r > 0;
+    const color = isPos ? 'var(--good)' : r < 0 ? 'var(--bad)' : 'var(--text-2)';
     const yPt = yRefund(r);
-    const tooCloseToTop = yPt - padT < 16;
-    const labelY = tooCloseToTop ? yPt + 18 : yPt - 10;
+    const barY = Math.min(yPt, yZeroRefund);
+    const barH = Math.max(2, Math.abs(yPt - yZeroRefund));
+    const labelY = isPos ? barY - 7 : barY + barH + 16;
     return /*#__PURE__*/React.createElement("g", {
       key: 'rf' + i
-    }, /*#__PURE__*/React.createElement("circle", {
-      cx: x(i),
-      cy: yPt,
-      r: "4.5",
+    }, /*#__PURE__*/React.createElement("rect", {
+      x: x(i) - barW / 2,
+      y: barY,
+      width: barW,
+      height: barH,
       fill: color,
-      stroke: "var(--bg)",
-      strokeWidth: "2"
+      opacity: "0.85",
+      rx: "2"
     }), /*#__PURE__*/React.createElement("text", {
       x: x(i),
       y: labelY,
@@ -524,35 +486,35 @@ function RefundAndRateChart({
       fontSize: "12.5",
       fill: color,
       fontWeight: "600"
-    }, r > 0 ? '退 ' : r < 0 ? '補 ' : '', fmt(Math.abs(r), unit)));
-  }), data.map((d, i) => {
+    }, isPos ? '退 ' : r < 0 ? '補 ' : '', fmt(Math.abs(r), unit)));
+  }), rateSegs.map((seg, idx) => /*#__PURE__*/React.createElement("polyline", {
+    key: 'rate-line' + idx,
+    fill: "none",
+    stroke: "var(--bad)",
+    strokeWidth: "2.6",
+    points: seg.map(p => `${p.x},${p.y}`).join(' ')
+  })), data.map((d, i) => {
     if (d._effRate == null) return null;
-    // 稅率 label 預設在資料點下方; 但如果跟退稅資料點 (上方 label) 太近則改下方再下移
     const ry = yRate(d._effRate);
-    const refundY = d._refund != null ? yRefund(d._refund) : null;
-    const isRefundLabelAbove = d._refund != null && d._refund >= 0;
-    // 稅率資料點 label 預設下方 +14, 若會跟退稅資料點 label 衝突 (距離 < 18px) 則往下再加
-    let labelY = ry + 14;
-    if (refundY != null && Math.abs(ry - refundY) < 22) {
-      labelY = isRefundLabelAbove ? ry + 18 : ry - 10;
-    }
+    // label 上下交錯避開 bar label: bar 在上時 label 在點下方; bar 在下時 label 在點上方
+    const r = d._refund;
+    const labelY = r != null && r < 0 ? ry - 9 : ry + 16;
     return /*#__PURE__*/React.createElement("g", {
       key: 'rate' + i
     }, /*#__PURE__*/React.createElement("circle", {
       cx: x(i),
       cy: ry,
-      r: "3.5",
-      fill: "var(--bg)",
-      stroke: "var(--accent-2)",
+      r: "4",
+      fill: "var(--bad)",
+      stroke: "var(--card)",
       strokeWidth: "2"
     }), /*#__PURE__*/React.createElement("text", {
       x: x(i),
       y: labelY,
       textAnchor: "middle",
       fontSize: "12",
-      fill: "var(--accent-2)",
-      fontWeight: "500",
-      opacity: "0.85"
+      fill: "var(--bad)",
+      fontWeight: "600"
     }, (d._effRate * 100).toFixed(1), "%"));
   })));
 }
@@ -1013,63 +975,56 @@ function OverviewSection({
     netIncome: latest.netIncome,
     unit: unit,
     adYear: latest.year
-  })), enriched.length >= 2 && enriched.some(y => y._refund != null || y._effRate != null) && (() => {
-    const refundsArr = enriched.map(y => y._refund).filter(v => v != null);
-    const ratesArr = enriched.map(y => y._effRate).filter(v => v != null);
-    const refMax = refundsArr.length ? Math.max(0, ...refundsArr) : 0;
-    const refMin = refundsArr.length ? Math.min(0, ...refundsArr) : 0;
-    const rateMax = ratesArr.length ? Math.max(...ratesArr) : 0;
-    const rangeBits = [];
-    if (refMin < 0) rangeBits.push(`補 ${fmt(Math.abs(refMin), unit)}`);
-    if (refMax > 0) rangeBits.push(`退 ${fmt(refMax, unit)}`);
-    const refRange = rangeBits.length ? rangeBits.join(' ~ ') + ' ' + fmtUnit(unit) : '—';
-    const rateRange = rateMax > 0 ? `0 ~ ${(rateMax * 100).toFixed(1)}%` : '—';
-    return /*#__PURE__*/React.createElement("div", {
-      className: "chart-card",
-      style: {
-        marginBottom: 18
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "chart-head"
-    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
-      style: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 8
-      }
-    }, "\u6B77\u5E74\u9000\u7A05 + \u5BE6\u6548\u7A05\u7387", /*#__PURE__*/React.createElement(HelpHint, {
-      text: "\u9000\u7A05 = \u5168\u6236\u6263\u7E73 \u2212 \u61C9\u7D0D\u7A05\u984D\uFF08\u7DA0\u9000\u3001\u7D05\u88DC\uFF1B\u7F3A\u6E05\u55AE\u6A19 \xD7\uFF09\u3002\u5BE6\u6548\u7A05\u7387 = \u61C9\u7D0D\u7A05\u984D \xF7 \u5168\u5BB6\u6240\u5F97\uFF08\u865B\u7DDA\uFF09\u3002\u4E00\u5F35\u5716\u770B\u51FA\u5169\u500B\u6307\u6A19\u4E00\u8D77\u8B8A\u5316\uFF1A\u7A05\u7387\u9AD8\u7684\u5E74\u4EFD\u901A\u5E38\u9000\u7A05\u4E5F\u5C11\u3002"
-    })), /*#__PURE__*/React.createElement("div", {
-      className: "chart-sub"
-    }, "\u5DE6\u8EF8\u9000\u7A05\u7BC4\u570D ", /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: 'var(--text-2)'
-      }
-    }, refRange), "\u3000\xB7\u3000\u53F3\u8EF8\u7A05\u7387 ", /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: 'var(--text-2)'
-      }
-    }, rateRange))), /*#__PURE__*/React.createElement("div", {
-      className: "legend"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "legend-item"
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "legend-swatch line",
-      style: {
-        background: 'var(--accent-1)'
-      }
-    }), "\u9000\u7A05"), /*#__PURE__*/React.createElement("div", {
-      className: "legend-item"
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "legend-swatch dashed",
-      style: {
-        color: 'var(--accent-2)'
-      }
-    }), "\u5BE6\u6548\u7A05\u7387"))), /*#__PURE__*/React.createElement(RefundAndRateChart, {
-      data: enriched,
-      unit: unit
-    }));
-  })(), enriched.length >= 2 && enriched.some(y => y._salary || y._dividend || y._interest || y._otherCat) && (() => {
+  })), enriched.length >= 2 && enriched.some(y => y._refund != null || y._effRate != null) && /*#__PURE__*/React.createElement("div", {
+    className: "chart-card",
+    style: {
+      marginBottom: 18
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "chart-head"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 8
+    }
+  }, "\u6B77\u5E74\u9000\u7A05 + \u5BE6\u6548\u7A05\u7387", /*#__PURE__*/React.createElement(HelpHint, {
+    text: "\u9000\u7A05 = \u5168\u6236\u6263\u7E73 \u2212 \u61C9\u7D0D\u7A05\u984D\uFF08\u7DA0 bar \u9000\u3001rust bar \u88DC\uFF1B\u7F3A\u6E05\u55AE\u6A19 \xD7\uFF09\u3002\u5BE6\u6548\u7A05\u7387 = \u61C9\u7D0D\u7A05\u984D \xF7 \u5168\u5BB6\u6240\u5F97\uFF08rust \u7DDA\uFF09\u3002\u4E00\u5F35\u5716\u770B\u5169\u500B\u6307\u6A19\u4E00\u8D77\u8B8A\u5316\uFF1A\u7A05\u7387\u9AD8\u7684\u5E74\u4EFD\u901A\u5E38\u9000\u7A05\u4E5F\u5C11\u3002"
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "legend"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "legend-item"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "legend-swatch",
+    style: {
+      background: 'var(--good)',
+      width: 12,
+      height: 12,
+      display: 'inline-block',
+      borderRadius: 2
+    }
+  }), "\u9000\u7A05"), /*#__PURE__*/React.createElement("div", {
+    className: "legend-item"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "legend-swatch",
+    style: {
+      background: 'var(--bad)',
+      width: 12,
+      height: 12,
+      display: 'inline-block',
+      borderRadius: 2
+    }
+  }), "\u88DC\u7E73"), /*#__PURE__*/React.createElement("div", {
+    className: "legend-item"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "legend-swatch line",
+    style: {
+      background: 'var(--bad)'
+    }
+  }), "\u5BE6\u6548\u7A05\u7387"))), /*#__PURE__*/React.createElement(RefundAndRateChart, {
+    data: enriched,
+    unit: unit
+  })), enriched.length >= 2 && enriched.some(y => y._salary || y._dividend || y._interest || y._otherCat) && (() => {
     const stacks = isSingle ? [{
       key: '_salary',
       label: '薪資',
