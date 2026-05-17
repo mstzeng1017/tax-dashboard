@@ -557,13 +557,16 @@ function RefundAndRateChart({
   })));
 }
 
-// === V2 收入分析 (圓餅 + 扣繳單位 top 5) — owner='main' 本人 / 'spouse' 配偶 ===
+// === V2 收入分析 (圓餅 + 扣繳單位 top 5) — owner='main' 本人 / 'spouse' 配偶
+//     availableYears + onYearChange = 可選年份 (兩個 deepdive sync 同一個 selected year, state 在 OverviewSection)
 function PersonalDeepDive({
   latest,
   isSingle,
   unit,
   owner = 'main',
-  personName = null
+  personName = null,
+  availableYears = null,
+  onYearChange = null
 }) {
   if (!latest) return null;
   const byCat = latest.byCategory && latest.byCategory[owner] || {};
@@ -588,10 +591,16 @@ function PersonalDeepDive({
     style: {
       marginTop: 18
     }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex-between",
+    style: {
+      marginBottom: 12,
+      flexWrap: 'wrap',
+      gap: 8
+    }
   }, /*#__PURE__*/React.createElement("h3", {
     style: {
       margin: 0,
-      marginBottom: 12,
       fontSize: 14,
       fontWeight: 600,
       display: 'inline-flex',
@@ -606,12 +615,37 @@ function PersonalDeepDive({
     }
   }, "\xB7 ", personName), /*#__PURE__*/React.createElement(HelpHint, {
     text: `從納稅證明書明細抓出來：左邊圓餅 = ${ownerWord === '本人' && isSingle ? '你的' : ownerWord + '的'}所得類別佔比；右邊 = 扣繳單位 top 5（哪幾家公司給${ownerWord === '本人' && isSingle ? '你' : ownerWord}錢、各佔多少）。`
-  }), /*#__PURE__*/React.createElement("span", {
+  })), availableYears && availableYears.length >= 2 ? /*#__PURE__*/React.createElement("div", {
     style: {
-      marginLeft: 4,
+      display: 'flex',
+      gap: 4,
+      background: 'var(--input-bg)',
+      padding: 3,
+      borderRadius: 8,
+      border: '1px solid var(--input-border)'
+    }
+  }, availableYears.map(y => {
+    const isActive = y === latest.year;
+    return /*#__PURE__*/React.createElement("button", {
+      key: y,
+      onClick: () => onYearChange && onYearChange(y),
+      style: {
+        border: 0,
+        padding: '5px 11px',
+        borderRadius: 6,
+        cursor: 'pointer',
+        fontFamily: 'inherit',
+        fontSize: 13,
+        fontWeight: isActive ? 600 : 400,
+        background: isActive ? 'var(--accent-grad)' : 'transparent',
+        color: isActive ? '#fff' : 'var(--text-2)',
+        transition: 'all 0.15s'
+      }
+    }, y - 1911);
+  })) : /*#__PURE__*/React.createElement("span", {
+    style: {
       color: 'var(--text-3)',
-      fontSize: 13,
-      fontWeight: 400
+      fontSize: 13
     }
   }, latest.year - 1911, " \u5E74\u5EA6")), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -828,6 +862,13 @@ function OverviewSection({
   const taxDelta = prev && prev.taxAmount && latest.taxAmount ? (latest.taxAmount - prev.taxAmount) / prev.taxAmount : null;
   const combinedDelta = prev && prev._combined && latest._combined ? (latest._combined - prev._combined) / prev._combined : null;
   const refundOrOwe = latest._refund;
+
+  // PersonalDeepDive year selector — 預設 latest, 用戶可切其他年
+  // 只取有 byCategory 或 byPayer 的年 (其他年沒收入明細, 切過去沒意義)
+  const deepDiveCandidates = enriched.filter(y => y.byCategory && (Object.keys(y.byCategory.main || {}).length > 0 || Object.keys(y.byCategory.spouse || {}).length > 0) || y.byPayer && y.byPayer.length > 0);
+  const [deepDiveYear, setDeepDiveYear] = useState(null);
+  const deepDiveLatest = deepDiveYear ? deepDiveCandidates.find(y => y.year === deepDiveYear) || latest : deepDiveCandidates.find(y => y.year === latest.year) || deepDiveCandidates[deepDiveCandidates.length - 1] || latest;
+  const deepDiveYearOptions = deepDiveCandidates.map(y => y.year);
   return /*#__PURE__*/React.createElement("div", {
     className: "anim-fade-in"
   }, /*#__PURE__*/React.createElement(PrivacyBanner, null), /*#__PURE__*/React.createElement("div", {
@@ -851,7 +892,40 @@ function OverviewSection({
       fontSize: 13,
       color: 'var(--text-3)'
     }
-  }, "\uFF08\u897F\u5143 ", latest.year, " \u5E74\uFF09", enriched.length > 1 ? `· 共 ${enriched.length} 個年度資料` : '')), !isSingle && /*#__PURE__*/React.createElement("div", {
+  }, "\uFF08\u897F\u5143 ", latest.year, " \u5E74\uFF09", enriched.length > 1 ? `· 共 ${enriched.length} 個年度資料` : '')), latest.dependents && latest.dependents.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "card",
+    style: {
+      marginBottom: 18
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex-between",
+    style: {
+      marginBottom: 14
+    }
+  }, /*#__PURE__*/React.createElement("h3", {
+    style: {
+      margin: 0,
+      fontSize: 17,
+      fontWeight: 600
+    }
+  }, latest.year - 1911, " \u5E74\u5EA6 \u6276\u990A\u89AA\u5C6C ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: 'var(--text-3)',
+      fontWeight: 400,
+      fontSize: 15
+    }
+  }, "\u5171 ", latest.dependents.length, " \u4F4D"))), /*#__PURE__*/React.createElement("div", {
+    className: "dep-grid"
+  }, latest.dependents.map((d, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    className: "dep-chip"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "dep-avatar"
+  }, d.slice(0, 1)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "dep-name"
+  }, d), /*#__PURE__*/React.createElement("div", {
+    className: "dep-meta"
+  }, "\u6276\u990A\u89AA\u5C6C")))))), !isSingle && /*#__PURE__*/React.createElement("div", {
     className: "stat-grid cols-2"
   }, /*#__PURE__*/React.createElement(StatCard, {
     label: "\u672C\u4EBA\u7E3D\u6240\u5F97",
@@ -918,9 +992,9 @@ function OverviewSection({
       style: {
         display: 'inline-flex',
         alignItems: 'center',
-        gap: 6,
-        fontSize: 13,
-        padding: '6px 12px',
+        gap: 7,
+        fontSize: 15,
+        padding: '7px 14px',
         borderRadius: 999,
         background: `color-mix(in srgb, ${c} 14%, transparent)`,
         color: c,
@@ -929,9 +1003,9 @@ function OverviewSection({
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
+        width: 7,
+        height: 7,
+        borderRadius: 3.5,
         background: c
       }
     }), "\u843D\u5728 ", brackets[idx].label, " \u7D1A\u8DDD");
@@ -995,57 +1069,8 @@ function OverviewSection({
       data: enriched,
       unit: unit
     }));
-  })(), enriched.length >= 2 && enriched.some(y => y._salary || y._dividend || y._interest || y._otherCat) && /*#__PURE__*/React.createElement("div", {
-    className: "chart-card",
-    style: {
-      marginBottom: 18
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "chart-head"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
-    style: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 8
-    }
-  }, "\u6B77\u5E74\u6536\u5165\u7D50\u69CB", /*#__PURE__*/React.createElement(HelpHint, {
-    text: "\u628A\u6BCF\u5E74\u6240\u6709\u6536\u5165\u6309\u985E\u5225\u5806\u758A\uFF1A\u85AA\u8CC7/\u80A1\u5229+\u71DF\u5229/\u5229\u606F/\u5176\u4ED6\u3002\u770B\u85AA\u8CC7\u4F54\u6BD4\u4E0B\u964D = \u88AB\u52D5\u6536\u5165\u589E\u52A0\uFF1B\u80A1\u5229\u6210\u9577 = \u6295\u8CC7\u7D2F\u7A4D\u6709\u6210\u3002"
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "chart-sub"
-  }, isSingle ? '按所得類別分' : '本人 / 配偶 拆開，各按所得類別分')), /*#__PURE__*/React.createElement("div", {
-    className: "legend"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "legend-item"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "legend-swatch",
-    style: {
-      background: 'var(--series-salary)'
-    }
-  }), "\u85AA\u8CC7"), /*#__PURE__*/React.createElement("div", {
-    className: "legend-item"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "legend-swatch",
-    style: {
-      background: 'var(--series-dividend)'
-    }
-  }), "\u80A1\u5229+\u71DF\u5229"), /*#__PURE__*/React.createElement("div", {
-    className: "legend-item"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "legend-swatch",
-    style: {
-      background: 'var(--series-interest)'
-    }
-  }), "\u5229\u606F"), /*#__PURE__*/React.createElement("div", {
-    className: "legend-item"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "legend-swatch",
-    style: {
-      background: 'var(--series-other)'
-    }
-  }), "\u5176\u4ED6"))), isSingle ? /*#__PURE__*/React.createElement(StackedBarChart, {
-    data: enriched,
-    unit: unit,
-    stacks: [{
+  })(), enriched.length >= 2 && enriched.some(y => y._salary || y._dividend || y._interest || y._otherCat) && (() => {
+    const stacks = isSingle ? [{
       key: '_salary',
       label: '薪資',
       color: 'var(--series-salary)'
@@ -1061,66 +1086,60 @@ function OverviewSection({
       key: '_otherCat',
       label: '其他',
       color: 'var(--series-other)'
-    }]
-  }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 13,
-      color: 'var(--text-2)',
-      marginTop: 6,
-      marginBottom: 4,
-      fontWeight: 500
-    }
-  }, "\u672C\u4EBA", taxpayerName ? ` · ${taxpayerName}` : ''), /*#__PURE__*/React.createElement(StackedBarChart, {
-    data: enriched,
-    unit: unit,
-    height: 240,
-    stacks: [{
+    }] : [{
       key: '_salaryMain',
-      label: '薪資',
+      label: '本人薪資',
       color: 'var(--series-salary)'
     }, {
-      key: '_dividendMain',
-      label: '股利+營利',
-      color: 'var(--series-dividend)'
-    }, {
-      key: '_interestMain',
-      label: '利息',
-      color: 'var(--series-interest)'
-    }, {
-      key: '_otherCatMain',
-      label: '其他',
-      color: 'var(--series-other)'
-    }]
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 13,
-      color: 'var(--text-2)',
-      marginTop: 18,
-      marginBottom: 4,
-      fontWeight: 500
-    }
-  }, "\u914D\u5076", spouseName ? ` · ${spouseName}` : ''), /*#__PURE__*/React.createElement(StackedBarChart, {
-    data: enriched,
-    unit: unit,
-    height: 240,
-    stacks: [{
       key: '_salarySpouse',
-      label: '薪資',
-      color: 'var(--series-salary)'
+      label: '配偶薪資',
+      color: 'var(--series-spouse-salary)'
     }, {
-      key: '_dividendSpouse',
+      key: '_dividend',
       label: '股利+營利',
       color: 'var(--series-dividend)'
     }, {
-      key: '_interestSpouse',
+      key: '_interest',
       label: '利息',
       color: 'var(--series-interest)'
     }, {
-      key: '_otherCatSpouse',
+      key: '_otherCat',
       label: '其他',
       color: 'var(--series-other)'
-    }]
-  }))), /*#__PURE__*/React.createElement("div", {
+    }];
+    return /*#__PURE__*/React.createElement("div", {
+      className: "chart-card",
+      style: {
+        marginBottom: 18
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "chart-head"
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+      style: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 8
+      }
+    }, "\u6B77\u5E74\u6536\u5165\u7D50\u69CB", /*#__PURE__*/React.createElement(HelpHint, {
+      text: "\u628A\u6BCF\u5E74\u6240\u6709\u6536\u5165\u6309\u985E\u5225\u5806\u758A\uFF1A\u85AA\u8CC7/\u80A1\u5229+\u71DF\u5229/\u5229\u606F/\u5176\u4ED6\u3002\u5DF2\u5A5A\u85AA\u8CC7\u518D\u62C6\u672C\u4EBA vs \u914D\u5076\u5169\u8272\u3002\u770B\u85AA\u8CC7\u4F54\u6BD4\u4E0B\u964D = \u88AB\u52D5\u6536\u5165\u589E\u52A0\uFF1B\u80A1\u5229\u6210\u9577 = \u6295\u8CC7\u7D2F\u7A4D\u6709\u6210\u3002"
+    })), /*#__PURE__*/React.createElement("div", {
+      className: "chart-sub"
+    }, isSingle ? '按所得類別分' : '薪資拆本人/配偶兩色, 其餘類別本人+配偶合計')), /*#__PURE__*/React.createElement("div", {
+      className: "legend"
+    }, stacks.map(s => /*#__PURE__*/React.createElement("div", {
+      key: s.key,
+      className: "legend-item"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "legend-swatch",
+      style: {
+        background: s.color
+      }
+    }), s.label)))), /*#__PURE__*/React.createElement(StackedBarChart, {
+      data: enriched,
+      unit: unit,
+      stacks: stacks
+    }));
+  })(), /*#__PURE__*/React.createElement("div", {
     className: "chart-card",
     style: {
       marginBottom: 18
@@ -1179,50 +1198,22 @@ function OverviewSection({
       dashed: true
     }
   })), /*#__PURE__*/React.createElement(PersonalDeepDive, {
-    latest: latest,
+    latest: deepDiveLatest,
     isSingle: isSingle,
     unit: unit,
     owner: "main",
-    personName: taxpayerName
+    personName: taxpayerName,
+    availableYears: deepDiveYearOptions,
+    onYearChange: setDeepDiveYear
   }), !isSingle && /*#__PURE__*/React.createElement(PersonalDeepDive, {
-    latest: latest,
+    latest: deepDiveLatest,
     isSingle: false,
     unit: unit,
     owner: "spouse",
-    personName: spouseName
-  }), latest.dependents && latest.dependents.length > 0 && /*#__PURE__*/React.createElement("div", {
-    className: "card",
-    style: {
-      marginTop: 18
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex-between",
-    style: {
-      marginBottom: 12
-    }
-  }, /*#__PURE__*/React.createElement("h3", {
-    style: {
-      margin: 0,
-      fontSize: 14,
-      fontWeight: 600
-    }
-  }, latest.year - 1911, " \u5E74\u5EA6 \u6276\u990A\u89AA\u5C6C ", /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: 'var(--text-3)',
-      fontWeight: 400
-    }
-  }, "\u5171 ", latest.dependents.length, " \u4F4D"))), /*#__PURE__*/React.createElement("div", {
-    className: "dep-grid"
-  }, latest.dependents.map((d, i) => /*#__PURE__*/React.createElement("div", {
-    key: i,
-    className: "dep-chip"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "dep-avatar"
-  }, d.slice(0, 1)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "dep-name"
-  }, d), /*#__PURE__*/React.createElement("div", {
-    className: "dep-meta"
-  }, "\u6276\u990A\u89AA\u5C6C")))))));
+    personName: spouseName,
+    availableYears: deepDiveYearOptions,
+    onYearChange: setDeepDiveYear
+  }));
 }
 function TaxMathStrip({
   latest,

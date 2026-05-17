@@ -368,8 +368,9 @@ function RefundAndRateChart({ data, unit, height = 320 }) {
   );
 }
 
-// === V2 收入分析 (圓餅 + 扣繳單位 top 5) — owner='main' 本人 / 'spouse' 配偶 ===
-function PersonalDeepDive({ latest, isSingle, unit, owner = 'main', personName = null }) {
+// === V2 收入分析 (圓餅 + 扣繳單位 top 5) — owner='main' 本人 / 'spouse' 配偶
+//     availableYears + onYearChange = 可選年份 (兩個 deepdive sync 同一個 selected year, state 在 OverviewSection)
+function PersonalDeepDive({ latest, isSingle, unit, owner = 'main', personName = null, availableYears = null, onYearChange = null }) {
   if (!latest) return null;
   const byCat = (latest.byCategory && latest.byCategory[owner]) || {};
   const byPayer = (latest.byPayer || []).filter(p => p.owner === owner);
@@ -391,12 +392,36 @@ function PersonalDeepDive({ latest, isSingle, unit, owner = 'main', personName =
 
   return (
     <div className="card" style={{ marginTop: 18 }}>
-      <h3 style={{ margin: 0, marginBottom: 12, fontSize: 14, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-        {title}
-        {personName && !isSingle && <span style={{ color: 'var(--text-3)', fontSize: 13, fontWeight: 400 }}>· {personName}</span>}
-        <HelpHint text={`從納稅證明書明細抓出來：左邊圓餅 = ${ownerWord === '本人' && isSingle ? '你的' : ownerWord + '的'}所得類別佔比；右邊 = 扣繳單位 top 5（哪幾家公司給${ownerWord === '本人' && isSingle ? '你' : ownerWord}錢、各佔多少）。`} />
-        <span style={{ marginLeft: 4, color: 'var(--text-3)', fontSize: 13, fontWeight: 400 }}>{latest.year - 1911} 年度</span>
-      </h3>
+      <div className="flex-between" style={{ marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+        <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+          {title}
+          {personName && !isSingle && <span style={{ color: 'var(--text-3)', fontSize: 13, fontWeight: 400 }}>· {personName}</span>}
+          <HelpHint text={`從納稅證明書明細抓出來：左邊圓餅 = ${ownerWord === '本人' && isSingle ? '你的' : ownerWord + '的'}所得類別佔比；右邊 = 扣繳單位 top 5（哪幾家公司給${ownerWord === '本人' && isSingle ? '你' : ownerWord}錢、各佔多少）。`} />
+        </h3>
+        {/* 年份選擇 — 只在 availableYears 有 ≥2 年時顯示 */}
+        {availableYears && availableYears.length >= 2 ? (
+          <div style={{ display: 'flex', gap: 4, background: 'var(--input-bg)', padding: 3, borderRadius: 8, border: '1px solid var(--input-border)' }}>
+            {availableYears.map(y => {
+              const isActive = y === latest.year;
+              return (
+                <button key={y}
+                  onClick={() => onYearChange && onYearChange(y)}
+                  style={{
+                    border: 0, padding: '5px 11px', borderRadius: 6, cursor: 'pointer',
+                    fontFamily: 'inherit', fontSize: 13, fontWeight: isActive ? 600 : 400,
+                    background: isActive ? 'var(--accent-grad)' : 'transparent',
+                    color: isActive ? '#fff' : 'var(--text-2)',
+                    transition: 'all 0.15s'
+                  }}>
+                  {y - 1911}
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <span style={{ color: 'var(--text-3)', fontSize: 13 }}>{latest.year - 1911} 年度</span>
+        )}
+      </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24, alignItems: 'center' }}>
         <div>
           {slices.length > 0 && (
@@ -492,6 +517,15 @@ function OverviewSection({ years, unit, chartType, filingMode, taxpayerName, spo
 
   const refundOrOwe = latest._refund;
 
+  // PersonalDeepDive year selector — 預設 latest, 用戶可切其他年
+  // 只取有 byCategory 或 byPayer 的年 (其他年沒收入明細, 切過去沒意義)
+  const deepDiveCandidates = enriched.filter(y => (y.byCategory && (Object.keys(y.byCategory.main || {}).length > 0 || Object.keys(y.byCategory.spouse || {}).length > 0)) || (y.byPayer && y.byPayer.length > 0));
+  const [deepDiveYear, setDeepDiveYear] = useState(null);
+  const deepDiveLatest = deepDiveYear
+    ? (deepDiveCandidates.find(y => y.year === deepDiveYear) || latest)
+    : (deepDiveCandidates.find(y => y.year === latest.year) || deepDiveCandidates[deepDiveCandidates.length - 1] || latest);
+  const deepDiveYearOptions = deepDiveCandidates.map(y => y.year);
+
   return (
     <div className="anim-fade-in">
       <PrivacyBanner />
@@ -515,6 +549,28 @@ function OverviewSection({ years, unit, chartType, filingMode, taxpayerName, spo
           （西元 {latest.year} 年）{enriched.length > 1 ? `· 共 ${enriched.length} 個年度資料` : ''}
         </div>
       </div>
+      {/* Dependents — 移到最上面, 字放大 (Astro 要求) */}
+      {latest.dependents && latest.dependents.length > 0 &&
+        <div className="card" style={{ marginBottom: 18 }}>
+          <div className="flex-between" style={{ marginBottom: 14 }}>
+            <h3 style={{ margin: 0, fontSize: 17, fontWeight: 600 }}>
+              {latest.year - 1911} 年度 扶養親屬 <span style={{ color: 'var(--text-3)', fontWeight: 400, fontSize: 15 }}>共 {latest.dependents.length} 位</span>
+            </h3>
+          </div>
+          <div className="dep-grid">
+            {latest.dependents.map((d, i) =>
+              <div key={i} className="dep-chip">
+                <div className="dep-avatar">{d.slice(0, 1)}</div>
+                <div>
+                  <div className="dep-name">{d}</div>
+                  <div className="dep-meta">扶養親屬</div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      }
+
       {/* KPI 第一排: 已婚顯示本人+配偶 (raw 個人收入); 單身整排 hide.
           砍掉所得合計/全部扣除額/所得淨額/應納稅額 (跟下方稅額算式拆解重複). */}
       {!isSingle && (
@@ -562,13 +618,13 @@ function OverviewSection({ years, unit, chartType, filingMode, taxpayerName, spo
               const c = bColors[idx];
               return (
                 <div style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 6,
-                  fontSize: 13, padding: '6px 12px', borderRadius: 999,
+                  display: 'inline-flex', alignItems: 'center', gap: 7,
+                  fontSize: 15, padding: '7px 14px', borderRadius: 999,
                   background: `color-mix(in srgb, ${c} 14%, transparent)`,
                   color: c, fontWeight: 600,
                   border: `1px solid color-mix(in srgb, ${c} 35%, transparent)`
                 }}>
-                  <span style={{ width: 6, height: 6, borderRadius: 3, background: c }}></span>
+                  <span style={{ width: 7, height: 7, borderRadius: 3.5, background: c }}></span>
                   落在 {brackets[idx].label} 級距
                 </div>
               );
@@ -612,69 +668,42 @@ function OverviewSection({ years, unit, chartType, filingMode, taxpayerName, spo
         );
       })()}
 
-      {/* v2 收入結構跨年堆疊圖 — 已婚拆本人/配偶兩圖, 單身一張合計 */}
-      {enriched.length >= 2 && enriched.some(y => y._salary || y._dividend || y._interest || y._otherCat) && (
-        <div className="chart-card" style={{ marginBottom: 18 }}>
-          <div className="chart-head">
-            <div>
-              <h3 style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                歷年收入結構
-                <HelpHint text="把每年所有收入按類別堆疊：薪資/股利+營利/利息/其他。看薪資佔比下降 = 被動收入增加；股利成長 = 投資累積有成。" />
-              </h3>
-              <div className="chart-sub">{isSingle ? '按所得類別分' : '本人 / 配偶 拆開，各按所得類別分'}</div>
+      {/* v2 收入結構跨年堆疊圖 — 1 張圖, 薪資已婚拆本人/配偶 (用不同色) */}
+      {enriched.length >= 2 && enriched.some(y => y._salary || y._dividend || y._interest || y._otherCat) && (() => {
+        const stacks = isSingle ? [
+          { key: '_salary', label: '薪資', color: 'var(--series-salary)' },
+          { key: '_dividend', label: '股利+營利', color: 'var(--series-dividend)' },
+          { key: '_interest', label: '利息', color: 'var(--series-interest)' },
+          { key: '_otherCat', label: '其他', color: 'var(--series-other)' }
+        ] : [
+          { key: '_salaryMain', label: '本人薪資', color: 'var(--series-salary)' },
+          { key: '_salarySpouse', label: '配偶薪資', color: 'var(--series-spouse-salary)' },
+          { key: '_dividend', label: '股利+營利', color: 'var(--series-dividend)' },
+          { key: '_interest', label: '利息', color: 'var(--series-interest)' },
+          { key: '_otherCat', label: '其他', color: 'var(--series-other)' }
+        ];
+        return (
+          <div className="chart-card" style={{ marginBottom: 18 }}>
+            <div className="chart-head">
+              <div>
+                <h3 style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                  歷年收入結構
+                  <HelpHint text="把每年所有收入按類別堆疊：薪資/股利+營利/利息/其他。已婚薪資再拆本人 vs 配偶兩色。看薪資佔比下降 = 被動收入增加；股利成長 = 投資累積有成。" />
+                </h3>
+                <div className="chart-sub">{isSingle ? '按所得類別分' : '薪資拆本人/配偶兩色, 其餘類別本人+配偶合計'}</div>
+              </div>
+              <div className="legend">
+                {stacks.map(s => (
+                  <div key={s.key} className="legend-item">
+                    <span className="legend-swatch" style={{ background: s.color }}></span>{s.label}
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="legend">
-              <div className="legend-item"><span className="legend-swatch" style={{ background: 'var(--series-salary)' }}></span>薪資</div>
-              <div className="legend-item"><span className="legend-swatch" style={{ background: 'var(--series-dividend)' }}></span>股利+營利</div>
-              <div className="legend-item"><span className="legend-swatch" style={{ background: 'var(--series-interest)' }}></span>利息</div>
-              <div className="legend-item"><span className="legend-swatch" style={{ background: 'var(--series-other)' }}></span>其他</div>
-            </div>
+            <StackedBarChart data={enriched} unit={unit} stacks={stacks} />
           </div>
-          {isSingle ? (
-            <StackedBarChart
-              data={enriched}
-              unit={unit}
-              stacks={[
-                { key: '_salary', label: '薪資', color: 'var(--series-salary)' },
-                { key: '_dividend', label: '股利+營利', color: 'var(--series-dividend)' },
-                { key: '_interest', label: '利息', color: 'var(--series-interest)' },
-                { key: '_otherCat', label: '其他', color: 'var(--series-other)' }
-              ]}
-            />
-          ) : (
-            <>
-              <div style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 6, marginBottom: 4, fontWeight: 500 }}>
-                本人{taxpayerName ? ` · ${taxpayerName}` : ''}
-              </div>
-              <StackedBarChart
-                data={enriched}
-                unit={unit}
-                height={240}
-                stacks={[
-                  { key: '_salaryMain', label: '薪資', color: 'var(--series-salary)' },
-                  { key: '_dividendMain', label: '股利+營利', color: 'var(--series-dividend)' },
-                  { key: '_interestMain', label: '利息', color: 'var(--series-interest)' },
-                  { key: '_otherCatMain', label: '其他', color: 'var(--series-other)' }
-                ]}
-              />
-              <div style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 18, marginBottom: 4, fontWeight: 500 }}>
-                配偶{spouseName ? ` · ${spouseName}` : ''}
-              </div>
-              <StackedBarChart
-                data={enriched}
-                unit={unit}
-                height={240}
-                stacks={[
-                  { key: '_salarySpouse', label: '薪資', color: 'var(--series-salary)' },
-                  { key: '_dividendSpouse', label: '股利+營利', color: 'var(--series-dividend)' },
-                  { key: '_interestSpouse', label: '利息', color: 'var(--series-interest)' },
-                  { key: '_otherCatSpouse', label: '其他', color: 'var(--series-other)' }
-                ]}
-              />
-            </>
-          )}
-        </div>
-      )}
+        );
+      })()}
 
       {/* Combo: stacked bar (淨額+扣除額) + line (應納稅額) */}
       <div className="chart-card" style={{ marginBottom: 18 }}>
@@ -703,33 +732,28 @@ function OverviewSection({ years, unit, chartType, filingMode, taxpayerName, spo
         />
       </div>
 
-      {/* v2 收入分析: 本人 + (已婚) 配偶 */}
-      <PersonalDeepDive latest={latest} isSingle={isSingle} unit={unit} owner="main" personName={taxpayerName} />
+      {/* v2 收入分析: 本人 + (已婚) 配偶 — 可切年份 (兩個 deepdive sync 同一個 year) */}
+      <PersonalDeepDive
+        latest={deepDiveLatest}
+        isSingle={isSingle}
+        unit={unit}
+        owner="main"
+        personName={taxpayerName}
+        availableYears={deepDiveYearOptions}
+        onYearChange={setDeepDiveYear}
+      />
       {!isSingle && (
-        <PersonalDeepDive latest={latest} isSingle={false} unit={unit} owner="spouse" personName={spouseName} />
+        <PersonalDeepDive
+          latest={deepDiveLatest}
+          isSingle={false}
+          unit={unit}
+          owner="spouse"
+          personName={spouseName}
+          availableYears={deepDiveYearOptions}
+          onYearChange={setDeepDiveYear}
+        />
       )}
 
-      {/* Dependents */}
-      {latest.dependents && latest.dependents.length > 0 &&
-        <div className="card" style={{ marginTop: 18 }}>
-          <div className="flex-between" style={{ marginBottom: 12 }}>
-            <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>
-              {latest.year - 1911} 年度 扶養親屬 <span style={{ color: 'var(--text-3)', fontWeight: 400 }}>共 {latest.dependents.length} 位</span>
-            </h3>
-          </div>
-          <div className="dep-grid">
-            {latest.dependents.map((d, i) =>
-              <div key={i} className="dep-chip">
-                <div className="dep-avatar">{d.slice(0, 1)}</div>
-                <div>
-                  <div className="dep-name">{d}</div>
-                  <div className="dep-meta">扶養親屬</div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      }
     </div>
   );
 }
