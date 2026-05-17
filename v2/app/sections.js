@@ -231,18 +231,29 @@ function deriveYear(y, isSingle) {
   }
   const effRate = y.taxAmount && y.grossIncome ? y.taxAmount / y.grossIncome : null;
   const needsSpouseList = !isSingle && !!y.incomeListMain && !y.incomeListSpouse;
-  // v2: byCategory 跨年堆疊用 (合併本人+配偶)
+  // v2: byCategory 跨年堆疊用 (合併本人+配偶, 同時保留 main/spouse 分別 — 已婚拆開圖用)
   const cat = y.byCategory || {
     main: {},
     spouse: {}
   };
   const cm = cat.main || {},
     cs = cat.spouse || {};
+  const OTHER_CATS = ['機會', '競技', '其他', '執行業務', '租賃', '權利金', '稿費', '版稅', '財產交易', '退職', '受益人', '自力耕作'];
   const sumCat = k => (cm[k] || 0) + (cs[k] || 0);
+  const sumOwnerCat = (oc, k) => oc[k] || 0;
   const _salary = sumCat('薪資');
-  const _dividend = sumCat('股利') + sumCat('營利'); // 營利多為配股配息
+  const _dividend = sumCat('股利') + sumCat('營利');
   const _interest = sumCat('利息');
-  const _otherCat = sumCat('機會') + sumCat('競技') + sumCat('其他') + sumCat('執行業務') + sumCat('租賃') + sumCat('權利金') + sumCat('稿費') + sumCat('版稅') + sumCat('財產交易') + sumCat('退職') + sumCat('受益人') + sumCat('自力耕作');
+  const _otherCat = OTHER_CATS.reduce((s, k) => s + sumCat(k), 0);
+  // owner-specific
+  const _salaryMain = sumOwnerCat(cm, '薪資');
+  const _salarySpouse = sumOwnerCat(cs, '薪資');
+  const _dividendMain = sumOwnerCat(cm, '股利') + sumOwnerCat(cm, '營利');
+  const _dividendSpouse = sumOwnerCat(cs, '股利') + sumOwnerCat(cs, '營利');
+  const _interestMain = sumOwnerCat(cm, '利息');
+  const _interestSpouse = sumOwnerCat(cs, '利息');
+  const _otherCatMain = OTHER_CATS.reduce((s, k) => s + sumOwnerCat(cm, k), 0);
+  const _otherCatSpouse = OTHER_CATS.reduce((s, k) => s + sumOwnerCat(cs, k), 0);
   return {
     ...y,
     _main: main,
@@ -257,7 +268,15 @@ function deriveYear(y, isSingle) {
     _salary,
     _dividend,
     _interest,
-    _otherCat
+    _otherCat,
+    _salaryMain,
+    _salarySpouse,
+    _dividendMain,
+    _dividendSpouse,
+    _interestMain,
+    _interestSpouse,
+    _otherCatMain,
+    _otherCatSpouse
   };
 }
 
@@ -993,7 +1012,7 @@ function OverviewSection({
     text: "\u628A\u6BCF\u5E74\u6240\u6709\u6536\u5165\u6309\u985E\u5225\u5806\u758A\uFF1A\u85AA\u8CC7/\u80A1\u5229+\u71DF\u5229/\u5229\u606F/\u5176\u4ED6\u3002\u770B\u85AA\u8CC7\u4F54\u6BD4\u4E0B\u964D = \u88AB\u52D5\u6536\u5165\u589E\u52A0\uFF1B\u80A1\u5229\u6210\u9577 = \u6295\u8CC7\u7D2F\u7A4D\u6709\u6210\u3002"
   })), /*#__PURE__*/React.createElement("div", {
     className: "chart-sub"
-  }, "\u672C\u4EBA + \u914D\u5076\u5408\u8A08\uFF0C\u6309\u6240\u5F97\u985E\u5225\u5206")), /*#__PURE__*/React.createElement("div", {
+  }, isSingle ? '按所得類別分' : '本人 / 配偶 拆開，各按所得類別分')), /*#__PURE__*/React.createElement("div", {
     className: "legend"
   }, /*#__PURE__*/React.createElement("div", {
     className: "legend-item"
@@ -1023,7 +1042,7 @@ function OverviewSection({
     style: {
       background: 'var(--series-other)'
     }
-  }), "\u5176\u4ED6"))), /*#__PURE__*/React.createElement(StackedBarChart, {
+  }), "\u5176\u4ED6"))), isSingle ? /*#__PURE__*/React.createElement(StackedBarChart, {
     data: enriched,
     unit: unit,
     stacks: [{
@@ -1043,7 +1062,65 @@ function OverviewSection({
       label: '其他',
       color: 'var(--series-other)'
     }]
-  })), /*#__PURE__*/React.createElement("div", {
+  }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: 'var(--text-2)',
+      marginTop: 6,
+      marginBottom: 4,
+      fontWeight: 500
+    }
+  }, "\u672C\u4EBA", taxpayerName ? ` · ${taxpayerName}` : ''), /*#__PURE__*/React.createElement(StackedBarChart, {
+    data: enriched,
+    unit: unit,
+    height: 240,
+    stacks: [{
+      key: '_salaryMain',
+      label: '薪資',
+      color: 'var(--series-salary)'
+    }, {
+      key: '_dividendMain',
+      label: '股利+營利',
+      color: 'var(--series-dividend)'
+    }, {
+      key: '_interestMain',
+      label: '利息',
+      color: 'var(--series-interest)'
+    }, {
+      key: '_otherCatMain',
+      label: '其他',
+      color: 'var(--series-other)'
+    }]
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: 'var(--text-2)',
+      marginTop: 18,
+      marginBottom: 4,
+      fontWeight: 500
+    }
+  }, "\u914D\u5076", spouseName ? ` · ${spouseName}` : ''), /*#__PURE__*/React.createElement(StackedBarChart, {
+    data: enriched,
+    unit: unit,
+    height: 240,
+    stacks: [{
+      key: '_salarySpouse',
+      label: '薪資',
+      color: 'var(--series-salary)'
+    }, {
+      key: '_dividendSpouse',
+      label: '股利+營利',
+      color: 'var(--series-dividend)'
+    }, {
+      key: '_interestSpouse',
+      label: '利息',
+      color: 'var(--series-interest)'
+    }, {
+      key: '_otherCatSpouse',
+      label: '其他',
+      color: 'var(--series-other)'
+    }]
+  }))), /*#__PURE__*/React.createElement("div", {
     className: "chart-card",
     style: {
       marginBottom: 18

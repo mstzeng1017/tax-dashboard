@@ -114,23 +114,35 @@ function deriveYear(y, isSingle) {
   }
   const effRate = (y.taxAmount && y.grossIncome) ? y.taxAmount / y.grossIncome : null;
   const needsSpouseList = !isSingle && !!y.incomeListMain && !y.incomeListSpouse;
-  // v2: byCategory 跨年堆疊用 (合併本人+配偶)
+  // v2: byCategory 跨年堆疊用 (合併本人+配偶, 同時保留 main/spouse 分別 — 已婚拆開圖用)
   const cat = y.byCategory || { main: {}, spouse: {} };
   const cm = cat.main || {}, cs = cat.spouse || {};
+  const OTHER_CATS = ['機會', '競技', '其他', '執行業務', '租賃', '權利金', '稿費', '版稅', '財產交易', '退職', '受益人', '自力耕作'];
   const sumCat = (k) => (cm[k] || 0) + (cs[k] || 0);
+  const sumOwnerCat = (oc, k) => (oc[k] || 0);
   const _salary = sumCat('薪資');
-  const _dividend = sumCat('股利') + sumCat('營利'); // 營利多為配股配息
+  const _dividend = sumCat('股利') + sumCat('營利');
   const _interest = sumCat('利息');
-  const _otherCat = sumCat('機會') + sumCat('競技') + sumCat('其他')
-                  + sumCat('執行業務') + sumCat('租賃') + sumCat('權利金')
-                  + sumCat('稿費') + sumCat('版稅') + sumCat('財產交易')
-                  + sumCat('退職') + sumCat('受益人') + sumCat('自力耕作');
+  const _otherCat = OTHER_CATS.reduce((s, k) => s + sumCat(k), 0);
+  // owner-specific
+  const _salaryMain = sumOwnerCat(cm, '薪資');
+  const _salarySpouse = sumOwnerCat(cs, '薪資');
+  const _dividendMain = sumOwnerCat(cm, '股利') + sumOwnerCat(cm, '營利');
+  const _dividendSpouse = sumOwnerCat(cs, '股利') + sumOwnerCat(cs, '營利');
+  const _interestMain = sumOwnerCat(cm, '利息');
+  const _interestSpouse = sumOwnerCat(cs, '利息');
+  const _otherCatMain = OTHER_CATS.reduce((s, k) => s + sumOwnerCat(cm, k), 0);
+  const _otherCatSpouse = OTHER_CATS.reduce((s, k) => s + sumOwnerCat(cs, k), 0);
   return {
     ...y,
     _main: main, _spouse: spouse, _combined: combined, _deduction: deduction,
     _refund: refund, _householdWh: householdWh, _totalCreditable: totalCreditable,
     _effRate: effRate, _needsSpouseList: needsSpouseList,
-    _salary, _dividend, _interest, _otherCat
+    _salary, _dividend, _interest, _otherCat,
+    _salaryMain, _salarySpouse,
+    _dividendMain, _dividendSpouse,
+    _interestMain, _interestSpouse,
+    _otherCatMain, _otherCatSpouse
   };
 }
 
@@ -600,7 +612,7 @@ function OverviewSection({ years, unit, chartType, filingMode, taxpayerName, spo
         );
       })()}
 
-      {/* v2 收入結構跨年堆疊圖 */}
+      {/* v2 收入結構跨年堆疊圖 — 已婚拆本人/配偶兩圖, 單身一張合計 */}
       {enriched.length >= 2 && enriched.some(y => y._salary || y._dividend || y._interest || y._otherCat) && (
         <div className="chart-card" style={{ marginBottom: 18 }}>
           <div className="chart-head">
@@ -609,7 +621,7 @@ function OverviewSection({ years, unit, chartType, filingMode, taxpayerName, spo
                 歷年收入結構
                 <HelpHint text="把每年所有收入按類別堆疊：薪資/股利+營利/利息/其他。看薪資佔比下降 = 被動收入增加；股利成長 = 投資累積有成。" />
               </h3>
-              <div className="chart-sub">本人 + 配偶合計，按所得類別分</div>
+              <div className="chart-sub">{isSingle ? '按所得類別分' : '本人 / 配偶 拆開，各按所得類別分'}</div>
             </div>
             <div className="legend">
               <div className="legend-item"><span className="legend-swatch" style={{ background: 'var(--series-salary)' }}></span>薪資</div>
@@ -618,16 +630,49 @@ function OverviewSection({ years, unit, chartType, filingMode, taxpayerName, spo
               <div className="legend-item"><span className="legend-swatch" style={{ background: 'var(--series-other)' }}></span>其他</div>
             </div>
           </div>
-          <StackedBarChart
-            data={enriched}
-            unit={unit}
-            stacks={[
-              { key: '_salary', label: '薪資', color: 'var(--series-salary)' },
-              { key: '_dividend', label: '股利+營利', color: 'var(--series-dividend)' },
-              { key: '_interest', label: '利息', color: 'var(--series-interest)' },
-              { key: '_otherCat', label: '其他', color: 'var(--series-other)' }
-            ]}
-          />
+          {isSingle ? (
+            <StackedBarChart
+              data={enriched}
+              unit={unit}
+              stacks={[
+                { key: '_salary', label: '薪資', color: 'var(--series-salary)' },
+                { key: '_dividend', label: '股利+營利', color: 'var(--series-dividend)' },
+                { key: '_interest', label: '利息', color: 'var(--series-interest)' },
+                { key: '_otherCat', label: '其他', color: 'var(--series-other)' }
+              ]}
+            />
+          ) : (
+            <>
+              <div style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 6, marginBottom: 4, fontWeight: 500 }}>
+                本人{taxpayerName ? ` · ${taxpayerName}` : ''}
+              </div>
+              <StackedBarChart
+                data={enriched}
+                unit={unit}
+                height={240}
+                stacks={[
+                  { key: '_salaryMain', label: '薪資', color: 'var(--series-salary)' },
+                  { key: '_dividendMain', label: '股利+營利', color: 'var(--series-dividend)' },
+                  { key: '_interestMain', label: '利息', color: 'var(--series-interest)' },
+                  { key: '_otherCatMain', label: '其他', color: 'var(--series-other)' }
+                ]}
+              />
+              <div style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 18, marginBottom: 4, fontWeight: 500 }}>
+                配偶{spouseName ? ` · ${spouseName}` : ''}
+              </div>
+              <StackedBarChart
+                data={enriched}
+                unit={unit}
+                height={240}
+                stacks={[
+                  { key: '_salarySpouse', label: '薪資', color: 'var(--series-salary)' },
+                  { key: '_dividendSpouse', label: '股利+營利', color: 'var(--series-dividend)' },
+                  { key: '_interestSpouse', label: '利息', color: 'var(--series-interest)' },
+                  { key: '_otherCatSpouse', label: '其他', color: 'var(--series-other)' }
+                ]}
+              />
+            </>
+          )}
         </div>
       )}
 
