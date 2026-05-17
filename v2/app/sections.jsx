@@ -448,7 +448,7 @@ function KpiCardV2({ label, displayValue, locked, lockReason, valueColor, suffix
         {help && <HelpHint text={help} />}
       </div>
       <div style={{ flex: 1, display: 'flex', alignItems: 'baseline', gap: 4 }}>
-        <span style={{ fontSize: 26, fontWeight: 700, color: valueColor || 'var(--text)', lineHeight: 1.1 }}>
+        <span style={{ fontSize: 28, fontWeight: 700, color: valueColor || 'var(--text)', lineHeight: 1.1 }}>
           {displayValue || '-'}
         </span>
         {suffix && <span style={{ fontSize: 13, color: 'var(--text-3)' }}>{suffix}</span>}

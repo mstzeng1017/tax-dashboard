@@ -771,7 +771,7 @@ function KpiCardV2({
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: 26,
+      fontSize: 28,
       fontWeight: 700,
       color: valueColor || 'var(--text)',
       lineHeight: 1.1
