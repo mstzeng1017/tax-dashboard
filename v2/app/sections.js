@@ -1220,8 +1220,7 @@ function TaxMathStrip({
     color: cNet,
     label: "\u6240\u5F97\u6DE8\u984D",
     value: fmt(latest.netIncome, unit),
-    unitLabel: fmtUnit(unit),
-    muted: has0
+    unitLabel: fmtUnit(unit)
   }), /*#__PURE__*/React.createElement(MathOp, {
     op: "\xD7"
   }), /*#__PURE__*/React.createElement(MathTerm, {
