@@ -348,7 +348,7 @@ function RefundAndRateChart({
 }) {
   const W = 760,
     H = height;
-  const padL = 30,
+  const padL = 36,
     padR = 60,
     padT = 30,
     padB = 50;
@@ -428,15 +428,22 @@ function RefundAndRateChart({
       fill: "var(--text-3)",
       fontSize: "12"
     }, (v * 100).toFixed(1), "%"));
-  }), validRefunds.length > 0 && /*#__PURE__*/React.createElement("line", {
-    x1: padL,
-    x2: W - padR,
+  }), validRefunds.length > 0 && /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("line", {
+    x1: padL - 4,
+    x2: W - padR + 4,
     y1: yZeroRefund,
     y2: yZeroRefund,
-    stroke: "var(--text-2)",
-    strokeWidth: "2",
+    stroke: "var(--text)",
+    strokeWidth: "2.5",
     opacity: "0.55"
-  }), data.map((d, i) => /*#__PURE__*/React.createElement("text", {
+  }), /*#__PURE__*/React.createElement("text", {
+    x: padL - 8,
+    y: yZeroRefund + 4,
+    textAnchor: "end",
+    fontSize: "11",
+    fill: "var(--text-2)",
+    fontWeight: "600"
+  }, "0")), data.map((d, i) => /*#__PURE__*/React.createElement("text", {
     key: 'yr' + i,
     className: "axis-text",
     x: x(i),
@@ -497,9 +504,28 @@ function RefundAndRateChart({
   })), data.map((d, i) => {
     if (d._effRate == null) return null;
     const ry = yRate(d._effRate);
-    // label 上下交錯避開 bar label: bar 在上時 label 在點下方; bar 在下時 label 在點上方
     const r = d._refund;
-    const labelY = r != null && r < 0 ? ry - 9 : ry + 16;
+
+    // 先算 refund label 預計位置 (跟 bar render 同邏輯)
+    let refundLabelY = null;
+    if (r != null) {
+      const ryRef = yRefund(r);
+      const barYRef = Math.min(ryRef, yZeroRefund);
+      const barHRef = Math.max(2, Math.abs(ryRef - yZeroRefund));
+      refundLabelY = r > 0 ? Math.min(barYRef - 7, yZeroRefund - 22) : r < 0 ? Math.max(barYRef + barHRef + 16, yZeroRefund + 28) : null;
+    }
+
+    // 預設 rate label 在 dot 下方 16px; 若跟 refund label 太近 (< 22), 嘗試上方; 還近就甩到 0 baseline 對側
+    let labelY = ry + 16;
+    if (refundLabelY != null && Math.abs(labelY - refundLabelY) < 22) {
+      const above = ry - 9;
+      if (Math.abs(above - refundLabelY) >= 22) {
+        labelY = above;
+      } else {
+        // 都不行: 甩到 0 baseline 對側 (退稅 bar 向上 → rate label 甩下面; 補繳 bar 向下 → 上面)
+        labelY = r > 0 ? yZeroRefund + 34 : yZeroRefund - 26;
+      }
+    }
     return /*#__PURE__*/React.createElement("g", {
       key: 'rate' + i
     }, /*#__PURE__*/React.createElement("circle", {

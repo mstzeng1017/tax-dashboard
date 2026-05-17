@@ -211,7 +211,7 @@ function V2KpiRow({ latest, isSingle, unit }) {
 //   - 右軸 max = data max × 1.15 (減 padding)
 function RefundAndRateChart({ data, unit, height = 320 }) {
   const W = 760, H = height;
-  const padL = 30, padR = 60, padT = 30, padB = 50;
+  const padL = 36, padR = 60, padT = 30, padB = 50;
   const innerW = W - padL - padR;
   const innerH = H - padT - padB;
 
@@ -275,10 +275,14 @@ function RefundAndRateChart({ data, unit, height = 320 }) {
           );
         })}
 
-        {/* 0 baseline — 粗實線, 最重要的視覺錨點 (退/補分界線) */}
+        {/* 0 baseline — 粗白線 + 左端 0 label (右側是 % 軸, 不放 0 避免混淆) */}
         {validRefunds.length > 0 && (
-          <line x1={padL} x2={W - padR} y1={yZeroRefund} y2={yZeroRefund}
-                stroke="var(--text-2)" strokeWidth="2" opacity="0.55" />
+          <g>
+            <line x1={padL - 4} x2={W - padR + 4} y1={yZeroRefund} y2={yZeroRefund}
+                  stroke="var(--text)" strokeWidth="2.5" opacity="0.55" />
+            <text x={padL - 8} y={yZeroRefund + 4} textAnchor="end"
+                  fontSize="11" fill="var(--text-2)" fontWeight="600">0</text>
+          </g>
         )}
 
         {/* X 軸年度 */}
@@ -325,13 +329,34 @@ function RefundAndRateChart({ data, unit, height = 320 }) {
             points={seg.map(p => `${p.x},${p.y}`).join(' ')} />
         ))}
 
-        {/* 稅率資料點 (rust 實心) */}
+        {/* 稅率資料點 (rust 實心) + label 跟 refund label 避讓 */}
         {data.map((d, i) => {
           if (d._effRate == null) return null;
           const ry = yRate(d._effRate);
-          // label 上下交錯避開 bar label: bar 在上時 label 在點下方; bar 在下時 label 在點上方
           const r = d._refund;
-          const labelY = (r != null && r < 0) ? ry - 9 : ry + 16;
+
+          // 先算 refund label 預計位置 (跟 bar render 同邏輯)
+          let refundLabelY = null;
+          if (r != null) {
+            const ryRef = yRefund(r);
+            const barYRef = Math.min(ryRef, yZeroRefund);
+            const barHRef = Math.max(2, Math.abs(ryRef - yZeroRefund));
+            refundLabelY = r > 0
+              ? Math.min(barYRef - 7, yZeroRefund - 22)
+              : r < 0 ? Math.max(barYRef + barHRef + 16, yZeroRefund + 28) : null;
+          }
+
+          // 預設 rate label 在 dot 下方 16px; 若跟 refund label 太近 (< 22), 嘗試上方; 還近就甩到 0 baseline 對側
+          let labelY = ry + 16;
+          if (refundLabelY != null && Math.abs(labelY - refundLabelY) < 22) {
+            const above = ry - 9;
+            if (Math.abs(above - refundLabelY) >= 22) {
+              labelY = above;
+            } else {
+              // 都不行: 甩到 0 baseline 對側 (退稅 bar 向上 → rate label 甩下面; 補繳 bar 向下 → 上面)
+              labelY = r > 0 ? yZeroRefund + 34 : yZeroRefund - 26;
+            }
+          }
           return (
             <g key={'rate' + i}>
               <circle cx={x(i)} cy={ry} r="4" fill="var(--bad)" stroke="var(--card)" strokeWidth="2" />
