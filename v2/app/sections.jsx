@@ -172,7 +172,7 @@ function V2KpiRow({ latest, isSingle, unit }) {
         help="應納稅額 ÷ 全家所得總額。比看絕對值更直觀，反映扣除額利用效率。"
       />
       <KpiCardV2
-        label={isSingle ? '已扣繳稅額' : '全戶扣繳稅額'}
+        label={isSingle ? '已扣繳' : '已扣繳 (全戶)'}
         locked={!isSingle && !latest.incomeListMain && !latest.incomeListSpouse}
         lockReason="需各類所得清單"
         displayValue={(latest.incomeListMain || latest.incomeListSpouse)

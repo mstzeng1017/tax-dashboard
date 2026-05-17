@@ -298,7 +298,7 @@ function V2KpiRow({
     valueColor: "var(--accent-1)",
     help: "\u61C9\u7D0D\u7A05\u984D \xF7 \u5168\u5BB6\u6240\u5F97\u7E3D\u984D\u3002\u6BD4\u770B\u7D55\u5C0D\u503C\u66F4\u76F4\u89C0\uFF0C\u53CD\u6620\u6263\u9664\u984D\u5229\u7528\u6548\u7387\u3002"
   }), /*#__PURE__*/React.createElement(KpiCardV2, {
-    label: isSingle ? '已扣繳稅額' : '全戶扣繳稅額',
+    label: isSingle ? '已扣繳' : '已扣繳 (全戶)',
     locked: !isSingle && !latest.incomeListMain && !latest.incomeListSpouse,
     lockReason: "\u9700\u5404\u985E\u6240\u5F97\u6E05\u55AE",
     displayValue: latest.incomeListMain || latest.incomeListSpouse ? fmt(householdWh, unit) : null,
