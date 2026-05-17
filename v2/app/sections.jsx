@@ -732,9 +732,9 @@ function TaxMathStrip({ latest, unit, refundOrOwe, fp }) {
       <div className="math-row math-row-5">
         <MathTerm color={cNet} label="所得淨額" value={fmt(latest.netIncome, unit)} unitLabel={fmtUnit(unit)} muted={has0} />
         <MathOp op="×" />
-        <MathTerm color={cRate} label="適用稅率" value={(bracket.rate * 100).toFixed(0)} unitLabel="%" small />
+        <MathTerm color={cRate} label="適用稅率" value={(bracket.rate * 100).toFixed(0)} unitLabel="%" />
         <MathOp op="−" />
-        <MathTerm color={cProg} label="累進差額" value={fmt(bracket.progressive || 0, unit)} unitLabel={fmtUnit(unit)} small />
+        <MathTerm color={cProg} label="累進差額" value={fmt(bracket.progressive || 0, unit)} unitLabel={fmtUnit(unit)} />
         <MathOp op="=" />
         <MathTerm color={cTax} label="應納稅額" value={fmt(latest.taxAmount, unit)} unitLabel={fmtUnit(unit)} emphasized />
       </div>

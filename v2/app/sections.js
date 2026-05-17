@@ -1228,16 +1228,14 @@ function TaxMathStrip({
     color: cRate,
     label: "\u9069\u7528\u7A05\u7387",
     value: (bracket.rate * 100).toFixed(0),
-    unitLabel: "%",
-    small: true
+    unitLabel: "%"
   }), /*#__PURE__*/React.createElement(MathOp, {
     op: "\u2212"
   }), /*#__PURE__*/React.createElement(MathTerm, {
     color: cProg,
     label: "\u7D2F\u9032\u5DEE\u984D",
     value: fmt(bracket.progressive || 0, unit),
-    unitLabel: fmtUnit(unit),
-    small: true
+    unitLabel: fmtUnit(unit)
   }), /*#__PURE__*/React.createElement(MathOp, {
     op: "="
   }), /*#__PURE__*/React.createElement(MathTerm, {
