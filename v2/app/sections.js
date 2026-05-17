@@ -862,7 +862,65 @@ function OverviewSection({
     latest: latest,
     isSingle: isSingle,
     unit: unit
-  }), enriched.length >= 2 && enriched.some(y => y._refund != null || y._effRate != null) && (() => {
+  }), /*#__PURE__*/React.createElement(TaxMathStrip, {
+    latest: latest,
+    unit: unit,
+    refundOrOwe: refundOrOwe,
+    fp: fp
+  }), latest.netIncome != null && /*#__PURE__*/React.createElement("div", {
+    className: "card",
+    style: {
+      marginBottom: 18
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex-between",
+    style: {
+      marginBottom: 6
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+    style: {
+      margin: 0,
+      fontSize: 14,
+      fontWeight: 600,
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 8
+    }
+  }, "\u7A05\u7387\u7D1A\u8DDD\u8996\u89BA\u5316", /*#__PURE__*/React.createElement(HelpHint, {
+    text: "\u53F0\u7063\u7D9C\u6240\u7A05\u63A1\u7D2F\u9032\u7A05\u7387\uFF0C\u6240\u5F97\u6DE8\u984D\u843D\u5728\u4E0D\u540C\u5340\u9593\u9069\u7528\u4E0D\u540C\u7A05\u7387\uFF085%/12%/20%/30%/40%\uFF09\u3002\u4E0B\u65B9\u986F\u793A\u4F60\u4ECA\u5E74\u843D\u5728\u54EA\u500B\u7D1A\u8DDD\uFF0C\u6BCF\u6BB5\u7684\u6578\u5B57\u662F\u8A72\u7D1A\u8DDD\u7684\u6240\u5F97\u6DE8\u984D\u4E0A\u9650\u3002"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "card-sub"
+  }, latest.year - 1911, " \u5E74\u5EA6 ", fp, "\u6240\u5F97\u6DE8\u984D ", fmt(latest.netIncome, unit), " ", fmtUnit(unit))), (() => {
+    const idx = getBracketIndex(latest.netIncome, latest.year);
+    const brackets = getBracketsForYear(latest.year);
+    const bColors = ['#6fa896', '#7ab5c1', '#7c80c9', '#a193c4', '#c97a7a'];
+    const c = bColors[idx];
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        fontSize: 13,
+        padding: '6px 12px',
+        borderRadius: 999,
+        background: `color-mix(in srgb, ${c} 14%, transparent)`,
+        color: c,
+        fontWeight: 600,
+        border: `1px solid color-mix(in srgb, ${c} 35%, transparent)`
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        background: c
+      }
+    }), "\u843D\u5728 ", brackets[idx].label, " \u7D1A\u8DDD");
+  })()), /*#__PURE__*/React.createElement(BracketViz, {
+    netIncome: latest.netIncome,
+    unit: unit,
+    adYear: latest.year
+  })), enriched.length >= 2 && enriched.some(y => y._refund != null || y._effRate != null) && (() => {
     const refundsArr = enriched.map(y => y._refund).filter(v => v != null);
     const ratesArr = enriched.map(y => y._effRate).filter(v => v != null);
     const refMax = refundsArr.length ? Math.max(0, ...refundsArr) : 0;
@@ -985,64 +1043,6 @@ function OverviewSection({
       label: '其他',
       color: 'var(--series-other)'
     }]
-  })), /*#__PURE__*/React.createElement(TaxMathStrip, {
-    latest: latest,
-    unit: unit,
-    refundOrOwe: refundOrOwe,
-    fp: fp
-  }), latest.netIncome != null && /*#__PURE__*/React.createElement("div", {
-    className: "card",
-    style: {
-      marginBottom: 18
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex-between",
-    style: {
-      marginBottom: 6
-    }
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
-    style: {
-      margin: 0,
-      fontSize: 14,
-      fontWeight: 600,
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 8
-    }
-  }, "\u7A05\u7387\u7D1A\u8DDD\u8996\u89BA\u5316", /*#__PURE__*/React.createElement(HelpHint, {
-    text: "\u53F0\u7063\u7D9C\u6240\u7A05\u63A1\u7D2F\u9032\u7A05\u7387\uFF0C\u6240\u5F97\u6DE8\u984D\u843D\u5728\u4E0D\u540C\u5340\u9593\u9069\u7528\u4E0D\u540C\u7A05\u7387\uFF085%/12%/20%/30%/40%\uFF09\u3002\u4E0B\u65B9\u986F\u793A\u4F60\u4ECA\u5E74\u843D\u5728\u54EA\u500B\u7D1A\u8DDD\uFF0C\u6BCF\u6BB5\u7684\u6578\u5B57\u662F\u8A72\u7D1A\u8DDD\u7684\u6240\u5F97\u6DE8\u984D\u4E0A\u9650\u3002"
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "card-sub"
-  }, latest.year - 1911, " \u5E74\u5EA6 ", fp, "\u6240\u5F97\u6DE8\u984D ", fmt(latest.netIncome, unit), " ", fmtUnit(unit))), (() => {
-    const idx = getBracketIndex(latest.netIncome, latest.year);
-    const brackets = getBracketsForYear(latest.year);
-    const bColors = ['#6fa896', '#7ab5c1', '#7c80c9', '#a193c4', '#c97a7a'];
-    const c = bColors[idx];
-    return /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 6,
-        fontSize: 13,
-        padding: '6px 12px',
-        borderRadius: 999,
-        background: `color-mix(in srgb, ${c} 14%, transparent)`,
-        color: c,
-        fontWeight: 600,
-        border: `1px solid color-mix(in srgb, ${c} 35%, transparent)`
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
-        background: c
-      }
-    }), "\u843D\u5728 ", brackets[idx].label, " \u7D1A\u8DDD");
-  })()), /*#__PURE__*/React.createElement(BracketViz, {
-    netIncome: latest.netIncome,
-    unit: unit,
-    adYear: latest.year
   })), /*#__PURE__*/React.createElement("div", {
     className: "chart-card",
     style: {

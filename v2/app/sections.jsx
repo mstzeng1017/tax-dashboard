@@ -529,6 +529,43 @@ function OverviewSection({ years, unit, chartType, filingMode, taxpayerName, spo
       {/* v2 KPI Row: 退稅 / 實效稅率 / 全戶扣繳 */}
       <V2KpiRow latest={latest} isSingle={isSingle} unit={unit} />
 
+      {/* Tax math equations (今年算式拆解) */}
+      <TaxMathStrip latest={latest} unit={unit} refundOrOwe={refundOrOwe} fp={fp} />
+
+      {/* Bracket viz (今年稅率級距) */}
+      {latest.netIncome != null &&
+        <div className="card" style={{ marginBottom: 18 }}>
+          <div className="flex-between" style={{ marginBottom: 6 }}>
+            <div>
+              <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                稅率級距視覺化
+                <HelpHint text="台灣綜所稅採累進稅率，所得淨額落在不同區間適用不同稅率（5%/12%/20%/30%/40%）。下方顯示你今年落在哪個級距，每段的數字是該級距的所得淨額上限。" />
+              </h3>
+              <div className="card-sub">{latest.year - 1911} 年度 {fp}所得淨額 {fmt(latest.netIncome, unit)} {fmtUnit(unit)}</div>
+            </div>
+            {(() => {
+              const idx = getBracketIndex(latest.netIncome, latest.year);
+              const brackets = getBracketsForYear(latest.year);
+              const bColors = ['#6fa896', '#7ab5c1', '#7c80c9', '#a193c4', '#c97a7a'];
+              const c = bColors[idx];
+              return (
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  fontSize: 13, padding: '6px 12px', borderRadius: 999,
+                  background: `color-mix(in srgb, ${c} 14%, transparent)`,
+                  color: c, fontWeight: 600,
+                  border: `1px solid color-mix(in srgb, ${c} 35%, transparent)`
+                }}>
+                  <span style={{ width: 6, height: 6, borderRadius: 3, background: c }}></span>
+                  落在 {brackets[idx].label} 級距
+                </div>
+              );
+            })()}
+          </div>
+          <BracketViz netIncome={latest.netIncome} unit={unit} adYear={latest.year} />
+        </div>
+      }
+
       {/* v2 退稅 + 實效稅率 雙軸合併圖 (原為兩張) */}
       {enriched.length >= 2 && enriched.some(y => y._refund != null || y._effRate != null) && (() => {
         const refundsArr = enriched.map(y => y._refund).filter(v => v != null);
@@ -593,43 +630,6 @@ function OverviewSection({ years, unit, chartType, filingMode, taxpayerName, spo
           />
         </div>
       )}
-
-      {/* Tax math equations */}
-      <TaxMathStrip latest={latest} unit={unit} refundOrOwe={refundOrOwe} fp={fp} />
-
-      {/* Bracket viz */}
-      {latest.netIncome != null &&
-        <div className="card" style={{ marginBottom: 18 }}>
-          <div className="flex-between" style={{ marginBottom: 6 }}>
-            <div>
-              <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                稅率級距視覺化
-                <HelpHint text="台灣綜所稅採累進稅率，所得淨額落在不同區間適用不同稅率（5%/12%/20%/30%/40%）。下方顯示你今年落在哪個級距，每段的數字是該級距的所得淨額上限。" />
-              </h3>
-              <div className="card-sub">{latest.year - 1911} 年度 {fp}所得淨額 {fmt(latest.netIncome, unit)} {fmtUnit(unit)}</div>
-            </div>
-            {(() => {
-              const idx = getBracketIndex(latest.netIncome, latest.year);
-              const brackets = getBracketsForYear(latest.year);
-              const bColors = ['#6fa896', '#7ab5c1', '#7c80c9', '#a193c4', '#c97a7a'];
-              const c = bColors[idx];
-              return (
-                <div style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 6,
-                  fontSize: 13, padding: '6px 12px', borderRadius: 999,
-                  background: `color-mix(in srgb, ${c} 14%, transparent)`,
-                  color: c, fontWeight: 600,
-                  border: `1px solid color-mix(in srgb, ${c} 35%, transparent)`
-                }}>
-                  <span style={{ width: 6, height: 6, borderRadius: 3, background: c }}></span>
-                  落在 {brackets[idx].label} 級距
-                </div>
-              );
-            })()}
-          </div>
-          <BracketViz netIncome={latest.netIncome} unit={unit} adYear={latest.year} />
-        </div>
-      }
 
       {/* Combo: stacked bar (淨額+扣除額) + line (應納稅額) */}
       <div className="chart-card" style={{ marginBottom: 18 }}>
