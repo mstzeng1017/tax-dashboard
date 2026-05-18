@@ -562,7 +562,9 @@ function PersonalDeepDive({
   const byPayer = (latest.byPayer || []).filter(p => p.owner === owner);
   const hasData = Object.keys(byCat).length > 0 || byPayer.length > 0;
   if (!hasData) return null;
-  const colors = ['var(--series-salary)', 'var(--series-dividend)', 'var(--series-interest)', 'var(--series-other)', '#a193c4', '#7ab5c1'];
+
+  // 2-hue 階梯: 薪資 sage, 其餘類別 slate blue 不同濃度
+  const colors = ['var(--series-salary)', 'var(--series-dividend)', 'var(--series-interest)', 'var(--series-other)', 'color-mix(in srgb, #5b8cb0 20%, transparent)', 'color-mix(in srgb, #87987a 35%, transparent)'];
   const slices = Object.entries(byCat).filter(([_, v]) => v > 0).sort((a, b) => b[1] - a[1]).map(([label, value], i) => ({
     label,
     value,
@@ -1314,13 +1316,12 @@ function MathTerm({
   }, /*#__PURE__*/React.createElement("div", {
     className: "math-label",
     style: {
-      color
+      color: 'var(--text-2)'
     }
   }, label), /*#__PURE__*/React.createElement("div", {
     className: "math-val",
     style: {
       color: 'var(--text)',
-      // 字色一律白 (emphasized 改用 border + bg 高亮, 不染字色)
       fontSize: small ? 22 : 28
     }
   }, prefix && /*#__PURE__*/React.createElement("span", {

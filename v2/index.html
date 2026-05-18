@@ -42,18 +42,20 @@
     --accent-1: #5b8cb0;
     --accent-2: #4a7a9e;
     --accent-grad: linear-gradient(135deg, #5b8cb0 0%, #4a7a9e 100%);
-    --series-salary: #6b7d8e;
-    --series-dividend: #c4a878;
-    --series-interest: #5d4e3e;
-    --series-other: #a89a8a;
-    --series-spouse-salary: #87987a;
-    --series-spouse-other: #b07a5c;
-    --series-tax: #b07a5c;
-    --series-withheld: #7a939a;
-    --series-net: #8a7e6d;
-    --series-gross: #5d6e7c;
-    --good: #87987a;
-    --bad: #b07a5c;
+    /* 2-hue system: sage (薪資/收入相關) + slate blue (其他類) + rust (稅/補繳 semantic).
+       同 hue 用 opacity 階梯區分階級. 大幅降低顏色雜訊. */
+    --series-salary:        #87987a;                                          /* sage 100% — 本人薪資 */
+    --series-spouse-salary: color-mix(in srgb, #87987a 55%, transparent);    /* sage  55% — 配偶薪資 */
+    --series-dividend:      #5b8cb0;                                          /* slate 100% — 股利+營利 */
+    --series-interest:      color-mix(in srgb, #5b8cb0 60%, transparent);    /* slate 60% — 利息 */
+    --series-other:         color-mix(in srgb, #5b8cb0 32%, transparent);    /* slate 32% — 其他 */
+    --series-spouse-other:  color-mix(in srgb, #87987a 55%, transparent);
+    --series-tax:           #b07a5c;                                          /* rust — 稅 (semantic) */
+    --series-withheld:      color-mix(in srgb, #87987a 70%, transparent);
+    --series-net:           color-mix(in srgb, #5b8cb0 65%, transparent);
+    --series-gross:         #87987a;
+    --good:                 #87987a;
+    --bad:                  #b07a5c;
     --warn-bg: rgba(212, 190, 122, 0.12);
     --warn-text: #d4be7a;
     --divider: rgba(255,255,255,0.06);
@@ -73,7 +75,6 @@
     --text: #0f1120;
     --text-2: #475569;
     --text-3: #94a3b8;
-    --series-other: #94a3b8;
     --divider: rgba(15, 17, 32, 0.08);
     --hover-row: rgba(124, 128, 201, 0.05);
     --tooltip-bg: #0f1120;
@@ -89,8 +90,6 @@
     --accent-grad: linear-gradient(135deg, #6fa896 0%, #7ab0a3 100%);
     --card-border: rgba(111, 168, 150, 0.12);
     --card-shadow: 0 0 30px rgba(111, 168, 150, 0.05), 0 1px 0 rgba(255,255,255,0.02) inset;
-    --series-gross: #6fa896;
-    --series-net: #b8d8c9;
     --hover-row: rgba(111, 168, 150, 0.05);
   }
   html[data-accent="rose"] {
@@ -99,8 +98,6 @@
     --accent-grad: linear-gradient(135deg, #c97a86 0%, #c787a3 100%);
     --card-border: rgba(201, 122, 134, 0.12);
     --card-shadow: 0 0 30px rgba(201, 122, 134, 0.05), 0 1px 0 rgba(255,255,255,0.02) inset;
-    --series-gross: #c97a86;
-    --series-net: #e0b8c2;
     --hover-row: rgba(201, 122, 134, 0.05);
   }
 
