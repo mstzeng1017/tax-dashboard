@@ -211,7 +211,7 @@ function computeAdvanced(y) {
   };
 }
 
-// Helper: derive table-ready row (v2: 加全戶扣繳 / 退稅 / 實效稅率 / 缺配偶清單偵測)
+// Helper: derive table-ready row (v2: 加全戶扣繳 / 退稅 / 缺配偶清單偵測)
 function deriveYear(y, isSingle) {
   const main = y.mainTotal != null ? y.mainTotal : null;
   const spouse = isSingle ? 0 : y.spouseTotal != null ? y.spouseTotal : null;
@@ -229,7 +229,6 @@ function deriveYear(y, isSingle) {
       refund = householdWh - y.taxAmount;
     }
   }
-  const effRate = y.taxAmount && y.grossIncome ? y.taxAmount / y.grossIncome : null;
   const needsSpouseList = !isSingle && !!y.incomeListMain && !y.incomeListSpouse;
   // v2: byCategory 跨年堆疊用 (合併本人+配偶, 同時保留 main/spouse 分別 — 已婚拆開圖用)
   const cat = y.byCategory || {
@@ -263,7 +262,6 @@ function deriveYear(y, isSingle) {
     _refund: refund,
     _householdWh: householdWh,
     _totalCreditable: totalCreditable,
-    _effRate: effRate,
     _needsSpouseList: needsSpouseList,
     _salary,
     _dividend,
@@ -280,7 +278,7 @@ function deriveYear(y, isSingle) {
   };
 }
 
-// === V2 KPI Row: 退稅 / 實效稅率 / 全戶扣繳 ===
+// === V2 KPI Row: 退稅 / 全戶扣繳 (實效稅率已移除) ===
 function V2KpiRow({
   latest,
   isSingle,
@@ -288,7 +286,6 @@ function V2KpiRow({
 }) {
   if (!latest) return null;
   const refund = latest._refund;
-  const effRate = latest._effRate;
   const householdWh = latest._householdWh;
   const needsSpouseList = latest._needsSpouseList;
   const refundColor = refund == null ? 'var(--text-3)' : refund > 0 ? 'var(--good)' : refund < 0 ? 'var(--bad)' : 'var(--text-2)';
@@ -312,11 +309,6 @@ function V2KpiRow({
     suffix: refund != null ? fmtUnit(unit) : null,
     help: "\u9000\u7A05 = \u5168\u6236\u6263\u7E73 \u2212 \u61C9\u7D0D\u7A05\u984D\u3002\u6B63\u6578\u9000\u3001\u8CA0\u6578\u88DC\u3002\u5DF2\u5A5A\u9700\u8981\u672C\u4EBA+\u914D\u5076\u6E05\u55AE\u624D\u80FD\u7B97\u5168\u6236\u3002"
   }), /*#__PURE__*/React.createElement(KpiCardV2, {
-    label: "\u5BE6\u6548\u7A05\u7387",
-    displayValue: effRate != null ? (effRate * 100).toFixed(2) + '%' : null,
-    valueColor: "var(--accent-1)",
-    help: "\u61C9\u7D0D\u7A05\u984D \xF7 \u5168\u5BB6\u6240\u5F97\u7E3D\u984D\u3002\u6BD4\u770B\u7D55\u5C0D\u503C\u66F4\u76F4\u89C0\uFF0C\u53CD\u6620\u6263\u9664\u984D\u5229\u7528\u6548\u7387\u3002"
-  }), /*#__PURE__*/React.createElement(KpiCardV2, {
     label: isSingle ? '已扣繳' : '已扣繳 (全戶)',
     locked: !isSingle && !latest.incomeListMain && !latest.incomeListSpouse,
     lockReason: "\u9700\u5404\u985E\u6240\u5F97\u6E05\u55AE",
@@ -335,28 +327,22 @@ function V2KpiRow({
 }
 
 // === V2 退稅趨勢線圖 (支援正負雙向 + 零線) ===
-// === V2 雙軸: 退稅 bars (左軸) + 實效稅率 line (右軸) ===
-//   - bars 對稱於 0 baseline (退↑綠 / 補↓rust)
-//   - 拿掉左軸數字 ticks (bars 自帶 label, 重複)
-//   - 0 baseline 粗實線 (退/補分界線最重要)
-//   - 稅率 line solid + 加粗 + rust 跳色 (跟 background card 灰藍區分)
-//   - 右軸 max = data max × 1.15 (減 padding)
-function RefundAndRateChart({
+// === V2 歷年退稅 bars (對稱於 0 baseline, 退↑綠 / 補↓rust) ===
+function RefundChart({
   data,
   unit,
-  height = 320
+  height = 280
 }) {
   const W = 760,
     H = height;
   const padL = 36,
-    padR = 60,
-    padT = 30,
+    padR = 20,
+    padT = 24,
     padB = 50;
   const innerW = W - padL - padR;
   const innerH = H - padT - padB;
   const validRefunds = data.map(d => d._refund).filter(v => v != null);
-  const validRates = data.map(d => d._effRate).filter(v => v != null);
-  if (validRefunds.length === 0 && validRates.length === 0) {
+  if (validRefunds.length === 0) {
     return /*#__PURE__*/React.createElement("div", {
       style: {
         padding: '60px 0',
@@ -365,40 +351,17 @@ function RefundAndRateChart({
       }
     }, "\uD83D\uDD12 \u6C92\u6709\u53EF\u986F\u793A\u7684\u8CC7\u6599 \u2014 \u4E0A\u50B3\u672C\u4EBA ", '•', " \u914D\u5076\u5404\u985E\u6240\u5F97\u6E05\u55AE\u5F8C\u89E3\u9396");
   }
-
-  // 左軸 (退稅金額)
   const refunds = data.map(d => d._refund || 0);
-  const refundMaxV = validRefunds.length ? Math.max(0, ...refunds) : 0;
-  const refundMinV = validRefunds.length ? Math.min(0, ...refunds) : 0;
-  // 對稱 padding: 兩邊都加 12% 讓 bar 跟 label 有空間
+  const refundMaxV = Math.max(0, ...refunds);
+  const refundMinV = Math.min(0, ...refunds);
   const refundPad = Math.max(Math.abs(refundMaxV), Math.abs(refundMinV)) * 0.18 || 1;
   const refundTop = refundMaxV + refundPad;
   const refundBot = refundMinV - refundPad;
   const refundRange = refundTop - refundBot || 1;
-
-  // 右軸 (實效稅率) — max × 1.15 (原 ×1.2, 減 padding)
-  const rateMaxV = validRates.length ? Math.max(0.05, ...validRates) * 1.15 : 0.1;
   const x = i => padL + (data.length === 1 ? innerW / 2 : i / (data.length - 1) * innerW);
   const yRefund = v => padT + innerH - (v - refundBot) / refundRange * innerH;
-  const yRate = v => padT + innerH - v / rateMaxV * innerH;
   const yZeroRefund = yRefund(0);
-
-  // bar 寬度: 每兩個年度間距的 ~20% (上限 48px, 避免少資料時 bar 過寬)
   const barW = data.length > 1 ? Math.min(48, innerW / (data.length - 1) * 0.20) : 40;
-
-  // segments — 稅率 (line 仍用 segment 處理缺資料中斷)
-  const rateSegs = [];
-  let cur = [];
-  data.forEach((d, i) => {
-    if (d._effRate != null) cur.push({
-      x: x(i),
-      y: yRate(d._effRate)
-    });else {
-      if (cur.length >= 2) rateSegs.push(cur);
-      cur = [];
-    }
-  });
-  if (cur.length >= 2) rateSegs.push(cur);
   return /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'relative'
@@ -407,28 +370,7 @@ function RefundAndRateChart({
     className: "chart-svg",
     viewBox: `0 0 ${W} ${H}`,
     preserveAspectRatio: "none"
-  }, validRates.length > 0 && [0.25, 0.5, 0.75, 1].map(p => {
-    const v = rateMaxV * p;
-    const ty = yRate(v);
-    return /*#__PURE__*/React.createElement("g", {
-      key: 'rt' + p
-    }, /*#__PURE__*/React.createElement("line", {
-      x1: padL,
-      x2: W - padR,
-      y1: ty,
-      y2: ty,
-      stroke: "var(--text-3)",
-      strokeWidth: "0.5",
-      opacity: "0.12"
-    }), /*#__PURE__*/React.createElement("text", {
-      className: "axis-text value",
-      x: W - padR + 8,
-      y: ty + 3.5,
-      textAnchor: "start",
-      fill: "var(--text-3)",
-      fontSize: "12"
-    }, (v * 100).toFixed(1), "%"));
-  }), validRefunds.length > 0 && /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("line", {
+  }, /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("line", {
     x1: padL - 4,
     x2: W - padR + 4,
     y1: yZeroRefund,
@@ -475,7 +417,6 @@ function RefundAndRateChart({
     const yPt = yRefund(r);
     const barY = Math.min(yPt, yZeroRefund);
     const barH = Math.max(2, Math.abs(yPt - yZeroRefund));
-    // 小 bar (height < 30) 強制 label 距 0 baseline 至少 22px, 避免 label 跟 baseline / rate label 撞
     const labelY = isPos ? Math.min(barY - 7, yZeroRefund - 22) : Math.max(barY + barH + 16, yZeroRefund + 28);
     return /*#__PURE__*/React.createElement("g", {
       key: 'rf' + i
@@ -495,54 +436,6 @@ function RefundAndRateChart({
       fill: color,
       fontWeight: "600"
     }, isPos ? '退 ' : r < 0 ? '補 ' : '', fmt(Math.abs(r), unit)));
-  }), rateSegs.map((seg, idx) => /*#__PURE__*/React.createElement("polyline", {
-    key: 'rate-line' + idx,
-    fill: "none",
-    stroke: "var(--bad)",
-    strokeWidth: "2.6",
-    points: seg.map(p => `${p.x},${p.y}`).join(' ')
-  })), data.map((d, i) => {
-    if (d._effRate == null) return null;
-    const ry = yRate(d._effRate);
-    const r = d._refund;
-
-    // 先算 refund label 預計位置 (跟 bar render 同邏輯)
-    let refundLabelY = null;
-    if (r != null) {
-      const ryRef = yRefund(r);
-      const barYRef = Math.min(ryRef, yZeroRefund);
-      const barHRef = Math.max(2, Math.abs(ryRef - yZeroRefund));
-      refundLabelY = r > 0 ? Math.min(barYRef - 7, yZeroRefund - 22) : r < 0 ? Math.max(barYRef + barHRef + 16, yZeroRefund + 28) : null;
-    }
-
-    // 預設 rate label 在 dot 下方 16px; 若跟 refund label 太近 (< 22), 嘗試上方; 還近就甩到 0 baseline 對側
-    let labelY = ry + 16;
-    if (refundLabelY != null && Math.abs(labelY - refundLabelY) < 22) {
-      const above = ry - 9;
-      if (Math.abs(above - refundLabelY) >= 22) {
-        labelY = above;
-      } else {
-        // 都不行: 甩到 0 baseline 對側 (退稅 bar 向上 → rate label 甩下面; 補繳 bar 向下 → 上面)
-        labelY = r > 0 ? yZeroRefund + 34 : yZeroRefund - 26;
-      }
-    }
-    return /*#__PURE__*/React.createElement("g", {
-      key: 'rate' + i
-    }, /*#__PURE__*/React.createElement("circle", {
-      cx: x(i),
-      cy: ry,
-      r: "4",
-      fill: "var(--bad)",
-      stroke: "var(--card)",
-      strokeWidth: "2"
-    }), /*#__PURE__*/React.createElement("text", {
-      x: x(i),
-      y: labelY,
-      textAnchor: "middle",
-      fontSize: "12",
-      fill: "var(--bad)",
-      fontWeight: "600"
-    }, (d._effRate * 100).toFixed(1), "%"));
   })));
 }
 
@@ -1004,7 +897,7 @@ function OverviewSection({
     netIncome: latest.netIncome,
     unit: unit,
     adYear: latest.year
-  })), enriched.length >= 2 && enriched.some(y => y._refund != null || y._effRate != null) && /*#__PURE__*/React.createElement("div", {
+  })), enriched.length >= 2 && enriched.some(y => y._refund != null) && /*#__PURE__*/React.createElement("div", {
     className: "chart-card",
     style: {
       marginBottom: 18
@@ -1017,8 +910,8 @@ function OverviewSection({
       alignItems: 'center',
       gap: 8
     }
-  }, "\u6B77\u5E74\u9000\u7A05 + \u5BE6\u6548\u7A05\u7387", /*#__PURE__*/React.createElement(HelpHint, {
-    text: "\u9000\u7A05 = \u5168\u6236\u6263\u7E73 \u2212 \u61C9\u7D0D\u7A05\u984D\uFF08\u7DA0 bar \u9000\u3001rust bar \u88DC\uFF1B\u7F3A\u6E05\u55AE\u6A19 \xD7\uFF09\u3002\u5BE6\u6548\u7A05\u7387 = \u61C9\u7D0D\u7A05\u984D \xF7 \u5168\u5BB6\u6240\u5F97\uFF08rust \u7DDA\uFF09\u3002\u4E00\u5F35\u5716\u770B\u5169\u500B\u6307\u6A19\u4E00\u8D77\u8B8A\u5316\uFF1A\u7A05\u7387\u9AD8\u7684\u5E74\u4EFD\u901A\u5E38\u9000\u7A05\u4E5F\u5C11\u3002"
+  }, "\u6B77\u5E74\u9000\u7A05", /*#__PURE__*/React.createElement(HelpHint, {
+    text: "\u9000\u7A05 = \u5168\u6236\u6263\u7E73 \u2212 \u61C9\u7D0D\u7A05\u984D\uFF08\u7DA0 bar \u9000\u3001rust bar \u88DC\uFF1B\u7F3A\u6E05\u55AE\u6A19 \xD7\uFF09\u3002"
   }))), /*#__PURE__*/React.createElement("div", {
     className: "legend"
   }, /*#__PURE__*/React.createElement("div", {
@@ -1043,14 +936,7 @@ function OverviewSection({
       display: 'inline-block',
       borderRadius: 2
     }
-  }), "\u88DC\u7E73"), /*#__PURE__*/React.createElement("div", {
-    className: "legend-item"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "legend-swatch line",
-    style: {
-      background: 'var(--bad)'
-    }
-  }), "\u5BE6\u6548\u7A05\u7387"))), /*#__PURE__*/React.createElement(RefundAndRateChart, {
+  }), "\u88DC\u7E73"))), /*#__PURE__*/React.createElement(RefundChart, {
     data: enriched,
     unit: unit
   })), enriched.length >= 2 && enriched.some(y => y._salary || y._dividend || y._interest || y._otherCat) && (() => {
