@@ -288,7 +288,8 @@ function V2KpiCards({
   const refund = latest._refund;
   const householdWh = latest._householdWh;
   const needsSpouseList = latest._needsSpouseList;
-  const refundColor = refund == null ? 'var(--text-3)' : refund > 0 ? 'var(--good)' : refund < 0 ? 'var(--bad)' : 'var(--text-2)';
+  // KPI 退稅/補繳 數字用亮色 (chart 系列保持 muted, 兩套分離)
+  const refundColor = refund == null ? 'var(--text-3)' : refund > 0 ? '#D4A647' : refund < 0 ? '#C97A5C' : 'var(--text-2)';
   const refundPrefix = refund == null ? '' : refund > 0 ? '退 ' : refund < 0 ? '補 ' : '';
   const refundDisplay = refund == null ? null : `${refundPrefix}${fmt(Math.abs(refund), unit)}`;
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(KpiCardV2, {
