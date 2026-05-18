@@ -145,8 +145,8 @@ function deriveYear(y, isSingle) {
   };
 }
 
-// === V2 KPI Row: 退稅 / 全戶扣繳 (實效稅率已移除) ===
-function V2KpiRow({ latest, isSingle, unit }) {
+// === V2 KPI cards: 退稅 / 全戶扣繳 (無 grid wrapper, 由父層 grid 統一一排 4 卡) ===
+function V2KpiCards({ latest, isSingle, unit }) {
   if (!latest) return null;
   const refund = latest._refund;
   const householdWh = latest._householdWh;
@@ -159,12 +159,7 @@ function V2KpiRow({ latest, isSingle, unit }) {
     ? null
     : `${refundPrefix}${fmt(Math.abs(refund), unit)}`;
   return (
-    <div className="kpi-row-v2" style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-      gap: 12,
-      marginBottom: 18
-    }}>
+    <>
       <KpiCardV2
         label="退稅 / 補繳"
         locked={needsSpouseList && refund == null}
@@ -190,7 +185,7 @@ function V2KpiRow({ latest, isSingle, unit }) {
           : null}
         help={isSingle ? '你的清單裡所有扣繳合計。' : '本人 + 配偶清單的扣繳合計。已婚需兩份才完整。'}
       />
-    </div>
+    </>
   );
 }
 
@@ -295,8 +290,8 @@ function PersonalDeepDive({ latest, isSingle, unit, owner = 'main', personName =
     'var(--series-dividend)',
     'var(--series-interest)',
     'var(--series-other)',
-    'color-mix(in srgb, #4DD1BD 20%, transparent)',
-    'color-mix(in srgb, #D4A647 35%, transparent)'
+    'color-mix(in srgb, #6B9D92 20%, transparent)',
+    'color-mix(in srgb, #A88947 35%, transparent)'
   ];
   const slices = Object.entries(byCat)
     .filter(([_, v]) => v > 0)
@@ -491,31 +486,31 @@ function OverviewSection({ years, unit, chartType, filingMode, taxpayerName, spo
         </div>
       }
 
-      {/* KPI 第一排: 已婚顯示本人+配偶 (raw 個人收入); 單身整排 hide.
-          砍掉所得合計/全部扣除額/所得淨額/應納稅額 (跟下方稅額算式拆解重複). */}
-      {!isSingle && (
-        <div className="stat-grid cols-2">
-          <StatCard
-            label="本人總所得"
-            value={latest._main} unit={unit}
-            source="tax-cert" srcTone="salary"
-            help="本人逐筆所得加總（薪資+營利+利息+機會+其他）。⚠️ 不等於 PDF「所得總額」— 那個是全戶合計再扣薪資特扣後的數字。"
-            sub={latest._combined ?
-              <span style={{ color: 'var(--text-3)' }}>佔合計 {pct((latest._main || 0) / latest._combined)}</span> :
-              null} />
-          <StatCard
-            label="配偶總所得"
-            value={latest._spouse} unit={unit}
-            source="tax-cert" srcTone="dependents"
-            help="配偶逐筆所得加總（薪資+營利+利息+機會+其他）。⚠️ 不等於 PDF「所得總額」— 那個是全戶合計再扣薪資特扣後的數字。"
-            sub={latest._combined ?
-              <span style={{ color: 'var(--text-3)' }}>佔合計 {pct((latest._spouse || 0) / latest._combined)}</span> :
-              null} />
-        </div>
-      )}
-
-      {/* v2 KPI Row: 退稅 / 全戶扣繳 */}
-      <V2KpiRow latest={latest} isSingle={isSingle} unit={unit} />
+      {/* KPI 一行 4 卡 (已婚): 本人總所得 / 配偶總所得 / 退稅補繳 / 已扣繳.
+          單身則 2 卡 (退稅補繳 / 已扣繳, 本人/配偶總所得不顯示因為單人就是合計). */}
+      <div className={`stat-grid ${isSingle ? 'cols-2' : 'cols-4'}`} style={{ marginBottom: 18 }}>
+        {!isSingle && (
+          <>
+            <StatCard
+              label="本人總所得"
+              value={latest._main} unit={unit}
+              source="tax-cert" srcTone="salary"
+              help="本人逐筆所得加總（薪資+營利+利息+機會+其他）。⚠️ 不等於 PDF「所得總額」— 那個是全戶合計再扣薪資特扣後的數字。"
+              sub={latest._combined ?
+                <span style={{ color: 'var(--text-3)' }}>佔合計 {pct((latest._main || 0) / latest._combined)}</span> :
+                null} />
+            <StatCard
+              label="配偶總所得"
+              value={latest._spouse} unit={unit}
+              source="tax-cert" srcTone="dependents"
+              help="配偶逐筆所得加總（薪資+營利+利息+機會+其他）。⚠️ 不等於 PDF「所得總額」— 那個是全戶合計再扣薪資特扣後的數字。"
+              sub={latest._combined ?
+                <span style={{ color: 'var(--text-3)' }}>佔合計 {pct((latest._spouse || 0) / latest._combined)}</span> :
+                null} />
+          </>
+        )}
+        <V2KpiCards latest={latest} isSingle={isSingle} unit={unit} />
+      </div>
 
       {/* Tax math equations (今年算式拆解) */}
       <TaxMathStrip latest={latest} unit={unit} refundOrOwe={refundOrOwe} fp={fp} />

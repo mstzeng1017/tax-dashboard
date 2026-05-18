@@ -278,8 +278,8 @@ function deriveYear(y, isSingle) {
   };
 }
 
-// === V2 KPI Row: 退稅 / 全戶扣繳 (實效稅率已移除) ===
-function V2KpiRow({
+// === V2 KPI cards: 退稅 / 全戶扣繳 (無 grid wrapper, 由父層 grid 統一一排 4 卡) ===
+function V2KpiCards({
   latest,
   isSingle,
   unit
@@ -291,15 +291,7 @@ function V2KpiRow({
   const refundColor = refund == null ? 'var(--text-3)' : refund > 0 ? 'var(--good)' : refund < 0 ? 'var(--bad)' : 'var(--text-2)';
   const refundPrefix = refund == null ? '' : refund > 0 ? '退 ' : refund < 0 ? '補 ' : '';
   const refundDisplay = refund == null ? null : `${refundPrefix}${fmt(Math.abs(refund), unit)}`;
-  return /*#__PURE__*/React.createElement("div", {
-    className: "kpi-row-v2",
-    style: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-      gap: 12,
-      marginBottom: 18
-    }
-  }, /*#__PURE__*/React.createElement(KpiCardV2, {
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(KpiCardV2, {
     label: "\u9000\u7A05 / \u88DC\u7E73",
     locked: needsSpouseList && refund == null,
     lockReason: "\u9700\u914D\u5076\u5404\u985E\u6240\u5F97\u6E05\u55AE",
@@ -457,7 +449,7 @@ function PersonalDeepDive({
   if (!hasData) return null;
 
   // 2-hue 階梯: 薪資 gold, 其餘類別 teal 不同濃度
-  const colors = ['var(--series-salary)', 'var(--series-dividend)', 'var(--series-interest)', 'var(--series-other)', 'color-mix(in srgb, #4DD1BD 20%, transparent)', 'color-mix(in srgb, #D4A647 35%, transparent)'];
+  const colors = ['var(--series-salary)', 'var(--series-dividend)', 'var(--series-interest)', 'var(--series-other)', 'color-mix(in srgb, #6B9D92 20%, transparent)', 'color-mix(in srgb, #A88947 35%, transparent)'];
   const slices = Object.entries(byCat).filter(([_, v]) => v > 0).sort((a, b) => b[1] - a[1]).map(([label, value], i) => ({
     label,
     value,
@@ -809,9 +801,12 @@ function OverviewSection({
     className: "dep-name"
   }, d), /*#__PURE__*/React.createElement("div", {
     className: "dep-meta"
-  }, "\u6276\u990A\u89AA\u5C6C")))))), !isSingle && /*#__PURE__*/React.createElement("div", {
-    className: "stat-grid cols-2"
-  }, /*#__PURE__*/React.createElement(StatCard, {
+  }, "\u6276\u990A\u89AA\u5C6C")))))), /*#__PURE__*/React.createElement("div", {
+    className: `stat-grid ${isSingle ? 'cols-2' : 'cols-4'}`,
+    style: {
+      marginBottom: 18
+    }
+  }, !isSingle && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(StatCard, {
     label: "\u672C\u4EBA\u7E3D\u6240\u5F97",
     value: latest._main,
     unit: unit,
@@ -835,11 +830,11 @@ function OverviewSection({
         color: 'var(--text-3)'
       }
     }, "\u4F54\u5408\u8A08 ", pct((latest._spouse || 0) / latest._combined)) : null
-  })), /*#__PURE__*/React.createElement(V2KpiRow, {
+  })), /*#__PURE__*/React.createElement(V2KpiCards, {
     latest: latest,
     isSingle: isSingle,
     unit: unit
-  }), /*#__PURE__*/React.createElement(TaxMathStrip, {
+  })), /*#__PURE__*/React.createElement(TaxMathStrip, {
     latest: latest,
     unit: unit,
     refundOrOwe: refundOrOwe,

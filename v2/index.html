@@ -34,33 +34,33 @@
     --sidebar: #050608;
     --card: #1c1f30;
     --card-hover: #252840;
-    --card-border: rgba(66, 96, 196, 0.22);
-    --card-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 10px 32px rgba(66, 96, 196, 0.07), 0 1px 0 rgba(255,255,255,0.05) inset;
+    --card-border: rgba(79, 95, 136, 0.22);
+    --card-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 10px 32px rgba(79, 95, 136, 0.07), 0 1px 0 rgba(255,255,255,0.05) inset;
     --text: #ffffff;
     --text-2: #c4cad6;
     --text-3: #8b94a8;
-    /* MacroMicro 風: 藍 → teal 漸層 cool palette */
-    --accent-1: #4260C4;
-    --accent-2: #4DD1BD;
-    --accent-grad: linear-gradient(135deg, #4260C4 0%, #4DD1BD 100%);
-    /* 2-hue system: gold #D4A647 (薪資/收入/退稅) + teal #4DD1BD (其他類) + rust (補繳 semantic).
-       同 hue 用 opacity 階梯區分階級. UI accent (--accent-1) 維持 deep blue 不影響 series. */
-    --series-salary:        #D4A647;                                                 /* gold 100% — 本人薪資 */
-    --series-spouse-salary: color-mix(in srgb, #D4A647 55%, transparent);            /* gold  55% — 配偶薪資 */
-    --series-dividend:      #4DD1BD;                                                 /* teal 100% — 股利+營利 */
-    --series-interest:      color-mix(in srgb, #4DD1BD 60%, transparent);            /* teal 60% — 利息 */
-    --series-other:         color-mix(in srgb, #4DD1BD 32%, transparent);            /* teal 32% — 其他 */
-    --series-spouse-other:  color-mix(in srgb, #D4A647 55%, transparent);
-    --series-tax:           #b07a5c;                                                 /* rust — 稅 (semantic) */
-    --series-withheld:      color-mix(in srgb, #D4A647 70%, transparent);
-    --series-net:           color-mix(in srgb, #4DD1BD 65%, transparent);
-    --series-gross:         #D4A647;
-    --good:                 #D4A647;
-    --bad:                  #b07a5c;
+    /* 降飽和 cool palette — 從亮 #4260C4/#4DD1BD 改成 sophisticated muted */
+    --accent-1: #4F5F88;
+    --accent-2: #6B9D92;
+    --accent-grad: linear-gradient(135deg, #4F5F88 0%, #6B9D92 100%);
+    /* 2-hue system 降飽和版: muted gold + muted sage-teal + rust (補繳 semantic).
+       原 #D4A647 / #4DD1BD 太亮 → 降到 #A88947 / #6B9D92 sophisticated 質感. */
+    --series-salary:        #A88947;                                                 /* muted gold 100% — 本人薪資 */
+    --series-spouse-salary: color-mix(in srgb, #A88947 55%, transparent);            /* gold  55% — 配偶薪資 */
+    --series-dividend:      #6B9D92;                                                 /* muted teal 100% — 股利+營利 */
+    --series-interest:      color-mix(in srgb, #6B9D92 60%, transparent);            /* teal 60% — 利息 */
+    --series-other:         color-mix(in srgb, #6B9D92 32%, transparent);            /* teal 32% — 其他 */
+    --series-spouse-other:  color-mix(in srgb, #A88947 55%, transparent);
+    --series-tax:           #9E6F4F;                                                 /* muted rust — 稅 */
+    --series-withheld:      color-mix(in srgb, #A88947 70%, transparent);
+    --series-net:           color-mix(in srgb, #6B9D92 65%, transparent);
+    --series-gross:         #A88947;
+    --good:                 #A88947;
+    --bad:                  #9E6F4F;
     --warn-bg: rgba(212, 190, 122, 0.12);
     --warn-text: #d4be7a;
     --divider: rgba(255,255,255,0.06);
-    --hover-row: rgba(124, 128, 201, 0.06);
+    --hover-row: rgba(107, 157, 146, 0.06);
     --tooltip-bg: #0f1120;
     --modal-overlay: rgba(7, 8, 18, 0.75);
     --input-bg: #1a1d2e;
@@ -71,13 +71,13 @@
     --sidebar: #ffffff;
     --card: #ffffff;
     --card-hover: #fafaf8;
-    --card-border: rgba(66, 96, 196, 0.18);
-    --card-shadow: 0 1px 2px rgba(15, 17, 32, 0.06), 0 8px 28px rgba(66, 96, 196, 0.12);
+    --card-border: rgba(79, 95, 136, 0.18);
+    --card-shadow: 0 1px 2px rgba(15, 17, 32, 0.06), 0 8px 28px rgba(79, 95, 136, 0.12);
     --text: #0f1120;
     --text-2: #475569;
     --text-3: #94a3b8;
     --divider: rgba(15, 17, 32, 0.08);
-    --hover-row: rgba(124, 128, 201, 0.05);
+    --hover-row: rgba(107, 157, 146, 0.05);
     --tooltip-bg: #0f1120;
     --modal-overlay: rgba(15, 17, 32, 0.45);
     --input-bg: #ffffff;
@@ -117,7 +117,7 @@
   body {
     min-width: 320px;
   }
-  ::selection { background: rgba(124, 128, 201, 0.4); }
+  ::selection { background: rgba(107, 157, 146, 0.4); }
 
   /* layout */
   .app {
@@ -152,7 +152,7 @@
     color: white;
     font-weight: 700;
     font-size: 14px;
-    box-shadow: 0 4px 14px -2px rgba(124, 128, 201, 0.3);
+    box-shadow: 0 4px 14px -2px rgba(107, 157, 146, 0.3);
   }
   .brand-text {
     font-weight: 600;
@@ -192,7 +192,7 @@
   .nav-item.active {
     background: var(--accent-grad);
     color: white;
-    box-shadow: 0 4px 14px -2px rgba(124, 128, 201, 0.25);
+    box-shadow: 0 4px 14px -2px rgba(107, 157, 146, 0.25);
   }
   .nav-item .nav-num {
     width: 18px;
@@ -233,9 +233,9 @@
     transition: all 0.15s ease;
   }
   .side-btn:hover {
-    background: rgba(124, 128, 201, 0.08);
+    background: rgba(107, 157, 146, 0.08);
     color: var(--text);
-    border-color: rgba(124, 128, 201, 0.3);
+    border-color: rgba(107, 157, 146, 0.3);
   }
   .side-btn.primary {
     background: var(--accent-grad);
@@ -245,7 +245,7 @@
   }
   .side-btn.primary:hover {
     filter: brightness(1.1);
-    box-shadow: 0 4px 14px -2px rgba(124, 128, 201, 0.4);
+    box-shadow: 0 4px 14px -2px rgba(107, 157, 146, 0.4);
   }
   .side-btn.danger:hover {
     background: rgba(201, 122, 122, 0.1);
@@ -639,9 +639,9 @@
     font-weight: 500;
     letter-spacing: 0.02em;
     cursor: help;
-    background: rgba(124, 128, 201, 0.12);
+    background: rgba(107, 157, 146, 0.12);
     color: #b8b9d8;
-    border: 1px solid rgba(124, 128, 201, 0.2);
+    border: 1px solid rgba(107, 157, 146, 0.2);
     vertical-align: middle;
     white-space: nowrap;
   }
@@ -657,9 +657,9 @@
   }
   /* tone variants — different per-metric accent so same-source badges don't all look identical */
   .src-badge.tone-salary {
-    background: rgba(124, 128, 201, 0.14);
+    background: rgba(107, 157, 146, 0.14);
     color: #b6b9e0;
-    border-color: rgba(124, 128, 201, 0.28);
+    border-color: rgba(107, 157, 146, 0.28);
   }
   .src-badge.tone-investment {
     background: rgba(200, 155, 111, 0.14);
@@ -692,9 +692,9 @@
     border-color: rgba(193, 137, 154, 0.28);
   }
   html.light .src-badge.tone-salary {
-    background: rgba(124, 128, 201, 0.1);
+    background: rgba(107, 157, 146, 0.1);
     color: #5359a8;
-    border-color: rgba(124, 128, 201, 0.22);
+    border-color: rgba(107, 157, 146, 0.22);
   }
   html.light .src-badge.tone-investment {
     background: rgba(200, 155, 111, 0.12);
@@ -727,7 +727,7 @@
     border-color: rgba(193, 137, 154, 0.28);
   }
   html.light .src-badge {
-    background: rgba(124, 128, 201, 0.1);
+    background: rgba(107, 157, 146, 0.1);
     color: #5d61a8;
   }
   html.light .src-badge.tax-cert {
@@ -1090,11 +1090,11 @@
     color: var(--text-2);
     cursor: pointer;
     transition: all 0.2s;
-    background: rgba(124, 128, 201, 0.02);
+    background: rgba(107, 157, 146, 0.02);
   }
   .dropzone:hover, .dropzone.over {
     border-color: var(--accent-1);
-    background: rgba(124, 128, 201, 0.08);
+    background: rgba(107, 157, 146, 0.08);
     color: var(--text);
   }
   .dropzone-icon {
@@ -1133,7 +1133,7 @@
   }
   .btn:hover {
     color: var(--text);
-    background: rgba(124, 128, 201, 0.08);
+    background: rgba(107, 157, 146, 0.08);
   }
   .btn.primary {
     background: var(--accent-grad);
@@ -1198,7 +1198,7 @@
   }
   .status.ok { background: rgba(111, 168, 150, 0.15); color: #9bc7b6; }
   .status.err { background: rgba(201, 122, 122, 0.15); color: #d9a3a3; }
-  .status.processing { background: rgba(124, 128, 201, 0.15); color: #b8b9d8; }
+  .status.processing { background: rgba(107, 157, 146, 0.15); color: #b8b9d8; }
   .status.password { background: rgba(212, 190, 122, 0.15); color: #d4be7a; }
   .status.overwrite { background: rgba(155, 143, 196, 0.15); color: #c2bedb; }
 
@@ -1218,7 +1218,7 @@
     display: grid;
     place-items: center;
     margin: 0 auto 24px;
-    box-shadow: 0 12px 40px -8px rgba(124, 128, 201, 0.5);
+    box-shadow: 0 12px 40px -8px rgba(107, 157, 146, 0.5);
   }
   .empty h2 {
     font-size: 26px;

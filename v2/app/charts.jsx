@@ -340,7 +340,7 @@ function StackedBarChart({ data, stacks, line, lines, unit, height = 320, annota
                       <div className="tt-foot">
                         合計 {fmt(totals[i], unit)} {fmtUnit(unit)}
                         {delta != null && (
-                          <span style={{ marginLeft: 8, color: delta > 0 ? '#D4A647' : '#c97a7a' }}>
+                          <span style={{ marginLeft: 8, color: delta > 0 ? '#A88947' : '#9E6F4F' }}>
                             {delta > 0 ? '↑' : '↓'}{Math.abs(delta * 100).toFixed(1)}%
                           </span>
                         )}

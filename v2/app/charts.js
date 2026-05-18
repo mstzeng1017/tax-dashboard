@@ -411,7 +411,7 @@ function StackedBarChart({
         }, "\u5408\u8A08 ", fmt(totals[i], unit), " ", fmtUnit(unit), delta != null && /*#__PURE__*/React.createElement("span", {
           style: {
             marginLeft: 8,
-            color: delta > 0 ? '#D4A647' : '#c97a7a'
+            color: delta > 0 ? '#A88947' : '#9E6F4F'
           }
         }, delta > 0 ? '↑' : '↓', Math.abs(delta * 100).toFixed(1), "%")), linesArr.map((l, lidx) => /*#__PURE__*/React.createElement("div", {
           key: 'tl' + lidx,
