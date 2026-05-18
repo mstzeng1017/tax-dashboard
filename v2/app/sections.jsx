@@ -593,21 +593,21 @@ function OverviewSection({ years, unit, chartType, filingMode, taxpayerName, spo
         );
       })()}
 
-      {/* Combo: stacked bar (淨額+扣除額) + line (應納稅額) + annotation (退稅/補繳) */}
+      {/* Combo: stacked bar (淨額+扣除額) + 2 lines (應納稅額 + 退補稅, 共用右軸) */}
       <div className="chart-card" style={{ marginBottom: 18 }}>
         <div className="chart-head">
           <div>
             <h3 style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              歷年所得構成 + 應納稅額 + 退稅
-              <HelpHint text="長條：每年所得合計拆成兩塊 — 紫色「所得淨額」(真正課稅的部分) + 淺色「全部扣除額」(不用繳稅的部分)；虛線：實際應納稅額（右側軸）；bar 上方數字 = 該年退稅（綠）或補繳（rust）。" />
+              歷年所得構成 + 應納稅額 + 退補稅
+              <HelpHint text="長條：每年所得合計拆成兩塊 — 「所得淨額」(課稅部分) + 「全部扣除額」(不課稅)；虛線：應納稅額（右軸）；實線：退/補金額（右軸, 同單位; sage 退 / rust 補, 0 線為虛線分界）。" />
             </h3>
-            <div className="chart-sub">所得淨額 + 全部扣除額 = 所得合計　・　虛線為應納稅額　・　bar 上方為退/補金額</div>
+            <div className="chart-sub">所得淨額 + 全部扣除額 = 所得合計　・　虛線 = 應納稅額　・　實線 = 退/補（右軸同單位）</div>
           </div>
           <div className="legend">
             <div className="legend-item"><span className="legend-swatch" style={{ background: SERIES_COLORS.net }}></span>所得淨額（課稅）</div>
             <div className="legend-item"><span className="legend-swatch" style={{ background: SERIES_COLORS.deduction }}></span>全部扣除額（不課稅）</div>
             <div className="legend-item"><span className="legend-swatch dashed" style={{ color: SERIES_COLORS.tax }}></span>應納稅額</div>
-            <div className="legend-item"><span style={{ color: 'var(--good)', fontWeight: 700, fontSize: 12 }}>退</span><span style={{ color: 'var(--bad)', fontWeight: 700, fontSize: 12 }}>/補</span>金額</div>
+            <div className="legend-item"><span className="legend-swatch line" style={{ background: 'var(--good)' }}></span>退/補</div>
           </div>
         </div>
         <StackedBarChart
@@ -617,14 +617,15 @@ function OverviewSection({ years, unit, chartType, filingMode, taxpayerName, spo
             { key: 'netIncome', label: '所得淨額', color: SERIES_COLORS.net },
             { key: '_deduction', label: '全部扣除額', color: SERIES_COLORS.deduction }
           ]}
-          line={{ key: 'taxAmount', label: '應納稅額', color: SERIES_COLORS.tax, dashed: true }}
-          annotation={(d) => {
-            const r = d._refund;
-            if (r == null) return null;
-            const color = r > 0 ? 'var(--good)' : r < 0 ? 'var(--bad)' : 'var(--text-2)';
-            const prefix = r > 0 ? '退 ' : r < 0 ? '補 ' : '';
-            return { text: `${prefix}${fmt(Math.abs(r), unit)}`, color };
-          }}
+          lines={[
+            { key: 'taxAmount', label: '應納稅額', color: SERIES_COLORS.tax, dashed: true },
+            {
+              key: '_refund', label: '退/補', color: 'var(--good)',
+              getDotColor: (d) => d._refund == null ? 'var(--text-3)'
+                : d._refund > 0 ? 'var(--good)'
+                : d._refund < 0 ? 'var(--bad)' : 'var(--text-2)'
+            }
+          ]}
         />
       </div>
 

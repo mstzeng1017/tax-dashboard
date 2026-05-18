@@ -260,17 +260,20 @@ function StackedBarChart({
   data,
   stacks,
   line,
+  lines,
   unit,
   height = 320,
   annotation
 }) {
-  // data: [{year, ...stackKeys, lineKey}]; stacks: [{key,label,color}]; line: {key,label,color,dashed}
-  // annotation: (d) => ({ text, color }) | null — 額外文字標記在 bar 上方 (total label 之上)
+  // data: [{year, ...stackKeys, lineKey}]; stacks: [{key,label,color}];
+  // line: {key,label,color,dashed} OR lines: [{key,label,color,dashed,getDotColor?}] (右軸支援多條線)
+  // annotation: (d) => ({ text, color }) | null — 文字標記在 bar 上方
+  const linesArr = lines || (line ? [line] : []);
+  const hasLines = linesArr.length > 0;
   const W = 760,
     H = height;
-  // annotation 在頂端要多留 padT 空間
   const padL = 60,
-    padR = line ? 60 : 24,
+    padR = hasLines ? 60 : 24,
     padT = annotation ? 36 : 20,
     padB = 36;
   const innerW = W - padL - padR;
@@ -279,19 +282,24 @@ function StackedBarChart({
   const [hoverIdx, setHoverIdx] = useState(null);
   const totals = data.map(d => stacks.reduce((s, st) => s + (d[st.key] || 0), 0));
   const maxStack = Math.max(...totals, 1);
-  const lineVals = line ? data.map(d => d[line.key] || 0) : [];
-  const maxLine = lineVals.length ? Math.max(...lineVals, 1) : 1;
+
+  // 右軸 range: 跨所有 line, 含正負值 (退稅可能負)
+  const allLineVals = linesArr.flatMap(l => data.map(d => d[l.key])).filter(v => v != null);
+  const maxLineRaw = allLineVals.length ? Math.max(0, ...allLineVals) : 1;
+  const minLineRaw = allLineVals.length ? Math.min(0, ...allLineVals) : 0;
+  const lineRange = maxLineRaw - minLineRaw || 1;
   const tickCount = 5;
   const stackTicks = Array.from({
     length: tickCount + 1
   }, (_, i) => maxStack * (i / tickCount));
+  // line ticks: 從 minLineRaw 到 maxLineRaw 等分
   const lineTicks = Array.from({
     length: tickCount + 1
-  }, (_, i) => maxLine * (i / tickCount));
+  }, (_, i) => minLineRaw + lineRange * (i / tickCount));
   const xBand = innerW / data.length;
   const barW = Math.min(64, xBand * 0.5);
   const yL = v => padT + innerH - v / maxStack * innerH;
-  const yR = v => padT + innerH - v / maxLine * innerH;
+  const yR = v => padT + innerH - (v - minLineRaw) / lineRange * innerH;
   return /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'relative'
@@ -313,7 +321,7 @@ function StackedBarChart({
     x: padL - 8,
     y: yL(v) + 3.5,
     textAnchor: "end"
-  }, fmt(v, unit)))), line && lineTicks.map((v, i) => /*#__PURE__*/React.createElement("text", {
+  }, fmt(v, unit)))), hasLines && lineTicks.map((v, i) => /*#__PURE__*/React.createElement("text", {
     key: 'r' + i,
     className: "axis-text value",
     x: W - padR + 8,
@@ -398,25 +406,26 @@ function StackedBarChart({
           }
         }), st.label), /*#__PURE__*/React.createElement("span", {
           className: "val"
-        }, fmt(d[st.key], unit)))), line && /*#__PURE__*/React.createElement("div", {
+        }, fmt(d[st.key], unit)))), linesArr.map((l, lidx) => /*#__PURE__*/React.createElement("div", {
+          key: 'tl' + lidx,
           className: "tt-row",
-          style: {
+          style: lidx === 0 ? {
             borderTop: '1px solid rgba(255,255,255,0.1)',
             paddingTop: 6,
             marginTop: 4
-          }
+          } : {}
         }, /*#__PURE__*/React.createElement("span", {
           className: "lbl"
         }, /*#__PURE__*/React.createElement("span", {
           style: {
             width: 12,
             height: 0,
-            borderTop: `2px dashed ${line.color}`,
+            borderTop: `2px ${l.dashed ? 'dashed' : 'solid'} ${l.color}`,
             display: 'inline-block'
           }
-        }), line.label), /*#__PURE__*/React.createElement("span", {
+        }), l.label), /*#__PURE__*/React.createElement("span", {
           className: "val"
-        }, fmt(d[line.key], unit))), /*#__PURE__*/React.createElement("div", {
+        }, d[l.key] != null ? fmt(d[l.key], unit) : '—'))), /*#__PURE__*/React.createElement("div", {
           className: "tt-foot"
         }, "\u5408\u8A08 ", fmt(totals[i], unit), " ", fmtUnit(unit), delta != null && /*#__PURE__*/React.createElement("span", {
           style: {
@@ -430,29 +439,61 @@ function StackedBarChart({
         tt.onLeave();
       }
     }));
-  }), line && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("polyline", {
-    fill: "none",
-    stroke: line.color,
-    strokeWidth: "2",
-    strokeDasharray: "6 4",
-    strokeLinecap: "round",
-    points: data.map((d, i) => `${padL + xBand * i + xBand / 2},${yR(d[line.key] || 0)}`).join(' '),
-    style: {
-      strokeDasharray: '6 4',
-      opacity: 0,
-      animation: 'fadeIn 0.6s 0.6s ease forwards'
-    }
-  }), data.map((d, i) => /*#__PURE__*/React.createElement("circle", {
-    key: 'lp' + i,
-    cx: padL + xBand * i + xBand / 2,
-    cy: yR(d[line.key] || 0),
-    r: "3",
-    fill: line.color,
-    style: {
-      opacity: 0,
-      animation: `fadeIn 0.4s ${0.7 + i * 0.05}s ease forwards`
-    }
-  }))), data.map((d, i) => /*#__PURE__*/React.createElement("text", {
+  }), linesArr.map((l, lidx) => {
+    // segments: 跳過 null 中斷
+    const segs = [];
+    let cur = [];
+    data.forEach((d, i) => {
+      if (d[l.key] != null) cur.push({
+        x: padL + xBand * i + xBand / 2,
+        y: yR(d[l.key])
+      });else {
+        if (cur.length >= 2) segs.push(cur);
+        cur = [];
+      }
+    });
+    if (cur.length >= 2) segs.push(cur);
+    return /*#__PURE__*/React.createElement("g", {
+      key: 'line' + lidx
+    }, segs.map((seg, si) => /*#__PURE__*/React.createElement("polyline", {
+      key: 'seg' + si,
+      fill: "none",
+      stroke: l.color,
+      strokeWidth: l.strokeWidth || 2,
+      strokeDasharray: l.dashed ? '6 4' : 'none',
+      strokeLinecap: "round",
+      points: seg.map(p => `${p.x},${p.y}`).join(' '),
+      style: {
+        opacity: 0,
+        animation: `fadeIn 0.6s ${0.6 + lidx * 0.1}s ease forwards`
+      }
+    })), data.map((d, i) => {
+      if (d[l.key] == null) return null;
+      const dotColor = l.getDotColor ? l.getDotColor(d) : l.color;
+      return /*#__PURE__*/React.createElement("circle", {
+        key: 'lp' + lidx + '-' + i,
+        cx: padL + xBand * i + xBand / 2,
+        cy: yR(d[l.key]),
+        r: "3.5",
+        fill: dotColor,
+        stroke: "var(--card)",
+        strokeWidth: "1.5",
+        style: {
+          opacity: 0,
+          animation: `fadeIn 0.4s ${0.7 + lidx * 0.1 + i * 0.04}s ease forwards`
+        }
+      });
+    }));
+  }), hasLines && minLineRaw < 0 && /*#__PURE__*/React.createElement("line", {
+    x1: padL,
+    x2: W - padR,
+    y1: yR(0),
+    y2: yR(0),
+    stroke: "var(--text-3)",
+    strokeWidth: "1",
+    strokeDasharray: "3 3",
+    opacity: "0.4"
+  }), data.map((d, i) => /*#__PURE__*/React.createElement("text", {
     key: 'x' + i,
     className: "axis-text",
     x: padL + xBand * i + xBand / 2,

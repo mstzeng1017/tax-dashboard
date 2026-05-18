@@ -218,12 +218,14 @@ function LineChart({ data, series, unit, type = 'line', height = 280 }) {
 }
 
 // === Stacked bar chart with optional secondary line ===
-function StackedBarChart({ data, stacks, line, unit, height = 320, annotation }) {
-  // data: [{year, ...stackKeys, lineKey}]; stacks: [{key,label,color}]; line: {key,label,color,dashed}
-  // annotation: (d) => ({ text, color }) | null — 額外文字標記在 bar 上方 (total label 之上)
+function StackedBarChart({ data, stacks, line, lines, unit, height = 320, annotation }) {
+  // data: [{year, ...stackKeys, lineKey}]; stacks: [{key,label,color}];
+  // line: {key,label,color,dashed} OR lines: [{key,label,color,dashed,getDotColor?}] (右軸支援多條線)
+  // annotation: (d) => ({ text, color }) | null — 文字標記在 bar 上方
+  const linesArr = lines || (line ? [line] : []);
+  const hasLines = linesArr.length > 0;
   const W = 760, H = height;
-  // annotation 在頂端要多留 padT 空間
-  const padL = 60, padR = line ? 60 : 24, padT = annotation ? 36 : 20, padB = 36;
+  const padL = 60, padR = hasLines ? 60 : 24, padT = annotation ? 36 : 20, padB = 36;
   const innerW = W - padL - padR;
   const innerH = H - padT - padB;
   const tt = useTooltip();
@@ -231,18 +233,23 @@ function StackedBarChart({ data, stacks, line, unit, height = 320, annotation })
 
   const totals = data.map(d => stacks.reduce((s, st) => s + (d[st.key] || 0), 0));
   const maxStack = Math.max(...totals, 1);
-  const lineVals = line ? data.map(d => d[line.key] || 0) : [];
-  const maxLine = lineVals.length ? Math.max(...lineVals, 1) : 1;
+
+  // 右軸 range: 跨所有 line, 含正負值 (退稅可能負)
+  const allLineVals = linesArr.flatMap(l => data.map(d => d[l.key])).filter(v => v != null);
+  const maxLineRaw = allLineVals.length ? Math.max(0, ...allLineVals) : 1;
+  const minLineRaw = allLineVals.length ? Math.min(0, ...allLineVals) : 0;
+  const lineRange = (maxLineRaw - minLineRaw) || 1;
 
   const tickCount = 5;
   const stackTicks = Array.from({ length: tickCount + 1 }, (_, i) => maxStack * (i / tickCount));
-  const lineTicks = Array.from({ length: tickCount + 1 }, (_, i) => maxLine * (i / tickCount));
+  // line ticks: 從 minLineRaw 到 maxLineRaw 等分
+  const lineTicks = Array.from({ length: tickCount + 1 }, (_, i) => minLineRaw + lineRange * (i / tickCount));
 
   const xBand = innerW / data.length;
   const barW = Math.min(64, xBand * 0.5);
 
   const yL = v => padT + innerH - (v / maxStack) * innerH;
-  const yR = v => padT + innerH - (v / maxLine) * innerH;
+  const yR = v => padT + innerH - ((v - minLineRaw) / lineRange) * innerH;
 
   return (
     <div style={{ position: 'relative' }}>
@@ -257,7 +264,7 @@ function StackedBarChart({ data, stacks, line, unit, height = 320, annotation })
           </g>
         ))}
         {/* right axis */}
-        {line && lineTicks.map((v, i) => (
+        {hasLines && lineTicks.map((v, i) => (
           <text key={'r' + i} className="axis-text value" x={W - padR + 8} y={yR(v) + 3.5} textAnchor="start">
             {fmt(v, unit)}
           </text>
@@ -329,15 +336,15 @@ function StackedBarChart({ data, stacks, line, unit, height = 320, annotation })
                           <span className="val">{fmt(d[st.key], unit)}</span>
                         </div>
                       ))}
-                      {line && (
-                        <div className="tt-row" style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 6, marginTop: 4 }}>
+                      {linesArr.map((l, lidx) => (
+                        <div key={'tl' + lidx} className="tt-row" style={lidx === 0 ? { borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 6, marginTop: 4 } : {}}>
                           <span className="lbl">
-                            <span style={{ width: 12, height: 0, borderTop: `2px dashed ${line.color}`, display: 'inline-block' }}></span>
-                            {line.label}
+                            <span style={{ width: 12, height: 0, borderTop: `2px ${l.dashed ? 'dashed' : 'solid'} ${l.color}`, display: 'inline-block' }}></span>
+                            {l.label}
                           </span>
-                          <span className="val">{fmt(d[line.key], unit)}</span>
+                          <span className="val">{d[l.key] != null ? fmt(d[l.key], unit) : '—'}</span>
                         </div>
-                      )}
+                      ))}
                       <div className="tt-foot">
                         合計 {fmt(totals[i], unit)} {fmtUnit(unit)}
                         {delta != null && (
@@ -355,26 +362,44 @@ function StackedBarChart({ data, stacks, line, unit, height = 320, annotation })
           );
         })}
 
-        {/* secondary line */}
-        {line && (
-          <>
-            <polyline
-              fill="none" stroke={line.color} strokeWidth="2"
-              strokeDasharray="6 4"
-              strokeLinecap="round"
-              points={data.map((d, i) => `${padL + xBand * i + xBand / 2},${yR(d[line.key] || 0)}`).join(' ')}
-              style={{
-                strokeDasharray: '6 4',
-                opacity: 0,
-                animation: 'fadeIn 0.6s 0.6s ease forwards'
-              }} />
-            {data.map((d, i) => (
-              <circle key={'lp' + i}
-                cx={padL + xBand * i + xBand / 2} cy={yR(d[line.key] || 0)}
-                r="3" fill={line.color}
-                style={{ opacity: 0, animation: `fadeIn 0.4s ${0.7 + i * 0.05}s ease forwards` }} />
-            ))}
-          </>
+        {/* secondary lines (右軸; 多條共用 range) */}
+        {linesArr.map((l, lidx) => {
+          // segments: 跳過 null 中斷
+          const segs = [];
+          let cur = [];
+          data.forEach((d, i) => {
+            if (d[l.key] != null) cur.push({ x: padL + xBand * i + xBand / 2, y: yR(d[l.key]) });
+            else { if (cur.length >= 2) segs.push(cur); cur = []; }
+          });
+          if (cur.length >= 2) segs.push(cur);
+          return (
+            <g key={'line' + lidx}>
+              {segs.map((seg, si) => (
+                <polyline key={'seg' + si}
+                  fill="none" stroke={l.color} strokeWidth={l.strokeWidth || 2}
+                  strokeDasharray={l.dashed ? '6 4' : 'none'}
+                  strokeLinecap="round"
+                  points={seg.map(p => `${p.x},${p.y}`).join(' ')}
+                  style={{ opacity: 0, animation: `fadeIn 0.6s ${0.6 + lidx * 0.1}s ease forwards` }} />
+              ))}
+              {data.map((d, i) => {
+                if (d[l.key] == null) return null;
+                const dotColor = l.getDotColor ? l.getDotColor(d) : l.color;
+                return (
+                  <circle key={'lp' + lidx + '-' + i}
+                    cx={padL + xBand * i + xBand / 2} cy={yR(d[l.key])}
+                    r="3.5" fill={dotColor} stroke="var(--card)" strokeWidth="1.5"
+                    style={{ opacity: 0, animation: `fadeIn 0.4s ${0.7 + lidx * 0.1 + i * 0.04}s ease forwards` }} />
+                );
+              })}
+            </g>
+          );
+        })}
+
+        {/* 0 線標記 — 右軸範圍含負值時, 標出 0 baseline (退/補分界線) */}
+        {hasLines && minLineRaw < 0 && (
+          <line x1={padL} x2={W - padR} y1={yR(0)} y2={yR(0)}
+                stroke="var(--text-3)" strokeWidth="1" strokeDasharray="3 3" opacity="0.4" />
         )}
 
         {/* x labels */}
