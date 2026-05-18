@@ -730,7 +730,8 @@ function MathOp({ op }) {
 function BracketViz({ netIncome, unit, adYear }) {
   const idx = getBracketIndex(netIncome, adYear);
   const TB = adYear ? getBracketsForYear(adYear) : TAX_BRACKETS;
-  // 同色階梯 (5 級), 用 opacity 表達稅率高低; 中標顏色用 accent-1
+  // 5 級 muted 色: 低稅率 cool teal → 高稅率 warm rust (稅務「冷→熱」ramp)
+  const colors = ['#4F6B65', '#608280', '#7B7BBE', '#686888', '#9E6F4F'];
   const segments = TB.map((b, i) => ({
     label: b.label,
     upper: b.upper === Infinity ? (TB[TB.length - 2]?.upper || 0) * 1.5 : b.upper
@@ -740,11 +741,9 @@ function BracketViz({ netIncome, unit, adYear }) {
       <div className="bracket-viz">
         {segments.map((s, i) => {
           const isActive = i === idx;
-          // 同色階梯, opacity 表達稅率高低 (0.25 → 0.65); active 直接跳 1.0 → 對比強烈
-          const inactiveOpacity = 0.25 + i * 0.10;
           return (
             <div key={i} className={`bracket-cell ${isActive ? 'active' : ''}`}
-              style={{ background: 'var(--accent-1)', opacity: isActive ? 1 : inactiveOpacity }}>
+              style={{ background: colors[i], opacity: isActive ? 1 : 0.7 }}>
               {s.label}
             </div>
           );
