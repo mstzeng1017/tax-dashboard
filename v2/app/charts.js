@@ -406,13 +406,20 @@ function StackedBarChart({
           }
         }), st.label), /*#__PURE__*/React.createElement("span", {
           className: "val"
-        }, fmt(d[st.key], unit)))), linesArr.map((l, lidx) => /*#__PURE__*/React.createElement("div", {
+        }, fmt(d[st.key], unit)))), /*#__PURE__*/React.createElement("div", {
+          className: "tt-foot"
+        }, "\u5408\u8A08 ", fmt(totals[i], unit), " ", fmtUnit(unit), delta != null && /*#__PURE__*/React.createElement("span", {
+          style: {
+            marginLeft: 8,
+            color: delta > 0 ? '#D4A647' : '#c97a7a'
+          }
+        }, delta > 0 ? '↑' : '↓', Math.abs(delta * 100).toFixed(1), "%")), linesArr.map((l, lidx) => /*#__PURE__*/React.createElement("div", {
           key: 'tl' + lidx,
           className: "tt-row",
           style: lidx === 0 ? {
             borderTop: '1px solid rgba(255,255,255,0.1)',
             paddingTop: 6,
-            marginTop: 4
+            marginTop: 6
           } : {}
         }, /*#__PURE__*/React.createElement("span", {
           className: "lbl"
@@ -425,14 +432,7 @@ function StackedBarChart({
           }
         }), l.label), /*#__PURE__*/React.createElement("span", {
           className: "val"
-        }, d[l.key] != null ? fmt(d[l.key], unit) : '—'))), /*#__PURE__*/React.createElement("div", {
-          className: "tt-foot"
-        }, "\u5408\u8A08 ", fmt(totals[i], unit), " ", fmtUnit(unit), delta != null && /*#__PURE__*/React.createElement("span", {
-          style: {
-            marginLeft: 8,
-            color: delta > 0 ? '#6fa896' : '#c97a7a'
-          }
-        }, delta > 0 ? '↑' : '↓', Math.abs(delta * 100).toFixed(1), "%"))), padL + xBand * i + xBand / 2, yCursor);
+        }, d[l.key] != null ? fmt(d[l.key], unit) : '—')))), padL + xBand * i + xBand / 2, yCursor);
       },
       onMouseLeave: () => {
         setHoverIdx(null);

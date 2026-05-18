@@ -336,8 +336,17 @@ function StackedBarChart({ data, stacks, line, lines, unit, height = 320, annota
                           <span className="val">{fmt(d[st.key], unit)}</span>
                         </div>
                       ))}
+                      {/* 合計移到 stacks 正下方 (在 lines 之上) */}
+                      <div className="tt-foot">
+                        合計 {fmt(totals[i], unit)} {fmtUnit(unit)}
+                        {delta != null && (
+                          <span style={{ marginLeft: 8, color: delta > 0 ? '#D4A647' : '#c97a7a' }}>
+                            {delta > 0 ? '↑' : '↓'}{Math.abs(delta * 100).toFixed(1)}%
+                          </span>
+                        )}
+                      </div>
                       {linesArr.map((l, lidx) => (
-                        <div key={'tl' + lidx} className="tt-row" style={lidx === 0 ? { borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 6, marginTop: 4 } : {}}>
+                        <div key={'tl' + lidx} className="tt-row" style={lidx === 0 ? { borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 6, marginTop: 6 } : {}}>
                           <span className="lbl">
                             <span style={{ width: 12, height: 0, borderTop: `2px ${l.dashed ? 'dashed' : 'solid'} ${l.color}`, display: 'inline-block' }}></span>
                             {l.label}
@@ -345,14 +354,6 @@ function StackedBarChart({ data, stacks, line, lines, unit, height = 320, annota
                           <span className="val">{d[l.key] != null ? fmt(d[l.key], unit) : '—'}</span>
                         </div>
                       ))}
-                      <div className="tt-foot">
-                        合計 {fmt(totals[i], unit)} {fmtUnit(unit)}
-                        {delta != null && (
-                          <span style={{ marginLeft: 8, color: delta > 0 ? '#6fa896' : '#c97a7a' }}>
-                            {delta > 0 ? '↑' : '↓'}{Math.abs(delta * 100).toFixed(1)}%
-                          </span>
-                        )}
-                      </div>
                     </div>
                   ), padL + xBand * i + xBand / 2, yCursor);
                 }}
