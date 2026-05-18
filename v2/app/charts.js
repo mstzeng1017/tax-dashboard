@@ -261,14 +261,17 @@ function StackedBarChart({
   stacks,
   line,
   unit,
-  height = 320
+  height = 320,
+  annotation
 }) {
   // data: [{year, ...stackKeys, lineKey}]; stacks: [{key,label,color}]; line: {key,label,color,dashed}
+  // annotation: (d) => ({ text, color }) | null — 額外文字標記在 bar 上方 (total label 之上)
   const W = 760,
     H = height;
+  // annotation 在頂端要多留 padT 空間
   const padL = 60,
     padR = line ? 60 : 24,
-    padT = 20,
+    padT = annotation ? 36 : 20,
     padB = 36;
   const innerW = W - padL - padR;
   const innerH = H - padT - padB;
@@ -352,7 +355,22 @@ function StackedBarChart({
         opacity: 0,
         animation: `fadeIn 0.4s ${0.6 + i * 0.08}s ease forwards`
       }
-    }, fmt(totals[i], unit)), /*#__PURE__*/React.createElement("rect", {
+    }, fmt(totals[i], unit)), annotation && (() => {
+      const a = annotation(d);
+      if (!a || !a.text) return null;
+      return /*#__PURE__*/React.createElement("text", {
+        x: cx,
+        y: yCursor - 26,
+        textAnchor: "middle",
+        fontSize: "13",
+        fontWeight: "700",
+        fill: a.color || 'var(--text-2)',
+        style: {
+          opacity: 0,
+          animation: `fadeIn 0.4s ${0.8 + i * 0.08}s ease forwards`
+        }
+      }, a.text);
+    })(), /*#__PURE__*/React.createElement("rect", {
       x: padL + xBand * i,
       y: padT,
       width: xBand,

@@ -554,24 +554,7 @@ function OverviewSection({ years, unit, chartType, filingMode, taxpayerName, spo
         </div>
       }
 
-      {/* v2 歷年退稅 (純 bar; 實效稅率已移除) */}
-      {enriched.length >= 2 && enriched.some(y => y._refund != null) && (
-        <div className="chart-card" style={{ marginBottom: 18 }}>
-          <div className="chart-head">
-            <div>
-              <h3 style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                歷年退稅
-                <HelpHint text="退稅 = 全戶扣繳 − 應納稅額（綠 bar 退、rust bar 補；缺清單標 ×）。" />
-              </h3>
-            </div>
-            <div className="legend">
-              <div className="legend-item"><span className="legend-swatch" style={{ background: 'var(--good)', width: 12, height: 12, display: 'inline-block', borderRadius: 2 }}></span>退稅</div>
-              <div className="legend-item"><span className="legend-swatch" style={{ background: 'var(--bad)', width: 12, height: 12, display: 'inline-block', borderRadius: 2 }}></span>補繳</div>
-            </div>
-          </div>
-          <RefundChart data={enriched} unit={unit} />
-        </div>
-      )}
+      {/* 歷年退稅獨立 chart 已合進「歷年所得構成 + 應納稅額」, 用 annotation 顯示在 bar 上方 */}
 
       {/* v2 收入結構跨年堆疊圖 — 1 張圖, 薪資已婚拆本人/配偶 (用不同色) */}
       {enriched.length >= 2 && enriched.some(y => y._salary || y._dividend || y._interest || y._otherCat) && (() => {
@@ -610,20 +593,21 @@ function OverviewSection({ years, unit, chartType, filingMode, taxpayerName, spo
         );
       })()}
 
-      {/* Combo: stacked bar (淨額+扣除額) + line (應納稅額) */}
+      {/* Combo: stacked bar (淨額+扣除額) + line (應納稅額) + annotation (退稅/補繳) */}
       <div className="chart-card" style={{ marginBottom: 18 }}>
         <div className="chart-head">
           <div>
             <h3 style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              歷年所得構成 + 應納稅額
-              <HelpHint text="長條：每年所得合計拆成兩塊 — 紫色「所得淨額」(真正課稅的部分) + 淺色「全部扣除額」(不用繳稅的部分)；虛線：實際應納稅額（右側軸）。看淺色塊愈大、虛線愈低，表示扣除額用得愈滿、省下的稅愈多。" />
+              歷年所得構成 + 應納稅額 + 退稅
+              <HelpHint text="長條：每年所得合計拆成兩塊 — 紫色「所得淨額」(真正課稅的部分) + 淺色「全部扣除額」(不用繳稅的部分)；虛線：實際應納稅額（右側軸）；bar 上方數字 = 該年退稅（綠）或補繳（rust）。" />
             </h3>
-            <div className="chart-sub">所得淨額 + 全部扣除額 = 所得合計　・　虛線為應納稅額</div>
+            <div className="chart-sub">所得淨額 + 全部扣除額 = 所得合計　・　虛線為應納稅額　・　bar 上方為退/補金額</div>
           </div>
           <div className="legend">
             <div className="legend-item"><span className="legend-swatch" style={{ background: SERIES_COLORS.net }}></span>所得淨額（課稅）</div>
             <div className="legend-item"><span className="legend-swatch" style={{ background: SERIES_COLORS.deduction }}></span>全部扣除額（不課稅）</div>
             <div className="legend-item"><span className="legend-swatch dashed" style={{ color: SERIES_COLORS.tax }}></span>應納稅額</div>
+            <div className="legend-item"><span style={{ color: 'var(--good)', fontWeight: 700, fontSize: 12 }}>退</span><span style={{ color: 'var(--bad)', fontWeight: 700, fontSize: 12 }}>/補</span>金額</div>
           </div>
         </div>
         <StackedBarChart
@@ -634,6 +618,13 @@ function OverviewSection({ years, unit, chartType, filingMode, taxpayerName, spo
             { key: '_deduction', label: '全部扣除額', color: SERIES_COLORS.deduction }
           ]}
           line={{ key: 'taxAmount', label: '應納稅額', color: SERIES_COLORS.tax, dashed: true }}
+          annotation={(d) => {
+            const r = d._refund;
+            if (r == null) return null;
+            const color = r > 0 ? 'var(--good)' : r < 0 ? 'var(--bad)' : 'var(--text-2)';
+            const prefix = r > 0 ? '退 ' : r < 0 ? '補 ' : '';
+            return { text: `${prefix}${fmt(Math.abs(r), unit)}`, color };
+          }}
         />
       </div>
 
