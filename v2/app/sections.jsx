@@ -404,7 +404,7 @@ function PersonalDeepDive({ latest, isSingle, unit, owner = 'main', personName =
   return (
     <div className="card" style={{ marginTop: 18 }}>
       <div className="flex-between" style={{ marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
-        <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+        <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
           {title}
           {personName && !isSingle && <span style={{ color: 'var(--text-3)', fontSize: 13, fontWeight: 400 }}>· {personName}</span>}
           <HelpHint text={`從納稅證明書明細抓出來：左邊圓餅 = ${ownerWord === '本人' && isSingle ? '你的' : ownerWord + '的'}所得類別佔比；右邊 = 扣繳單位 top 5（哪幾家公司給${ownerWord === '本人' && isSingle ? '你' : ownerWord}錢、各佔多少）。`} />
@@ -616,7 +616,7 @@ function OverviewSection({ years, unit, chartType, filingMode, taxpayerName, spo
         <div className="card" style={{ marginBottom: 18 }}>
           <div className="flex-between" style={{ marginBottom: 6 }}>
             <div>
-              <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                 稅率級距視覺化
                 <HelpHint text="台灣綜所稅採累進稅率，所得淨額落在不同區間適用不同稅率（5%/12%/20%/30%/40%）。下方顯示你今年落在哪個級距，每段的數字是該級距的所得淨額上限。" />
               </h3>
@@ -775,7 +775,7 @@ function TaxMathStrip({ latest, unit, refundOrOwe, fp }) {
   return (
     <div className="card math-strip" style={{ marginBottom: 18 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-        <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+        <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
           稅額算式拆解
           <HelpHint text="台灣綜所稅算式：所得合計扣除免稅額和扣除額後得到所得淨額，再用淨額 × 適用稅率 − 累進差額算出應納稅額，最後對比已扣繳稅額決定退/補金額。" />
         </h3>
@@ -883,7 +883,7 @@ function ContributionSection({ years, unit, taxpayerName, spouseName }) {
       <div className="card">
         <div className="flex-between" style={{ marginBottom: 18 }}>
           <div>
-            <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
               家庭所得貢獻比
               <HelpHint text="主申報人和配偶各自貢獻多少收入到家庭。資料來自納稅證明書「所得細項」表，按身分證號分類加總。這個比例不影響繳稅（合併報稅還是合計計稅），只是看家庭收入結構。" />
             </h3>

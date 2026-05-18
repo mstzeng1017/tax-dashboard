@@ -592,8 +592,8 @@ function PersonalDeepDive({
   }, /*#__PURE__*/React.createElement("h3", {
     style: {
       margin: 0,
-      fontSize: 14,
-      fontWeight: 600,
+      fontSize: 17,
+      fontWeight: 700,
       display: 'inline-flex',
       alignItems: 'center',
       gap: 8
@@ -964,8 +964,8 @@ function OverviewSection({
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
     style: {
       margin: 0,
-      fontSize: 14,
-      fontWeight: 600,
+      fontSize: 17,
+      fontWeight: 700,
       display: 'inline-flex',
       alignItems: 'center',
       gap: 8
@@ -1233,8 +1233,8 @@ function TaxMathStrip({
   }, /*#__PURE__*/React.createElement("h3", {
     style: {
       margin: 0,
-      fontSize: 14,
-      fontWeight: 600,
+      fontSize: 17,
+      fontWeight: 700,
       display: 'inline-flex',
       alignItems: 'center',
       gap: 8
@@ -1405,8 +1405,8 @@ function ContributionSection({
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
     style: {
       margin: 0,
-      fontSize: 15,
-      fontWeight: 600,
+      fontSize: 17,
+      fontWeight: 700,
       display: 'inline-flex',
       alignItems: 'center',
       gap: 8

@@ -30,29 +30,30 @@
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "a68cb66d6ffd4364a891d9bbceb94389"}'></script>
 <style>
   :root {
-    --bg: #14161f;
-    --sidebar: #0f1119;
-    --card: #22253a;
-    --card-hover: #2a2d44;
-    --card-border: rgba(91, 140, 176, 0.22);
-    --card-shadow: 0 1px 2px rgba(0,0,0,0.35), 0 8px 24px rgba(91, 140, 176, 0.06), 0 1px 0 rgba(255,255,255,0.04) inset;
+    --bg: #08090e;
+    --sidebar: #050608;
+    --card: #1c1f30;
+    --card-hover: #252840;
+    --card-border: rgba(66, 96, 196, 0.22);
+    --card-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 10px 32px rgba(66, 96, 196, 0.07), 0 1px 0 rgba(255,255,255,0.05) inset;
     --text: #ffffff;
     --text-2: #c4cad6;
     --text-3: #8b94a8;
-    --accent-1: #5b8cb0;
-    --accent-2: #4a7a9e;
-    --accent-grad: linear-gradient(135deg, #5b8cb0 0%, #4a7a9e 100%);
-    /* 2-hue system: sage (薪資/收入相關) + slate blue (其他類) + rust (稅/補繳 semantic).
-       同 hue 用 opacity 階梯區分階級. 大幅降低顏色雜訊. */
-    --series-salary:        #87987a;                                          /* sage 100% — 本人薪資 */
-    --series-spouse-salary: color-mix(in srgb, #87987a 55%, transparent);    /* sage  55% — 配偶薪資 */
-    --series-dividend:      #5b8cb0;                                          /* slate 100% — 股利+營利 */
-    --series-interest:      color-mix(in srgb, #5b8cb0 60%, transparent);    /* slate 60% — 利息 */
-    --series-other:         color-mix(in srgb, #5b8cb0 32%, transparent);    /* slate 32% — 其他 */
+    /* MacroMicro 風: 藍 → teal 漸層 cool palette */
+    --accent-1: #4260C4;
+    --accent-2: #4DD1BD;
+    --accent-grad: linear-gradient(135deg, #4260C4 0%, #4DD1BD 100%);
+    /* 2-hue system: sage (薪資/收入) + accent blue (其他類) + rust (稅/補繳 semantic).
+       同 hue 用 opacity 階梯區分階級. accent 跟 --accent-1 連動. */
+    --series-salary:        #87987a;                                                 /* sage 100% — 本人薪資 */
+    --series-spouse-salary: color-mix(in srgb, #87987a 55%, transparent);            /* sage  55% — 配偶薪資 */
+    --series-dividend:      var(--accent-1);                                         /* blue 100% — 股利+營利 */
+    --series-interest:      color-mix(in srgb, var(--accent-1) 60%, transparent);    /* blue 60% — 利息 */
+    --series-other:         color-mix(in srgb, var(--accent-1) 32%, transparent);    /* blue 32% — 其他 */
     --series-spouse-other:  color-mix(in srgb, #87987a 55%, transparent);
-    --series-tax:           #b07a5c;                                          /* rust — 稅 (semantic) */
+    --series-tax:           #b07a5c;                                                 /* rust — 稅 (semantic) */
     --series-withheld:      color-mix(in srgb, #87987a 70%, transparent);
-    --series-net:           color-mix(in srgb, #5b8cb0 65%, transparent);
+    --series-net:           color-mix(in srgb, var(--accent-1) 65%, transparent);
     --series-gross:         #87987a;
     --good:                 #87987a;
     --bad:                  #b07a5c;
@@ -70,8 +71,8 @@
     --sidebar: #ffffff;
     --card: #ffffff;
     --card-hover: #fafaf8;
-    --card-border: rgba(91, 140, 176, 0.22);
-    --card-shadow: 0 1px 2px rgba(15, 17, 32, 0.06), 0 8px 28px rgba(91, 140, 176, 0.12);
+    --card-border: rgba(66, 96, 196, 0.18);
+    --card-shadow: 0 1px 2px rgba(15, 17, 32, 0.06), 0 8px 28px rgba(66, 96, 196, 0.12);
     --text: #0f1120;
     --text-2: #475569;
     --text-3: #94a3b8;
@@ -397,16 +398,16 @@
   .card {
     background: var(--card);
     border: 1px solid var(--card-border);
-    border-radius: 16px;
-    padding: 20px;
+    border-radius: 18px;
+    padding: 22px;
     box-shadow: var(--card-shadow);
   }
   .card-title {
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 15px;
+    font-weight: 600;
     color: var(--text-2);
     margin: 0 0 4px;
-    letter-spacing: 0.01em;
+    letter-spacing: -0.005em;
   }
   .card-sub {
     font-size: 13.5px;
@@ -481,7 +482,7 @@
   .stat-card {
     background: var(--card);
     border: 1px solid var(--card-border);
-    border-radius: 14px;
+    border-radius: 16px;
     padding: 16px 18px;
     box-shadow: var(--card-shadow);
     position: relative;
@@ -493,8 +494,8 @@
     width: 3px;
     height: 100%;
     background: var(--accent-grad);
-    opacity: 0.7;
-    border-radius: 14px 0 0 14px;
+    opacity: 0.8;
+    border-radius: 16px 0 0 16px;
   }
   .stat-card.good::before { background: var(--good); }
   .stat-card.bad::before { background: var(--bad); }
@@ -743,21 +744,21 @@
   .chart-card {
     background: var(--card);
     border: 1px solid var(--card-border);
-    border-radius: 16px;
-    padding: 22px 24px 20px;
+    border-radius: 18px;
+    padding: 24px 26px 22px;
     box-shadow: var(--card-shadow);
   }
   .chart-head {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
   }
   .chart-head h3 {
     margin: 0 0 3px;
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: -0.005em;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
   }
   .chart-head .chart-sub {
     font-size: 13px;
