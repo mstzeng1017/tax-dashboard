@@ -456,8 +456,8 @@ function PersonalDeepDive({
   const hasData = Object.keys(byCat).length > 0 || byPayer.length > 0;
   if (!hasData) return null;
 
-  // 2-hue 階梯: 薪資 sage, 其餘類別 slate blue 不同濃度
-  const colors = ['var(--series-salary)', 'var(--series-dividend)', 'var(--series-interest)', 'var(--series-other)', 'color-mix(in srgb, #5b8cb0 20%, transparent)', 'color-mix(in srgb, #87987a 35%, transparent)'];
+  // 2-hue 階梯: 薪資 gold, 其餘類別 slate blue 不同濃度
+  const colors = ['var(--series-salary)', 'var(--series-dividend)', 'var(--series-interest)', 'var(--series-other)', 'color-mix(in srgb, #5b8cb0 20%, transparent)', 'color-mix(in srgb, #D4A647 35%, transparent)'];
   const slices = Object.entries(byCat).filter(([_, v]) => v > 0).sort((a, b) => b[1] - a[1]).map(([label, value], i) => ({
     label,
     value,
@@ -897,6 +897,76 @@ function OverviewSection({
     netIncome: latest.netIncome,
     unit: unit,
     adYear: latest.year
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "chart-card",
+    style: {
+      marginBottom: 18
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "chart-head"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 8
+    }
+  }, "\u6B77\u5E74\u6240\u5F97\u69CB\u6210 + \u61C9\u7D0D\u7A05\u984D + \u9000\u88DC\u7A05", /*#__PURE__*/React.createElement(HelpHint, {
+    text: "\u9577\u689D\uFF1A\u6BCF\u5E74\u6240\u5F97\u5408\u8A08\u62C6\u6210\u5169\u584A \u2014 \u300C\u6240\u5F97\u6DE8\u984D\u300D(\u8AB2\u7A05\u90E8\u5206) + \u300C\u5168\u90E8\u6263\u9664\u984D\u300D(\u4E0D\u8AB2\u7A05)\uFF1B\u865B\u7DDA\uFF1A\u61C9\u7D0D\u7A05\u984D\uFF08\u53F3\u8EF8\uFF09\uFF1B\u5BE6\u7DDA\uFF1A\u9000/\u88DC\u91D1\u984D\uFF08\u53F3\u8EF8, \u540C\u55AE\u4F4D; gold \u9000 / rust \u88DC, 0 \u7DDA\u70BA\u865B\u7DDA\u5206\u754C\uFF09\u3002"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "chart-sub"
+  }, "\u6240\u5F97\u6DE8\u984D + \u5168\u90E8\u6263\u9664\u984D = \u6240\u5F97\u5408\u8A08\u3000\u30FB\u3000\u865B\u7DDA = \u61C9\u7D0D\u7A05\u984D\u3000\u30FB\u3000\u5BE6\u7DDA = \u9000/\u88DC\uFF08\u53F3\u8EF8\u540C\u55AE\u4F4D\uFF09")), /*#__PURE__*/React.createElement("div", {
+    className: "legend"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "legend-item"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "legend-swatch",
+    style: {
+      background: SERIES_COLORS.net
+    }
+  }), "\u6240\u5F97\u6DE8\u984D\uFF08\u8AB2\u7A05\uFF09"), /*#__PURE__*/React.createElement("div", {
+    className: "legend-item"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "legend-swatch",
+    style: {
+      background: SERIES_COLORS.deduction
+    }
+  }), "\u5168\u90E8\u6263\u9664\u984D\uFF08\u4E0D\u8AB2\u7A05\uFF09"), /*#__PURE__*/React.createElement("div", {
+    className: "legend-item"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "legend-swatch dashed",
+    style: {
+      color: SERIES_COLORS.tax
+    }
+  }), "\u61C9\u7D0D\u7A05\u984D"), /*#__PURE__*/React.createElement("div", {
+    className: "legend-item"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "legend-swatch line",
+    style: {
+      background: 'var(--good)'
+    }
+  }), "\u9000/\u88DC"))), /*#__PURE__*/React.createElement(StackedBarChart, {
+    data: enriched,
+    unit: unit,
+    stacks: [{
+      key: 'netIncome',
+      label: '所得淨額',
+      color: SERIES_COLORS.net
+    }, {
+      key: '_deduction',
+      label: '全部扣除額',
+      color: SERIES_COLORS.deduction
+    }],
+    lines: [{
+      key: 'taxAmount',
+      label: '應納稅額',
+      color: SERIES_COLORS.tax,
+      dashed: true
+    }, {
+      key: '_refund',
+      label: '退/補',
+      color: 'var(--good)',
+      getDotColor: d => d._refund == null ? 'var(--text-3)' : d._refund > 0 ? 'var(--good)' : d._refund < 0 ? 'var(--bad)' : 'var(--text-2)'
+    }]
   })), enriched.length >= 2 && enriched.some(y => y._salary || y._dividend || y._interest || y._otherCat) && (() => {
     const stacks = isSingle ? [{
       key: '_salary',
@@ -967,77 +1037,7 @@ function OverviewSection({
       unit: unit,
       stacks: stacks
     }));
-  })(), /*#__PURE__*/React.createElement("div", {
-    className: "chart-card",
-    style: {
-      marginBottom: 18
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "chart-head"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
-    style: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 8
-    }
-  }, "\u6B77\u5E74\u6240\u5F97\u69CB\u6210 + \u61C9\u7D0D\u7A05\u984D + \u9000\u88DC\u7A05", /*#__PURE__*/React.createElement(HelpHint, {
-    text: "\u9577\u689D\uFF1A\u6BCF\u5E74\u6240\u5F97\u5408\u8A08\u62C6\u6210\u5169\u584A \u2014 \u300C\u6240\u5F97\u6DE8\u984D\u300D(\u8AB2\u7A05\u90E8\u5206) + \u300C\u5168\u90E8\u6263\u9664\u984D\u300D(\u4E0D\u8AB2\u7A05)\uFF1B\u865B\u7DDA\uFF1A\u61C9\u7D0D\u7A05\u984D\uFF08\u53F3\u8EF8\uFF09\uFF1B\u5BE6\u7DDA\uFF1A\u9000/\u88DC\u91D1\u984D\uFF08\u53F3\u8EF8, \u540C\u55AE\u4F4D; sage \u9000 / rust \u88DC, 0 \u7DDA\u70BA\u865B\u7DDA\u5206\u754C\uFF09\u3002"
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "chart-sub"
-  }, "\u6240\u5F97\u6DE8\u984D + \u5168\u90E8\u6263\u9664\u984D = \u6240\u5F97\u5408\u8A08\u3000\u30FB\u3000\u865B\u7DDA = \u61C9\u7D0D\u7A05\u984D\u3000\u30FB\u3000\u5BE6\u7DDA = \u9000/\u88DC\uFF08\u53F3\u8EF8\u540C\u55AE\u4F4D\uFF09")), /*#__PURE__*/React.createElement("div", {
-    className: "legend"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "legend-item"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "legend-swatch",
-    style: {
-      background: SERIES_COLORS.net
-    }
-  }), "\u6240\u5F97\u6DE8\u984D\uFF08\u8AB2\u7A05\uFF09"), /*#__PURE__*/React.createElement("div", {
-    className: "legend-item"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "legend-swatch",
-    style: {
-      background: SERIES_COLORS.deduction
-    }
-  }), "\u5168\u90E8\u6263\u9664\u984D\uFF08\u4E0D\u8AB2\u7A05\uFF09"), /*#__PURE__*/React.createElement("div", {
-    className: "legend-item"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "legend-swatch dashed",
-    style: {
-      color: SERIES_COLORS.tax
-    }
-  }), "\u61C9\u7D0D\u7A05\u984D"), /*#__PURE__*/React.createElement("div", {
-    className: "legend-item"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "legend-swatch line",
-    style: {
-      background: 'var(--good)'
-    }
-  }), "\u9000/\u88DC"))), /*#__PURE__*/React.createElement(StackedBarChart, {
-    data: enriched,
-    unit: unit,
-    stacks: [{
-      key: 'netIncome',
-      label: '所得淨額',
-      color: SERIES_COLORS.net
-    }, {
-      key: '_deduction',
-      label: '全部扣除額',
-      color: SERIES_COLORS.deduction
-    }],
-    lines: [{
-      key: 'taxAmount',
-      label: '應納稅額',
-      color: SERIES_COLORS.tax,
-      dashed: true
-    }, {
-      key: '_refund',
-      label: '退/補',
-      color: 'var(--good)',
-      getDotColor: d => d._refund == null ? 'var(--text-3)' : d._refund > 0 ? 'var(--good)' : d._refund < 0 ? 'var(--bad)' : 'var(--text-2)'
-    }]
-  })), /*#__PURE__*/React.createElement(PersonalDeepDive, {
+  })(), /*#__PURE__*/React.createElement(PersonalDeepDive, {
     latest: deepDiveLatest,
     isSingle: isSingle,
     unit: unit,

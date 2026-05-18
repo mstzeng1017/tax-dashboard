@@ -246,7 +246,7 @@ function RefundChart({ data, unit, height = 280 }) {
           </text>
         ))}
 
-        {/* 退稅 bars (退↑sage / 補↓rust). 缺清單 → 底部 ×. */}
+        {/* 退稅 bars (退↑gold / 補↓rust). 缺清單 → 底部 ×. */}
         {data.map((d, i) => {
           if (d._refund == null) {
             return (
@@ -289,14 +289,14 @@ function PersonalDeepDive({ latest, isSingle, unit, owner = 'main', personName =
   const hasData = Object.keys(byCat).length > 0 || byPayer.length > 0;
   if (!hasData) return null;
 
-  // 2-hue 階梯: 薪資 sage, 其餘類別 slate blue 不同濃度
+  // 2-hue 階梯: 薪資 gold, 其餘類別 slate blue 不同濃度
   const colors = [
     'var(--series-salary)',
     'var(--series-dividend)',
     'var(--series-interest)',
     'var(--series-other)',
     'color-mix(in srgb, #5b8cb0 20%, transparent)',
-    'color-mix(in srgb, #87987a 35%, transparent)'
+    'color-mix(in srgb, #D4A647 35%, transparent)'
   ];
   const slices = Object.entries(byCat)
     .filter(([_, v]) => v > 0)
@@ -556,7 +556,43 @@ function OverviewSection({ years, unit, chartType, filingMode, taxpayerName, spo
 
       {/* 歷年退稅獨立 chart 已合進「歷年所得構成 + 應納稅額」, 用 annotation 顯示在 bar 上方 */}
 
-      {/* v2 收入結構跨年堆疊圖 — 1 張圖, 薪資已婚拆本人/配偶 (用不同色) */}
+      {/* Combo: stacked bar (淨額+扣除額) + 2 lines (應納稅額 + 退補稅, 共用右軸) */}
+      <div className="chart-card" style={{ marginBottom: 18 }}>
+        <div className="chart-head">
+          <div>
+            <h3 style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              歷年所得構成 + 應納稅額 + 退補稅
+              <HelpHint text="長條：每年所得合計拆成兩塊 — 「所得淨額」(課稅部分) + 「全部扣除額」(不課稅)；虛線：應納稅額（右軸）；實線：退/補金額（右軸, 同單位; gold 退 / rust 補, 0 線為虛線分界）。" />
+            </h3>
+            <div className="chart-sub">所得淨額 + 全部扣除額 = 所得合計　・　虛線 = 應納稅額　・　實線 = 退/補（右軸同單位）</div>
+          </div>
+          <div className="legend">
+            <div className="legend-item"><span className="legend-swatch" style={{ background: SERIES_COLORS.net }}></span>所得淨額（課稅）</div>
+            <div className="legend-item"><span className="legend-swatch" style={{ background: SERIES_COLORS.deduction }}></span>全部扣除額（不課稅）</div>
+            <div className="legend-item"><span className="legend-swatch dashed" style={{ color: SERIES_COLORS.tax }}></span>應納稅額</div>
+            <div className="legend-item"><span className="legend-swatch line" style={{ background: 'var(--good)' }}></span>退/補</div>
+          </div>
+        </div>
+        <StackedBarChart
+          data={enriched}
+          unit={unit}
+          stacks={[
+            { key: 'netIncome', label: '所得淨額', color: SERIES_COLORS.net },
+            { key: '_deduction', label: '全部扣除額', color: SERIES_COLORS.deduction }
+          ]}
+          lines={[
+            { key: 'taxAmount', label: '應納稅額', color: SERIES_COLORS.tax, dashed: true },
+            {
+              key: '_refund', label: '退/補', color: 'var(--good)',
+              getDotColor: (d) => d._refund == null ? 'var(--text-3)'
+                : d._refund > 0 ? 'var(--good)'
+                : d._refund < 0 ? 'var(--bad)' : 'var(--text-2)'
+            }
+          ]}
+        />
+      </div>
+
+      {/* v2 收入結構跨年堆疊圖 — 移到 PersonalDeepDive 之上 (收入分析區塊上面) */}
       {enriched.length >= 2 && enriched.some(y => y._salary || y._dividend || y._interest || y._otherCat) && (() => {
         const stacks = isSingle ? [
           { key: '_salary', label: '薪資', color: 'var(--series-salary)' },
@@ -592,42 +628,6 @@ function OverviewSection({ years, unit, chartType, filingMode, taxpayerName, spo
           </div>
         );
       })()}
-
-      {/* Combo: stacked bar (淨額+扣除額) + 2 lines (應納稅額 + 退補稅, 共用右軸) */}
-      <div className="chart-card" style={{ marginBottom: 18 }}>
-        <div className="chart-head">
-          <div>
-            <h3 style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              歷年所得構成 + 應納稅額 + 退補稅
-              <HelpHint text="長條：每年所得合計拆成兩塊 — 「所得淨額」(課稅部分) + 「全部扣除額」(不課稅)；虛線：應納稅額（右軸）；實線：退/補金額（右軸, 同單位; sage 退 / rust 補, 0 線為虛線分界）。" />
-            </h3>
-            <div className="chart-sub">所得淨額 + 全部扣除額 = 所得合計　・　虛線 = 應納稅額　・　實線 = 退/補（右軸同單位）</div>
-          </div>
-          <div className="legend">
-            <div className="legend-item"><span className="legend-swatch" style={{ background: SERIES_COLORS.net }}></span>所得淨額（課稅）</div>
-            <div className="legend-item"><span className="legend-swatch" style={{ background: SERIES_COLORS.deduction }}></span>全部扣除額（不課稅）</div>
-            <div className="legend-item"><span className="legend-swatch dashed" style={{ color: SERIES_COLORS.tax }}></span>應納稅額</div>
-            <div className="legend-item"><span className="legend-swatch line" style={{ background: 'var(--good)' }}></span>退/補</div>
-          </div>
-        </div>
-        <StackedBarChart
-          data={enriched}
-          unit={unit}
-          stacks={[
-            { key: 'netIncome', label: '所得淨額', color: SERIES_COLORS.net },
-            { key: '_deduction', label: '全部扣除額', color: SERIES_COLORS.deduction }
-          ]}
-          lines={[
-            { key: 'taxAmount', label: '應納稅額', color: SERIES_COLORS.tax, dashed: true },
-            {
-              key: '_refund', label: '退/補', color: 'var(--good)',
-              getDotColor: (d) => d._refund == null ? 'var(--text-3)'
-                : d._refund > 0 ? 'var(--good)'
-                : d._refund < 0 ? 'var(--bad)' : 'var(--text-2)'
-            }
-          ]}
-        />
-      </div>
 
       {/* v2 收入分析: 本人 + (已婚) 配偶 — 可切年份 (兩個 deepdive sync 同一個 year) */}
       <PersonalDeepDive

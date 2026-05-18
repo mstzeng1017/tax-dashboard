@@ -43,19 +43,19 @@
     --accent-1: #4260C4;
     --accent-2: #4DD1BD;
     --accent-grad: linear-gradient(135deg, #4260C4 0%, #4DD1BD 100%);
-    /* 2-hue system: sage (薪資/收入) + accent blue (其他類) + rust (稅/補繳 semantic).
+    /* 2-hue system: gold #D4A647 (薪資/收入/退稅) + accent blue (其他類) + rust (補繳 semantic).
        同 hue 用 opacity 階梯區分階級. accent 跟 --accent-1 連動. */
-    --series-salary:        #87987a;                                                 /* sage 100% — 本人薪資 */
-    --series-spouse-salary: color-mix(in srgb, #87987a 55%, transparent);            /* sage  55% — 配偶薪資 */
+    --series-salary:        #D4A647;                                                 /* gold 100% — 本人薪資 */
+    --series-spouse-salary: color-mix(in srgb, #D4A647 55%, transparent);            /* gold  55% — 配偶薪資 */
     --series-dividend:      var(--accent-1);                                         /* blue 100% — 股利+營利 */
     --series-interest:      color-mix(in srgb, var(--accent-1) 60%, transparent);    /* blue 60% — 利息 */
     --series-other:         color-mix(in srgb, var(--accent-1) 32%, transparent);    /* blue 32% — 其他 */
-    --series-spouse-other:  color-mix(in srgb, #87987a 55%, transparent);
+    --series-spouse-other:  color-mix(in srgb, #D4A647 55%, transparent);
     --series-tax:           #b07a5c;                                                 /* rust — 稅 (semantic) */
-    --series-withheld:      color-mix(in srgb, #87987a 70%, transparent);
+    --series-withheld:      color-mix(in srgb, #D4A647 70%, transparent);
     --series-net:           color-mix(in srgb, var(--accent-1) 65%, transparent);
-    --series-gross:         #87987a;
-    --good:                 #87987a;
+    --series-gross:         #D4A647;
+    --good:                 #D4A647;
     --bad:                  #b07a5c;
     --warn-bg: rgba(212, 190, 122, 0.12);
     --warn-text: #d4be7a;
