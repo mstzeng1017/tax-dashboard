@@ -319,15 +319,17 @@ function UploadModal({ onClose, onApplyParsed, defaultPassword, filingMode, spou
           <input ref={inputRef} type="file" accept="application/pdf" multiple style={{ display: 'none' }} onChange={onPick} />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginTop: 14, marginBottom: 0 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isCertOnly ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginTop: 14, marginBottom: 0 }}>
           <div className="field" style={{ margin: 0 }}>
-            <label>本人身分證 (主密碼)</label>
+            <label>{isCertOnly ? '本人身分證 (密碼)' : '本人身分證 (主密碼)'}</label>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="例: A123456789" autoComplete="off" />
           </div>
-          <div className="field" style={{ margin: 0 }}>
-            <label>配偶身分證 (已婚才填)</label>
-            <input type="password" value={spousePassword} onChange={e => setSpousePassword(e.target.value)} placeholder="單身可空" autoComplete="off" />
-          </div>
+          {!isCertOnly && (
+            <div className="field" style={{ margin: 0 }}>
+              <label>配偶身分證 (已婚才填)</label>
+              <input type="password" value={spousePassword} onChange={e => setSpousePassword(e.target.value)} placeholder="單身可空" autoComplete="off" />
+            </div>
+          )}
         </div>
 
         {files.length > 0 && (

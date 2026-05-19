@@ -542,7 +542,7 @@ function UploadModal({
   })), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+      gridTemplateColumns: isCertOnly ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))',
       gap: 12,
       marginTop: 14,
       marginBottom: 0
@@ -552,13 +552,13 @@ function UploadModal({
     style: {
       margin: 0
     }
-  }, /*#__PURE__*/React.createElement("label", null, "\u672C\u4EBA\u8EAB\u5206\u8B49 (\u4E3B\u5BC6\u78BC)"), /*#__PURE__*/React.createElement("input", {
+  }, /*#__PURE__*/React.createElement("label", null, isCertOnly ? '本人身分證 (密碼)' : '本人身分證 (主密碼)'), /*#__PURE__*/React.createElement("input", {
     type: "password",
     value: password,
     onChange: e => setPassword(e.target.value),
     placeholder: "\u4F8B: A123456789",
     autoComplete: "off"
-  })), /*#__PURE__*/React.createElement("div", {
+  })), !isCertOnly && /*#__PURE__*/React.createElement("div", {
     className: "field",
     style: {
       margin: 0
