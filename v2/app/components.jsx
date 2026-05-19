@@ -619,9 +619,14 @@ function PrivacyBanner() {
 }
 
 function EmptyState({ onUpload, onSampleData }) {
+  const featureRowStyle = { display: 'flex', alignItems: 'flex-start', gap: 8, padding: '3px 0', fontSize: 13.5, color: 'var(--text-2)', lineHeight: 1.5 };
+  const checkIcon = <span style={{ color: '#5DC4B0', fontWeight: 700, marginTop: 1, flexShrink: 0 }}>✓</span>;
+  const lockIcon = <span style={{ color: 'var(--text-3)', fontWeight: 700, marginTop: 1, flexShrink: 0 }}>✗</span>;
+  const stepStyle = { fontSize: 13, color: 'var(--text-2)', lineHeight: 1.6, marginTop: 4 };
+
   return (
     <div className="empty">
-      <div style={{ width: '100%', maxWidth: 580 }}>
+      <div style={{ width: '100%', maxWidth: 720 }}>
         <PrivacyBanner />
 
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
@@ -640,10 +645,53 @@ function EmptyState({ onUpload, onSampleData }) {
           <button className="btn" onClick={onSampleData}>載入範例資料</button>
         </div>
 
+        {/* 兩種文件解鎖內容對照 */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14, marginBottom: 18 }}>
+          <div style={{
+            background: 'rgba(85, 117, 200, 0.06)',
+            border: '1px solid var(--card-border)',
+            borderRadius: 10,
+            padding: '14px 16px'
+          }}>
+            <div style={{ fontWeight: 700, color: 'var(--text)', marginBottom: 4, fontSize: 14.5 }}>
+              📘 只有「納稅證明書」
+            </div>
+            <div style={{ fontSize: 12.5, color: 'var(--text-3)', marginBottom: 10 }}>必要 · 大部分數字已可看</div>
+            <div style={featureRowStyle}>{checkIcon}<span>本人 / 配偶總所得</span></div>
+            <div style={featureRowStyle}>{checkIcon}<span>所得淨額、應納稅額</span></div>
+            <div style={featureRowStyle}>{checkIcon}<span>全部扣除額</span></div>
+            <div style={featureRowStyle}>{checkIcon}<span>適用稅率 / 累進差額</span></div>
+            <div style={featureRowStyle}>{checkIcon}<span>所得類別圓餅（薪資/股利/利息）</span></div>
+            <div style={featureRowStyle}>{checkIcon}<span>扣繳單位 top 5（哪家公司給你錢）</span></div>
+            <div style={featureRowStyle}>{checkIcon}<span>扶養親屬清單</span></div>
+            <div style={{ borderTop: '1px solid var(--card-border)', margin: '8px 0 4px' }}></div>
+            <div style={featureRowStyle}>{lockIcon}<span style={{ color: 'var(--text-3)' }}>無法算「退稅 / 補繳」</span></div>
+            <div style={featureRowStyle}>{lockIcon}<span style={{ color: 'var(--text-3)' }}>無法看「已扣繳稅額」</span></div>
+          </div>
+
+          <div style={{
+            background: 'rgba(93, 196, 176, 0.06)',
+            border: '1px solid rgba(93, 196, 176, 0.25)',
+            borderRadius: 10,
+            padding: '14px 16px'
+          }}>
+            <div style={{ fontWeight: 700, color: 'var(--text)', marginBottom: 4, fontSize: 14.5 }}>
+              📗 + 加入「各類所得清單」
+            </div>
+            <div style={{ fontSize: 12.5, color: 'var(--text-3)', marginBottom: 10 }}>選用 · 解鎖退稅 / 扣繳相關</div>
+            <div style={{ fontSize: 13, color: 'var(--text-2)', marginBottom: 6 }}>上面那些 ✓ 全部保留，再加：</div>
+            <div style={featureRowStyle}>{checkIcon}<span><strong style={{ color: 'var(--text)' }}>全戶扣繳稅額</strong>（公司已先預扣的稅）</span></div>
+            <div style={featureRowStyle}>{checkIcon}<span><strong style={{ color: 'var(--text)' }}>退稅 / 補繳金額</strong>（最重要！）</span></div>
+            <div style={featureRowStyle}>{checkIcon}<span>缺配偶清單自動提示 ⚠️</span></div>
+            <div style={{ marginTop: 12, padding: '8px 10px', background: 'rgba(212, 190, 122, 0.08)', borderRadius: 6, fontSize: 12.5, color: 'var(--warn-text)', lineHeight: 1.5 }}>
+              💡 <strong>已婚</strong>需要本人 + 配偶<strong>各一份清單</strong>共 2 份，全戶退稅才算得出來。少配偶那份會被標 🔒。
+            </div>
+          </div>
+        </div>
+
         <div style={{
           paddingTop: 20,
           borderTop: '1px solid var(--divider)',
-          textAlign: 'center'
         }}>
           {/* 匯入流程說明 */}
           <div style={{
@@ -673,41 +721,101 @@ function EmptyState({ onUpload, onSampleData }) {
             <div style={{ color: 'var(--text-3)', marginTop: 6, fontSize: 13 }}>※ 系統對每份 PDF 會自動嘗試兩個密碼，省去分批操作。預設密碼 = 該人身分證（含英文字母大寫）</div>
           </div>
 
-          <div style={{ color: 'var(--text-2)', fontSize: 13.5, marginBottom: 12 }}>
-            還沒下載 PDF？兩種文件分別到下面入口申請：
+          {/* 下載入口 + 詳細路徑 */}
+          <div style={{ fontWeight: 700, color: 'var(--text)', marginBottom: 12, fontSize: 14.5 }}>📥 還沒下載？兩種文件這樣抓</div>
+
+          {/* 納稅證明書 */}
+          <div style={{
+            background: 'var(--card)',
+            border: '1px solid var(--card-border)',
+            borderRadius: 10,
+            padding: '14px 16px',
+            marginBottom: 12
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 6 }}>
+              <div style={{ fontWeight: 600, color: 'var(--text)', fontSize: 14 }}>① 納稅證明書（必要）</div>
+              <a href="https://www.etax.nat.gov.tw/etwmain/etw108w"
+                 target="_blank" rel="noopener noreferrer"
+                 style={{
+                   display: 'inline-flex', alignItems: 'center', gap: 6,
+                   padding: '7px 12px', borderRadius: 8,
+                   background: 'var(--accent-grad)', color: 'white',
+                   textDecoration: 'none', fontSize: 12.5, fontWeight: 600,
+                   boxShadow: '0 4px 14px -2px rgba(85, 117, 200, 0.35)'
+                 }}>
+                前往 etax 入口網
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M7 17L17 7M17 7H8M17 7v9" />
+                </svg>
+              </a>
+            </div>
+            <div style={stepStyle}>
+              <strong style={{ color: 'var(--text-2)' }}>路徑：</strong>
+              <strong>電子稅務文件</strong> → <strong>綜所稅</strong> → <strong>綜合所得稅納稅證明書</strong>
+            </div>
+            <div style={stepStyle}>
+              <strong style={{ color: 'var(--text-2)' }}>登入：</strong>
+              自然人憑證 / 健保卡（讀卡機）/ 行動電話認證 / TW FidO 任一種
+            </div>
+            <div style={stepStyle}>
+              <strong style={{ color: 'var(--text-2)' }}>下載：</strong>
+              選擇年度（可選最近 5 年）→ 下載 PDF（密碼預設 = 本人身分證大寫）
+            </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, marginBottom: 8 }}>
-            <a href="https://www.etax.nat.gov.tw/etwmain/etw108w"
-               target="_blank" rel="noopener noreferrer"
-               style={{
-                 display: 'inline-flex', justifyContent: 'center', alignItems: 'center', gap: 6,
-                 padding: '10px 14px', borderRadius: 9,
-                 background: 'var(--accent-grad)', color: 'white',
-                 textDecoration: 'none', fontSize: 13, fontWeight: 500,
-                 boxShadow: '0 4px 14px -2px rgba(124, 128, 201, 0.3)'
-               }}>
-              下載納稅證明書
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M7 17L17 7M17 7H8M17 7v9" />
-              </svg>
-            </a>
-            <a href="https://www.etax.nat.gov.tw/etwmain/etw103w"
-               target="_blank" rel="noopener noreferrer"
-               style={{
-                 display: 'inline-flex', justifyContent: 'center', alignItems: 'center', gap: 6,
-                 padding: '10px 14px', borderRadius: 9,
-                 background: 'var(--card-hover)', color: 'var(--text)',
-                 textDecoration: 'none', fontSize: 13, fontWeight: 500,
-                 border: '1px solid var(--card-border)'
-               }}>
-              下載各類所得清單
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M7 17L17 7M17 7H8M17 7v9" />
-              </svg>
-            </a>
-          </div>
-          <div style={{ color: 'var(--text-3)', fontSize: 12.5, marginTop: 4 }}>
-            ※ 各類所得清單也可從 <a href="https://mydata.nat.gov.tw" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-2)', textDecoration: 'underline' }}>MyData 平台</a> 下載
+
+          {/* 各類所得清單 */}
+          <div style={{
+            background: 'var(--card)',
+            border: '1px solid var(--card-border)',
+            borderRadius: 10,
+            padding: '14px 16px',
+            marginBottom: 8
+          }}>
+            <div style={{ fontWeight: 600, color: 'var(--text)', fontSize: 14, marginBottom: 10 }}>② 各類所得清單（選用，但強烈建議）— 兩個入口任選</div>
+
+            <div style={{ paddingLeft: 14, borderLeft: '2px solid var(--card-border)', marginBottom: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 4 }}>
+                <div style={{ fontWeight: 600, color: 'var(--text-2)', fontSize: 13.5 }}>A. etax 入口網</div>
+                <a href="https://www.etax.nat.gov.tw/etwmain/etw103w"
+                   target="_blank" rel="noopener noreferrer"
+                   style={{
+                     display: 'inline-flex', alignItems: 'center', gap: 5,
+                     padding: '6px 11px', borderRadius: 7,
+                     background: 'var(--card-hover)', color: 'var(--text)',
+                     textDecoration: 'none', fontSize: 12, fontWeight: 600,
+                     border: '1px solid var(--card-border)'
+                   }}>
+                  前往
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
+                </a>
+              </div>
+              <div style={stepStyle}>
+                <strong style={{ color: 'var(--text-2)' }}>路徑：</strong>
+                <strong>電子稅務文件</strong> → <strong>稅務行政</strong> → <strong>個人所得資料（綜合所得稅各類所得資料清單）</strong> → 已婚要<strong>本人 + 配偶各申請一次</strong>
+              </div>
+            </div>
+
+            <div style={{ paddingLeft: 14, borderLeft: '2px solid var(--card-border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 4 }}>
+                <div style={{ fontWeight: 600, color: 'var(--text-2)', fontSize: 13.5 }}>B. MyData 平台（推薦，較簡單）</div>
+                <a href="https://mydata.nat.gov.tw"
+                   target="_blank" rel="noopener noreferrer"
+                   style={{
+                     display: 'inline-flex', alignItems: 'center', gap: 5,
+                     padding: '6px 11px', borderRadius: 7,
+                     background: 'var(--card-hover)', color: 'var(--text)',
+                     textDecoration: 'none', fontSize: 12, fontWeight: 600,
+                     border: '1px solid var(--card-border)'
+                   }}>
+                  前往
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
+                </a>
+              </div>
+              <div style={stepStyle}>
+                <strong style={{ color: 'var(--text-2)' }}>路徑：</strong>
+                登入 → 搜尋「<strong>綜所稅各類所得</strong>」→「下載」→ 一次抓得到全戶（含配偶）
+              </div>
+            </div>
           </div>
         </div>
       </div>
