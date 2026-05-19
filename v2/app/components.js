@@ -386,8 +386,10 @@ function UploadModal({
   defaultPassword,
   filingMode,
   spouseName,
-  taxpayerName
+  taxpayerName,
+  uploadMode
 }) {
+  const isCertOnly = uploadMode === 'cert';
   const [files, setFiles] = useState([]); // {name, file, status, parsed?, error?}
   const [password, setPassword] = useState(defaultPassword || '');
   const [spousePassword, setSpousePassword] = useState('');
@@ -501,9 +503,9 @@ function UploadModal({
   }, /*#__PURE__*/React.createElement("div", {
     className: "modal",
     onClick: e => e.stopPropagation()
-  }, /*#__PURE__*/React.createElement("h2", null, "\u4E0A\u50B3 PDF \u6587\u4EF6"), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("h2", null, isCertOnly ? '上傳納稅證明書' : '上傳 PDF 文件'), /*#__PURE__*/React.createElement("div", {
     className: "modal-sub"
-  }, "\u4E00\u6B21\u62D6\u5165\u5168\u90E8 PDF (\u672C\u4EBA\u8B49\u660E\u66F8 + \u672C\u4EBA\u6E05\u55AE + \u914D\u5076\u6E05\u55AE)\uFF0C\u4E0B\u65B9\u586B\u5BC6\u78BC\u5373\u53EF\u4E00\u6B21\u89E3\u6790\u5168\u90E8\u3002"), /*#__PURE__*/React.createElement("div", {
+  }, isCertOnly ? '只需拖入「納稅證明書」PDF。已婚的證明書內含配偶資料，僅需 1 份即可。' : '一次拖入全部 PDF (本人證明書 + 本人清單 + 配偶清單)，下方填密碼即可一次解析全部。'), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 12,
       padding: '10px 12px',
@@ -514,7 +516,7 @@ function UploadModal({
       lineHeight: 1.5,
       border: '1px solid var(--card-border)'
     }
-  }, /*#__PURE__*/React.createElement("strong", null, "\uD83D\uDCA1 \u4E00\u6B21\u5B8C\u6210\uFF1A"), "\u628A", /*#__PURE__*/React.createElement("strong", null, "\u6240\u6709 PDF"), "(\u672C\u4EBA + \u914D\u5076) \u4E00\u8D77\u62D6\u9032\u4F86\u3002\u4E0B\u65B9\u586B\u5BC6\u78BC: ", /*#__PURE__*/React.createElement("strong", null, "\u55AE\u8EAB"), "\u53EA\u586B\u672C\u4EBA\u8EAB\u5206\u8B49\uFF1B", /*#__PURE__*/React.createElement("strong", null, "\u5DF2\u5A5A"), "\u672C\u4EBA + \u914D\u5076\u5169\u683C\u90FD\u586B\u3002\u7CFB\u7D71\u6703\u5C0D\u6BCF\u4EFD PDF \u81EA\u52D5\u5617\u8A66\u5169\u500B\u5BC6\u78BC\uFF0C\u7701\u53BB\u5206\u6279\u64CD\u4F5C\u3002"), /*#__PURE__*/React.createElement("div", {
+  }, isCertOnly ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("strong", null, "\uD83D\uDCA1 \u57FA\u672C\u6A21\u5F0F\uFF1A"), "\u53EA\u9700 ", /*#__PURE__*/React.createElement("strong", null, "1 \u4EFD\u7D0D\u7A05\u8B49\u660E\u66F8"), "\u3002\u5BC6\u78BC = \u672C\u4EBA\u8EAB\u5206\u8B49 (\u542B\u82F1\u6587\u5927\u5BEB)\u3002\u4E4B\u5F8C\u60F3\u89E3\u9396\u9000\u7A05/\u88DC\u7E73\uFF0C\u518D\u56DE\u9996\u9801\u9078\u300C\u5B8C\u6574\u300D\u6A21\u5F0F\u88DC\u532F\u5165\u6E05\u55AE\u5373\u53EF\u3002") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("strong", null, "\uD83D\uDCA1 \u4E00\u6B21\u5B8C\u6210\uFF1A"), "\u628A", /*#__PURE__*/React.createElement("strong", null, "\u6240\u6709 PDF"), "(\u672C\u4EBA + \u914D\u5076) \u4E00\u8D77\u62D6\u9032\u4F86\u3002\u4E0B\u65B9\u586B\u5BC6\u78BC: ", /*#__PURE__*/React.createElement("strong", null, "\u55AE\u8EAB"), "\u53EA\u586B\u672C\u4EBA\u8EAB\u5206\u8B49\uFF1B", /*#__PURE__*/React.createElement("strong", null, "\u5DF2\u5A5A"), "\u672C\u4EBA + \u914D\u5076\u5169\u683C\u90FD\u586B\u3002\u7CFB\u7D71\u6703\u5C0D\u6BCF\u4EFD PDF \u81EA\u52D5\u5617\u8A66\u5169\u500B\u5BC6\u78BC\uFF0C\u7701\u53BB\u5206\u6279\u64CD\u4F5C\u3002")), /*#__PURE__*/React.createElement("div", {
     className: `dropzone ${over ? 'over' : ''}`,
     onClick: () => inputRef.current.click(),
     onDragOver: e => {
@@ -1363,7 +1365,7 @@ function EmptyState({
     style: {
       color: 'var(--text)'
     }
-  }, "\u9000\u7A05 / \u88DC\u7E73\u91D1\u984D"), "\uFF08\u6700\u91CD\u8981\uFF01\uFF09"))))), /*#__PURE__*/React.createElement("div", {
+  }, "\u9000\u7A05 / \u88DC\u7E73\u91D1\u984D")))))), /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: 'center',
       marginBottom: 22

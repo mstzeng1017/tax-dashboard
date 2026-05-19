@@ -206,7 +206,8 @@ function SourceBadge({ type, compact, tone }) {
 }
 
 // === Upload Modal ===
-function UploadModal({ onClose, onApplyParsed, defaultPassword, filingMode, spouseName, taxpayerName }) {
+function UploadModal({ onClose, onApplyParsed, defaultPassword, filingMode, spouseName, taxpayerName, uploadMode }) {
+  const isCertOnly = uploadMode === 'cert';
   const [files, setFiles] = useState([]); // {name, file, status, parsed?, error?}
   const [password, setPassword] = useState(defaultPassword || '');
   const [spousePassword, setSpousePassword] = useState('');
@@ -287,17 +288,25 @@ function UploadModal({ onClose, onApplyParsed, defaultPassword, filingMode, spou
   return (
     <div className="modal-bg" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
-        <h2>上傳 PDF 文件</h2>
-        <div className="modal-sub">一次拖入全部 PDF (本人證明書 + 本人清單 + 配偶清單)，下方填密碼即可一次解析全部。</div>
+        <h2>{isCertOnly ? '上傳納稅證明書' : '上傳 PDF 文件'}</h2>
+        <div className="modal-sub">
+          {isCertOnly
+            ? '只需拖入「納稅證明書」PDF。已婚的證明書內含配偶資料，僅需 1 份即可。'
+            : '一次拖入全部 PDF (本人證明書 + 本人清單 + 配偶清單)，下方填密碼即可一次解析全部。'}
+        </div>
 
-        {/* v2: 智慧上傳提示 (簡化, 因為已支援雙密碼自動 retry) */}
+        {/* 智慧上傳提示 (模式不同文字不同) */}
         <div style={{
           marginTop: 12, padding: '10px 12px', borderRadius: 8,
           background: 'rgba(124, 128, 201, 0.08)', color: 'var(--text-2)',
           fontSize: 13.5, lineHeight: 1.5,
           border: '1px solid var(--card-border)'
         }}>
-          <strong>💡 一次完成：</strong>把<strong>所有 PDF</strong>(本人 + 配偶) 一起拖進來。下方填密碼: <strong>單身</strong>只填本人身分證；<strong>已婚</strong>本人 + 配偶兩格都填。系統會對每份 PDF 自動嘗試兩個密碼，省去分批操作。
+          {isCertOnly ? (
+            <><strong>💡 基本模式：</strong>只需 <strong>1 份納稅證明書</strong>。密碼 = 本人身分證 (含英文大寫)。之後想解鎖退稅/補繳，再回首頁選「完整」模式補匯入清單即可。</>
+          ) : (
+            <><strong>💡 一次完成：</strong>把<strong>所有 PDF</strong>(本人 + 配偶) 一起拖進來。下方填密碼: <strong>單身</strong>只填本人身分證；<strong>已婚</strong>本人 + 配偶兩格都填。系統會對每份 PDF 自動嘗試兩個密碼，省去分批操作。</>
+          )}
         </div>
 
         <div className={`dropzone ${over ? 'over' : ''}`}
@@ -742,7 +751,7 @@ function EmptyState({ onUpload, onSampleData }) {
             <div style={{ borderTop: '1px solid var(--card-border)', paddingTop: 16, textAlign: 'left' }}>
               <div style={{ fontSize: 13.5, color: 'var(--text-2)', marginBottom: 8, fontWeight: 600 }}>含「基本」全部，再加：</div>
               <div style={featureRowStyle}>{checkIcon}<span><strong style={{ color: 'var(--text)' }}>全戶扣繳稅額</strong>（公司預扣的稅）</span></div>
-              <div style={featureRowStyle}>{checkIcon}<span><strong style={{ color: 'var(--text)' }}>退稅 / 補繳金額</strong>（最重要！）</span></div>
+              <div style={featureRowStyle}>{checkIcon}<span><strong style={{ color: 'var(--text)' }}>退稅 / 補繳金額</strong></span></div>
             </div>
           </div>
         </div>

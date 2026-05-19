@@ -196,7 +196,7 @@ function App() {
   const renderSection = () => {
     if (!hasData) {
       return /*#__PURE__*/React.createElement(EmptyState, {
-        onUpload: () => setShowUpload(true),
+        onUpload: openUpload,
         onSampleData: onLoadSample
       });
     }
@@ -222,7 +222,7 @@ function App() {
       setSidebarOpen(false);
     },
     onUpload: () => {
-      setShowUpload(true);
+      openUpload('full');
       setSidebarOpen(false);
     },
     onExport: onExport,
@@ -300,7 +300,8 @@ function App() {
     defaultPassword: window.TaxStore.getPassword(),
     filingMode: state.meta.filingMode,
     spouseName: state.meta.spouseName,
-    taxpayerName: state.meta.taxpayerName
+    taxpayerName: state.meta.taxpayerName,
+    uploadMode: uploadMode
   }), showClear && /*#__PURE__*/React.createElement(Confirm, {
     title: "\u6E05\u9664\u6240\u6709\u8CC7\u6599\uFF1F",
     message: "\u9019\u6703\u522A\u9664\u700F\u89BD\u5668\u5167\u6240\u6709\u6B77\u5E74\u6240\u5F97\u7A05\u8CC7\u6599\u3001\u5BC6\u78BC\u8A18\u61B6\u8207\u8A2D\u5B9A\u3002\u5EFA\u8B70\u5148\u6309\u300C\u5099\u4EFD\u300D\u532F\u51FA JSON \u5B58\u6A94\uFF0C\u4E4B\u5F8C\u60F3\u9084\u539F\u53EF\u7528\u300C\u532F\u5165 JSON\u300D\u5FA9\u539F\u3002",

@@ -172,7 +172,7 @@ function App() {
 
   const renderSection = () => {
     if (!hasData) {
-      return <EmptyState onUpload={() => setShowUpload(true)} onSampleData={onLoadSample} />;
+      return <EmptyState onUpload={openUpload} onSampleData={onLoadSample} />;
     }
     const props = {
       years, unit: tweaks.unit, chartType: tweaks.chartType,
@@ -190,7 +190,7 @@ function App() {
       <Sidebar
         active={active}
         onNav={(id) => { setActive(id); setSidebarOpen(false); }}
-        onUpload={() => { setShowUpload(true); setSidebarOpen(false); }}
+        onUpload={() => { openUpload('full'); setSidebarOpen(false); }}
         onExport={onExport}
         onImport={onImport}
         onClear={() => { setShowClear(true); setSidebarOpen(false); }}
@@ -248,6 +248,7 @@ function App() {
           filingMode={state.meta.filingMode}
           spouseName={state.meta.spouseName}
           taxpayerName={state.meta.taxpayerName}
+          uploadMode={uploadMode}
         />
       )}
 
