@@ -817,7 +817,7 @@ function EmptyState({ onUpload, onSampleData }) {
             {/* ② 各類所得清單 */}
             <div style={{ paddingLeft: 16, borderLeft: '3px solid var(--accent-2)' }}>
               <div style={{ fontWeight: 700, color: 'var(--text)', fontSize: 16, marginBottom: 6 }}>
-                ② 各類所得清單 <span style={{ color: 'var(--accent-2)', fontWeight: 600, fontSize: 13 }}>（強烈建議）</span>
+                ② 各類所得清單
               </div>
               <div style={{ ...stepStyle, marginTop: 4 }}>
                 <strong style={{ color: 'var(--text-2)', fontSize: 13.5 }}>路徑：</strong>

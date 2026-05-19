@@ -1517,13 +1517,7 @@ function EmptyState({
       fontSize: 16,
       marginBottom: 6
     }
-  }, "\u2461 \u5404\u985E\u6240\u5F97\u6E05\u55AE ", /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: 'var(--accent-2)',
-      fontWeight: 600,
-      fontSize: 13
-    }
-  }, "\uFF08\u5F37\u70C8\u5EFA\u8B70\uFF09")), /*#__PURE__*/React.createElement("div", {
+  }, "\u2461 \u5404\u985E\u6240\u5F97\u6E05\u55AE"), /*#__PURE__*/React.createElement("div", {
     style: {
       ...stepStyle,
       marginTop: 4
