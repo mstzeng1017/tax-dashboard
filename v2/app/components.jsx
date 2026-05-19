@@ -657,7 +657,7 @@ function EmptyState({ onUpload, onSampleData }) {
 
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <h2 style={{ marginBottom: 8 }}>請上傳所得稅 PDF</h2>
-          <p style={{ marginBottom: 0, color: 'var(--text-2)', textAlign: 'center' }}>選擇要用哪種模式匯入</p>
+          <p style={{ margin: '0 auto', color: 'var(--text-2)', textAlign: 'center' }}>選擇要用哪種模式匯入</p>
         </div>
 
         {/* 2 卡選擇 (同格式, 橫排) */}

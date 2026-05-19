@@ -1109,7 +1109,7 @@ function EmptyState({
     }
   }, "\u8ACB\u4E0A\u50B3\u6240\u5F97\u7A05 PDF"), /*#__PURE__*/React.createElement("p", {
     style: {
-      marginBottom: 0,
+      margin: '0 auto',
       color: 'var(--text-2)',
       textAlign: 'center'
     }
