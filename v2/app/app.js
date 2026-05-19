@@ -214,8 +214,8 @@ function App() {
     return /*#__PURE__*/React.createElement(OverviewSection, props);
   };
   return /*#__PURE__*/React.createElement("div", {
-    className: "app"
-  }, /*#__PURE__*/React.createElement(Sidebar, {
+    className: `app${!hasData ? ' no-sidebar' : ''}`
+  }, hasData && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Sidebar, {
     active: active,
     onNav: id => {
       setActive(id);
@@ -236,7 +236,7 @@ function App() {
   }), /*#__PURE__*/React.createElement("div", {
     className: "sidebar-backdrop",
     onClick: () => setSidebarOpen(false)
-  }), /*#__PURE__*/React.createElement("main", {
+  })), /*#__PURE__*/React.createElement("main", {
     className: "main"
   }, /*#__PURE__*/React.createElement(TopBar, {
     taxpayerName: hasData ? state.meta.taxpayerName : null,

@@ -113,20 +113,7 @@ function Sidebar({
     d: "M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6",
     strokeLinecap: "round",
     strokeLinejoin: "round"
-  })), "\u6E05\u9664\u6240\u6709\u8CC7\u6599")), /*#__PURE__*/React.createElement("a", {
-    href: "../",
-    style: {
-      display: 'block',
-      textAlign: 'center',
-      padding: '8px 12px',
-      margin: '8px 16px',
-      fontSize: 13,
-      color: 'var(--text-3)',
-      textDecoration: 'none',
-      borderRadius: 6,
-      border: '1px solid var(--card-border)'
-    }
-  }, "\u2190 \u5207\u56DE v1 (\u7C21\u6F54\u7248)"), /*#__PURE__*/React.createElement("div", {
+  })), "\u6E05\u9664\u6240\u6709\u8CC7\u6599")), /*#__PURE__*/React.createElement("div", {
     className: "privacy-note"
   }, /*#__PURE__*/React.createElement("svg", {
     width: "14",
@@ -1121,7 +1108,8 @@ function EmptyState({
   }, "\u8ACB\u4E0A\u50B3\u6240\u5F97\u7A05 PDF"), /*#__PURE__*/React.createElement("p", {
     style: {
       marginBottom: 0,
-      color: 'var(--text-2)'
+      color: 'var(--text-2)',
+      textAlign: 'center'
     }
   }, "\u9078\u64C7\u8981\u7528\u54EA\u7A2E\u6A21\u5F0F\u532F\u5165")), /*#__PURE__*/React.createElement("div", {
     style: {

@@ -60,10 +60,6 @@ function Sidebar({ active, onNav, onUpload, onExport, onImport, onClear, hasData
         </button>
       </div>
 
-      <a href="../" style={{ display: 'block', textAlign: 'center', padding: '8px 12px', margin: '8px 16px', fontSize: 13, color: 'var(--text-3)', textDecoration: 'none', borderRadius: 6, border: '1px solid var(--card-border)' }}>
-        ← 切回 v1 (簡潔版)
-      </a>
-
       <div className="privacy-note">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -659,7 +655,7 @@ function EmptyState({ onUpload, onSampleData }) {
 
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <h2 style={{ marginBottom: 8 }}>請上傳所得稅 PDF</h2>
-          <p style={{ marginBottom: 0, color: 'var(--text-2)' }}>選擇要用哪種模式匯入</p>
+          <p style={{ marginBottom: 0, color: 'var(--text-2)', textAlign: 'center' }}>選擇要用哪種模式匯入</p>
         </div>
 
         {/* 2 卡選擇 (同格式, 不同色 button) */}

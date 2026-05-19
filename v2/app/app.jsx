@@ -186,18 +186,22 @@ function App() {
   };
 
   return (
-    <div className="app">
-      <Sidebar
-        active={active}
-        onNav={(id) => { setActive(id); setSidebarOpen(false); }}
-        onUpload={() => { openUpload('full'); setSidebarOpen(false); }}
-        onExport={onExport}
-        onImport={onImport}
-        onClear={() => { setShowClear(true); setSidebarOpen(false); }}
-        hasData={hasData}
-        filingMode={filingMode}
-      />
-      <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)}></div>
+    <div className={`app${!hasData ? ' no-sidebar' : ''}`}>
+      {hasData && (
+        <>
+          <Sidebar
+            active={active}
+            onNav={(id) => { setActive(id); setSidebarOpen(false); }}
+            onUpload={() => { openUpload('full'); setSidebarOpen(false); }}
+            onExport={onExport}
+            onImport={onImport}
+            onClear={() => { setShowClear(true); setSidebarOpen(false); }}
+            hasData={hasData}
+            filingMode={filingMode}
+          />
+          <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)}></div>
+        </>
+      )}
       <main className="main">
         <TopBar
           taxpayerName={hasData ? state.meta.taxpayerName : null}
