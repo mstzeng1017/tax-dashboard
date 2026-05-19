@@ -1234,19 +1234,7 @@ function EmptyState({
     style: {
       color: 'var(--text)'
     }
-  }, "\u9000\u7A05 / \u88DC\u7E73\u91D1\u984D"), "\uFF08\u6700\u91CD\u8981\uFF01\uFF09")), /*#__PURE__*/React.createElement("div", {
-    style: featureRowStyle
-  }, checkIcon, /*#__PURE__*/React.createElement("span", null, "\u7F3A\u914D\u5076\u6E05\u55AE\u81EA\u52D5\u63D0\u793A \u26A0\uFE0F")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 12,
-      padding: '8px 10px',
-      background: 'rgba(212, 190, 122, 0.08)',
-      borderRadius: 6,
-      fontSize: 12.5,
-      color: 'var(--warn-text)',
-      lineHeight: 1.5
-    }
-  }, "\uD83D\uDCA1 ", /*#__PURE__*/React.createElement("strong", null, "\u5DF2\u5A5A"), "\u9700\u8981\u672C\u4EBA + \u914D\u5076", /*#__PURE__*/React.createElement("strong", null, "\u5404\u4E00\u4EFD\u6E05\u55AE"), "\u5171 2 \u4EFD\uFF0C\u5168\u6236\u9000\u7A05\u624D\u7B97\u5F97\u51FA\u4F86\u3002\u5C11\u914D\u5076\u90A3\u4EFD\u6703\u88AB\u6A19 \uD83D\uDD12\u3002"))), /*#__PURE__*/React.createElement("div", {
+  }, "\u9000\u7A05 / \u88DC\u7E73\u91D1\u984D"), "\uFF08\u6700\u91CD\u8981\uFF01\uFF09")))), /*#__PURE__*/React.createElement("div", {
     style: {
       paddingTop: 20,
       borderTop: '1px solid var(--divider)'
@@ -1319,18 +1307,11 @@ function EmptyState({
     }
   }, "\u203B \u7CFB\u7D71\u5C0D\u6BCF\u4EFD PDF \u6703\u81EA\u52D5\u5617\u8A66\u5169\u500B\u5BC6\u78BC\uFF0C\u7701\u53BB\u5206\u6279\u64CD\u4F5C\u3002\u9810\u8A2D\u5BC6\u78BC = \u8A72\u4EBA\u8EAB\u5206\u8B49\uFF08\u542B\u82F1\u6587\u5B57\u6BCD\u5927\u5BEB\uFF09")), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontWeight: 700,
-      color: 'var(--text)',
-      marginBottom: 12,
-      fontSize: 14.5
-    }
-  }, "\uD83D\uDCE5 \u9084\u6C92\u4E0B\u8F09\uFF1F\u5169\u7A2E\u6587\u4EF6\u9019\u6A23\u6293"), /*#__PURE__*/React.createElement("div", {
-    style: {
       background: 'var(--card)',
       border: '1px solid var(--card-border)',
       borderRadius: 10,
-      padding: '14px 16px',
-      marginBottom: 12
+      padding: '16px 18px',
+      marginBottom: 8
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1339,23 +1320,23 @@ function EmptyState({
       justifyContent: 'space-between',
       gap: 12,
       flexWrap: 'wrap',
-      marginBottom: 6
+      marginBottom: 12
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontWeight: 600,
+      fontWeight: 700,
       color: 'var(--text)',
-      fontSize: 14
+      fontSize: 15
     }
-  }, "\u2460 \u7D0D\u7A05\u8B49\u660E\u66F8\uFF08\u5FC5\u8981\uFF09"), /*#__PURE__*/React.createElement("a", {
-    href: "https://www.etax.nat.gov.tw/etwmain/etw108w",
+  }, "\uD83D\uDCE5 \u9084\u6C92\u4E0B\u8F09\uFF1F\u5230 etax \u5165\u53E3\u7DB2\u6293"), /*#__PURE__*/React.createElement("a", {
+    href: "https://www.etax.nat.gov.tw/etwmain/",
     target: "_blank",
     rel: "noopener noreferrer",
     style: {
       display: 'inline-flex',
       alignItems: 'center',
       gap: 6,
-      padding: '7px 12px',
+      padding: '7px 13px',
       borderRadius: 8,
       background: 'var(--accent-grad)',
       color: 'white',
@@ -1376,144 +1357,73 @@ function EmptyState({
   }, /*#__PURE__*/React.createElement("path", {
     d: "M7 17L17 7M17 7H8M17 7v9"
   })))), /*#__PURE__*/React.createElement("div", {
-    style: stepStyle
+    style: {
+      ...stepStyle,
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      color: 'var(--text-2)'
+    }
+  }, "\u767B\u5165\u65B9\u5F0F\uFF1A"), "\u81EA\u7136\u4EBA\u6191\u8B49 / \u5065\u4FDD\u5361\uFF08\u8B80\u5361\u6A5F\uFF09/ \u884C\u52D5\u96FB\u8A71\u8A8D\u8B49 / TW FidO \u4EFB\u4E00\u7A2E"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      paddingLeft: 14,
+      borderLeft: '2px solid var(--card-border)',
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontWeight: 600,
+      color: 'var(--text)',
+      fontSize: 13.5,
+      marginBottom: 4
+    }
+  }, "\u2460 \u7D0D\u7A05\u8B49\u660E\u66F8\uFF08\u5FC5\u8981\uFF09"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...stepStyle,
+      marginTop: 2
+    }
   }, /*#__PURE__*/React.createElement("strong", {
     style: {
       color: 'var(--text-2)'
     }
   }, "\u8DEF\u5F91\uFF1A"), /*#__PURE__*/React.createElement("strong", null, "\u96FB\u5B50\u7A05\u52D9\u6587\u4EF6"), " \u2192 ", /*#__PURE__*/React.createElement("strong", null, "\u7D9C\u6240\u7A05"), " \u2192 ", /*#__PURE__*/React.createElement("strong", null, "\u7D9C\u5408\u6240\u5F97\u7A05\u7D0D\u7A05\u8B49\u660E\u66F8")), /*#__PURE__*/React.createElement("div", {
-    style: stepStyle
-  }, /*#__PURE__*/React.createElement("strong", {
     style: {
-      color: 'var(--text-2)'
+      ...stepStyle,
+      marginTop: 2
     }
-  }, "\u767B\u5165\uFF1A"), "\u81EA\u7136\u4EBA\u6191\u8B49 / \u5065\u4FDD\u5361\uFF08\u8B80\u5361\u6A5F\uFF09/ \u884C\u52D5\u96FB\u8A71\u8A8D\u8B49 / TW FidO \u4EFB\u4E00\u7A2E"), /*#__PURE__*/React.createElement("div", {
-    style: stepStyle
   }, /*#__PURE__*/React.createElement("strong", {
     style: {
       color: 'var(--text-2)'
     }
   }, "\u4E0B\u8F09\uFF1A"), "\u9078\u64C7\u5E74\u5EA6\uFF08\u53EF\u9078\u6700\u8FD1 5 \u5E74\uFF09\u2192 \u4E0B\u8F09 PDF\uFF08\u5BC6\u78BC\u9810\u8A2D = \u672C\u4EBA\u8EAB\u5206\u8B49\u5927\u5BEB\uFF09")), /*#__PURE__*/React.createElement("div", {
     style: {
-      background: 'var(--card)',
-      border: '1px solid var(--card-border)',
-      borderRadius: 10,
-      padding: '14px 16px',
-      marginBottom: 8
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontWeight: 600,
-      color: 'var(--text)',
-      fontSize: 14,
-      marginBottom: 10
-    }
-  }, "\u2461 \u5404\u985E\u6240\u5F97\u6E05\u55AE\uFF08\u9078\u7528\uFF0C\u4F46\u5F37\u70C8\u5EFA\u8B70\uFF09\u2014 \u5169\u500B\u5165\u53E3\u4EFB\u9078"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      paddingLeft: 14,
-      borderLeft: '2px solid var(--card-border)',
-      marginBottom: 12
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: 12,
-      flexWrap: 'wrap',
-      marginBottom: 4
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontWeight: 600,
-      color: 'var(--text-2)',
-      fontSize: 13.5
-    }
-  }, "A. etax \u5165\u53E3\u7DB2"), /*#__PURE__*/React.createElement("a", {
-    href: "https://www.etax.nat.gov.tw/etwmain/etw103w",
-    target: "_blank",
-    rel: "noopener noreferrer",
-    style: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 5,
-      padding: '6px 11px',
-      borderRadius: 7,
-      background: 'var(--card-hover)',
-      color: 'var(--text)',
-      textDecoration: 'none',
-      fontSize: 12,
-      fontWeight: 600,
-      border: '1px solid var(--card-border)'
-    }
-  }, "\u524D\u5F80", /*#__PURE__*/React.createElement("svg", {
-    width: "10",
-    height: "10",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2.5"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M7 17L17 7M17 7H8M17 7v9"
-  })))), /*#__PURE__*/React.createElement("div", {
-    style: stepStyle
-  }, /*#__PURE__*/React.createElement("strong", {
-    style: {
-      color: 'var(--text-2)'
-    }
-  }, "\u8DEF\u5F91\uFF1A"), /*#__PURE__*/React.createElement("strong", null, "\u96FB\u5B50\u7A05\u52D9\u6587\u4EF6"), " \u2192 ", /*#__PURE__*/React.createElement("strong", null, "\u7A05\u52D9\u884C\u653F"), " \u2192 ", /*#__PURE__*/React.createElement("strong", null, "\u500B\u4EBA\u6240\u5F97\u8CC7\u6599\uFF08\u7D9C\u5408\u6240\u5F97\u7A05\u5404\u985E\u6240\u5F97\u8CC7\u6599\u6E05\u55AE\uFF09"), " \u2192 \u5DF2\u5A5A\u8981", /*#__PURE__*/React.createElement("strong", null, "\u672C\u4EBA + \u914D\u5076\u5404\u7533\u8ACB\u4E00\u6B21"))), /*#__PURE__*/React.createElement("div", {
-    style: {
       paddingLeft: 14,
       borderLeft: '2px solid var(--card-border)'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: 12,
-      flexWrap: 'wrap',
+      fontWeight: 600,
+      color: 'var(--text)',
+      fontSize: 13.5,
       marginBottom: 4
     }
-  }, /*#__PURE__*/React.createElement("div", {
+  }, "\u2461 \u5404\u985E\u6240\u5F97\u6E05\u55AE\uFF08\u9078\u7528\uFF0C\u4F46\u5F37\u70C8\u5EFA\u8B70\uFF09"), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontWeight: 600,
-      color: 'var(--text-2)',
-      fontSize: 13.5
+      ...stepStyle,
+      marginTop: 2
     }
-  }, "B. MyData \u5E73\u53F0\uFF08\u63A8\u85A6\uFF0C\u8F03\u7C21\u55AE\uFF09"), /*#__PURE__*/React.createElement("a", {
-    href: "https://mydata.nat.gov.tw",
-    target: "_blank",
-    rel: "noopener noreferrer",
-    style: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 5,
-      padding: '6px 11px',
-      borderRadius: 7,
-      background: 'var(--card-hover)',
-      color: 'var(--text)',
-      textDecoration: 'none',
-      fontSize: 12,
-      fontWeight: 600,
-      border: '1px solid var(--card-border)'
-    }
-  }, "\u524D\u5F80", /*#__PURE__*/React.createElement("svg", {
-    width: "10",
-    height: "10",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2.5"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M7 17L17 7M17 7H8M17 7v9"
-  })))), /*#__PURE__*/React.createElement("div", {
-    style: stepStyle
   }, /*#__PURE__*/React.createElement("strong", {
     style: {
       color: 'var(--text-2)'
     }
-  }, "\u8DEF\u5F91\uFF1A"), "\u767B\u5165 \u2192 \u641C\u5C0B\u300C", /*#__PURE__*/React.createElement("strong", null, "\u7D9C\u6240\u7A05\u5404\u985E\u6240\u5F97"), "\u300D\u2192\u300C\u4E0B\u8F09\u300D\u2192 \u4E00\u6B21\u6293\u5F97\u5230\u5168\u6236\uFF08\u542B\u914D\u5076\uFF09"))))));
+  }, "\u8DEF\u5F91\uFF1A"), /*#__PURE__*/React.createElement("strong", null, "\u96FB\u5B50\u7A05\u52D9\u6587\u4EF6"), " \u2192 ", /*#__PURE__*/React.createElement("strong", null, "\u7A05\u52D9\u884C\u653F"), " \u2192 ", /*#__PURE__*/React.createElement("strong", null, "\u500B\u4EBA\u6240\u5F97\u8CC7\u6599\uFF08\u7D9C\u5408\u6240\u5F97\u7A05\u5404\u985E\u6240\u5F97\u8CC7\u6599\u6E05\u55AE\uFF09")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...stepStyle,
+      marginTop: 2,
+      color: 'var(--warn-text)'
+    }
+  }, "\u26A0\uFE0F \u5DF2\u5A5A\u9700", /*#__PURE__*/React.createElement("strong", null, "\u672C\u4EBA + \u914D\u5076\u5404\u7533\u8ACB\u4E00\u6B21"), "\uFF0C\u5171 2 \u4EFD"))))));
 }
 Object.assign(window, {
   Sidebar,
