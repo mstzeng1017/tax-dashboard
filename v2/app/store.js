@@ -293,7 +293,7 @@
       },
       {
         year: 2024,
-        sources: { taxCert: now, incomeListMain: now, incomeListSpouse: null }, // partial: 配偶還沒上傳
+        sources: { taxCert: now, incomeListMain: now, incomeListSpouse: now }, // complete (demo 全部文件)
         dependents,
         mainTotal: 2080000, spouseTotal: 920000, grossIncome: 2564000,
         netIncome: 1450000, taxAmount: 152000,
@@ -303,7 +303,8 @@
           { owner: 'main', name: '台積電', amount: 2050000, count: 1 },
           { owner: 'spouse', name: '某某科技', amount: 920000, count: 1 }
         ],
-        incomeListMain:   { totalWithheld: 145000, totalGiven: 2080000, totalIncome: 2080000, totalCreditable: 2550, recordCount: 2 }
+        incomeListMain:   { totalWithheld: 145000, totalGiven: 2080000, totalIncome: 2080000, totalCreditable: 2550, recordCount: 2 },
+        incomeListSpouse: { totalWithheld: 32000,  totalGiven: 920000,  totalIncome: 920000,  totalCreditable: 0, recordCount: 1 }
       }
     ];
     ys.forEach((y) => { s.years[y.year] = y; });

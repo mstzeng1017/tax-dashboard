@@ -1135,21 +1135,25 @@ function EmptyState({
       borderRadius: 16,
       padding: '24px 22px',
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      textAlign: 'center'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      marginBottom: 18
+      marginBottom: 16
     }
   }, /*#__PURE__*/React.createElement("svg", {
     width: "32",
     height: "32",
     viewBox: "0 0 24 24",
     fill: "none",
-    stroke: "var(--text-2)",
+    stroke: "var(--accent-1)",
     strokeWidth: "1.5",
     strokeLinecap: "round",
-    strokeLinejoin: "round"
+    strokeLinejoin: "round",
+    style: {
+      display: 'inline-block'
+    }
   }, /*#__PURE__*/React.createElement("path", {
     d: "M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"
   }), /*#__PURE__*/React.createElement("path", {
@@ -1191,24 +1195,26 @@ function EmptyState({
       marginBottom: 18
     }
   }, "\u5927\u90E8\u5206\u6578\u5B57\u5DF2\u53EF\u770B"), /*#__PURE__*/React.createElement("button", {
-    onClick: onUpload,
+    onClick: () => onUpload('cert'),
     style: {
       width: '100%',
       padding: '12px 16px',
       borderRadius: 10,
-      background: 'var(--card-hover)',
-      color: 'var(--text)',
-      border: '1px solid var(--card-border)',
+      background: 'linear-gradient(135deg, #5575C8 0%, #6A8DD8 100%)',
+      color: 'white',
+      border: '1px solid transparent',
       cursor: 'pointer',
       fontSize: 14,
-      fontWeight: 600,
+      fontWeight: 700,
       marginBottom: 20,
+      boxShadow: '0 8px 22px -8px rgba(85, 117, 200, 0.5)',
       transition: 'all 0.15s'
     }
   }, "\u53EA\u532F\u5165\u8B49\u660E\u66F8"), /*#__PURE__*/React.createElement("div", {
     style: {
       borderTop: '1px solid var(--card-border)',
-      paddingTop: 16
+      paddingTop: 16,
+      textAlign: 'left'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1250,31 +1256,17 @@ function EmptyState({
     }
   }, "\u7121\u6CD5\u770B\u300C\u5DF2\u6263\u7E73\u7A05\u984D\u300D")))), /*#__PURE__*/React.createElement("div", {
     style: {
-      background: 'linear-gradient(180deg, rgba(93, 196, 176, 0.08) 0%, var(--card) 60%)',
-      border: '1px solid rgba(93, 196, 176, 0.35)',
+      background: 'var(--card)',
+      border: '1px solid var(--card-border)',
       borderRadius: 16,
       padding: '24px 22px',
       display: 'flex',
       flexDirection: 'column',
-      position: 'relative',
-      boxShadow: '0 0 24px -8px rgba(93, 196, 176, 0.18)'
+      textAlign: 'center'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      position: 'absolute',
-      top: -1,
-      right: 18,
-      padding: '4px 10px',
-      fontSize: 11,
-      fontWeight: 700,
-      color: 'var(--bg)',
-      background: 'var(--accent-2)',
-      borderRadius: '0 0 6px 6px',
-      letterSpacing: '0.05em'
-    }
-  }, "\u63A8\u85A6"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginBottom: 18
+      marginBottom: 16
     }
   }, /*#__PURE__*/React.createElement("svg", {
     width: "32",
@@ -1284,7 +1276,10 @@ function EmptyState({
     stroke: "var(--accent-2)",
     strokeWidth: "1.5",
     strokeLinecap: "round",
-    strokeLinejoin: "round"
+    strokeLinejoin: "round",
+    style: {
+      display: 'inline-block'
+    }
   }, /*#__PURE__*/React.createElement("path", {
     d: "M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"
   }), /*#__PURE__*/React.createElement("path", {
@@ -1328,25 +1323,26 @@ function EmptyState({
       marginBottom: 18
     }
   }, "\u89E3\u9396\u9000\u7A05 / \u88DC\u7E73\u5B8C\u6574\u8CC7\u8A0A"), /*#__PURE__*/React.createElement("button", {
-    onClick: onUpload,
+    onClick: () => onUpload('full'),
     style: {
       width: '100%',
       padding: '12px 16px',
       borderRadius: 10,
-      background: 'var(--accent-grad)',
-      color: 'white',
+      background: 'linear-gradient(135deg, #5DC4B0 0%, #7AD9C6 100%)',
+      color: '#0a1f1c',
       border: '1px solid transparent',
       cursor: 'pointer',
       fontSize: 14,
       fontWeight: 700,
       marginBottom: 20,
-      boxShadow: '0 8px 22px -8px rgba(85, 117, 200, 0.5)',
+      boxShadow: '0 8px 22px -8px rgba(93, 196, 176, 0.5)',
       transition: 'all 0.15s'
     }
   }, "\u532F\u5165\u8B49\u660E\u66F8 + \u6E05\u55AE"), /*#__PURE__*/React.createElement("div", {
     style: {
       borderTop: '1px solid var(--card-border)',
-      paddingTop: 16
+      paddingTop: 16,
+      textAlign: 'left'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1395,72 +1391,6 @@ function EmptyState({
       borderTop: '1px solid var(--divider)'
     }
   }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      textAlign: 'left',
-      background: 'rgba(124, 128, 201, 0.08)',
-      border: '1px solid var(--card-border)',
-      borderRadius: 8,
-      padding: '12px 14px',
-      marginBottom: 18,
-      fontSize: 13.5,
-      color: 'var(--text-2)',
-      lineHeight: 1.6
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontWeight: 600,
-      color: 'var(--text)',
-      marginBottom: 8
-    }
-  }, "\uD83D\uDCCB \u600E\u9EBC\u532F\u5165\uFF08\u4E00\u6B21\u5B8C\u6210\uFF09"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginBottom: 4
-    }
-  }, /*#__PURE__*/React.createElement("strong", {
-    style: {
-      color: 'var(--text)'
-    }
-  }, "\u2460 \u62D6\u5165\u5168\u90E8 PDF"), "\uFF08\u4E0D\u7528\u5206\u6279\uFF09"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginBottom: 6
-    }
-  }, /*#__PURE__*/React.createElement("strong", {
-    style: {
-      color: 'var(--text)'
-    }
-  }, "\u2461 \u586B\u5BC6\u78BC\uFF1A")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginLeft: 14,
-      marginBottom: 4
-    }
-  }, "\u30FB", /*#__PURE__*/React.createElement("strong", {
-    style: {
-      color: 'var(--good)'
-    }
-  }, "\u55AE\u8EAB"), " \u2192 \u8B49\u660E\u66F8 + \u6E05\u55AE\uFF0C", /*#__PURE__*/React.createElement("strong", {
-    style: {
-      color: 'var(--text)'
-    }
-  }, "\u53EA\u586B\u672C\u4EBA\u8EAB\u5206\u8B49"), "\uFF08\u914D\u5076\u6B04\u7A7A\uFF09"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginLeft: 14,
-      marginBottom: 6
-    }
-  }, "\u30FB", /*#__PURE__*/React.createElement("strong", {
-    style: {
-      color: 'var(--accent-1)'
-    }
-  }, "\u5DF2\u5A5A"), " \u2192 \u8B49\u660E\u66F8 + \u672C\u4EBA\u6E05\u55AE + \u914D\u5076\u6E05\u55AE\uFF0C", /*#__PURE__*/React.createElement("strong", {
-    style: {
-      color: 'var(--text)'
-    }
-  }, "\u5169\u683C\u90FD\u586B")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      color: 'var(--text-3)',
-      marginTop: 6,
-      fontSize: 13
-    }
-  }, "\u203B \u7CFB\u7D71\u5C0D\u6BCF\u4EFD PDF \u6703\u81EA\u52D5\u5617\u8A66\u5169\u500B\u5BC6\u78BC\uFF0C\u7701\u53BB\u5206\u6279\u64CD\u4F5C\u3002\u9810\u8A2D\u5BC6\u78BC = \u8A72\u4EBA\u8EAB\u5206\u8B49\uFF08\u542B\u82F1\u6587\u5B57\u6BCD\u5927\u5BEB\uFF09")), /*#__PURE__*/React.createElement("div", {
     style: {
       background: 'var(--card)',
       border: '1px solid var(--card-border)',

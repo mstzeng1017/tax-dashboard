@@ -26,6 +26,11 @@ function App() {
   });
   const [active, setActive] = useState('overview');
   const [showUpload, setShowUpload] = useState(false);
+  const [uploadMode, setUploadMode] = useState('full'); // 'cert' | 'full'
+  const openUpload = (mode = 'full') => {
+    setUploadMode(mode);
+    setShowUpload(true);
+  };
   const [showClear, setShowClear] = useState(false);
   const [showBackupHint, setShowBackupHint] = useState(false);
   const [toast, setToast] = useState(null);

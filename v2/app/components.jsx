@@ -653,7 +653,7 @@ function EmptyState({ onUpload, onSampleData }) {
           <p style={{ marginBottom: 0, color: 'var(--text-2)' }}>選擇要用哪種模式匯入</p>
         </div>
 
-        {/* 2 卡選擇 (Claude Pro/Max 風) — 各自有大 CTA 按鈕 */}
+        {/* 2 卡選擇 (同格式, 不同色 button) */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(310px, 1fr))', gap: 16, marginBottom: 20 }}>
           {/* 基本 — 只證明書 */}
           <div style={{
@@ -662,10 +662,11 @@ function EmptyState({ onUpload, onSampleData }) {
             borderRadius: 16,
             padding: '24px 22px',
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            textAlign: 'center'
           }}>
-            <div style={{ marginBottom: 18 }}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text-2)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <div style={{ marginBottom: 16 }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent-1)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block' }}>
                 <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                 <path d="M14 2v6h6" />
               </svg>
@@ -677,17 +678,18 @@ function EmptyState({ onUpload, onSampleData }) {
               <span style={{ fontSize: 13.5, color: 'var(--text-3)', marginLeft: 8 }}>已婚則含配偶共 1 份</span>
             </div>
             <div style={{ fontSize: 13, color: 'var(--text-3)', marginBottom: 18 }}>大部分數字已可看</div>
-            <button onClick={onUpload}
+            <button onClick={() => onUpload('cert')}
               style={{
                 width: '100%', padding: '12px 16px', borderRadius: 10,
-                background: 'var(--card-hover)', color: 'var(--text)',
-                border: '1px solid var(--card-border)', cursor: 'pointer',
-                fontSize: 14, fontWeight: 600, marginBottom: 20,
+                background: 'linear-gradient(135deg, #5575C8 0%, #6A8DD8 100%)', color: 'white',
+                border: '1px solid transparent', cursor: 'pointer',
+                fontSize: 14, fontWeight: 700, marginBottom: 20,
+                boxShadow: '0 8px 22px -8px rgba(85, 117, 200, 0.5)',
                 transition: 'all 0.15s'
               }}>
               只匯入證明書
             </button>
-            <div style={{ borderTop: '1px solid var(--card-border)', paddingTop: 16 }}>
+            <div style={{ borderTop: '1px solid var(--card-border)', paddingTop: 16, textAlign: 'left' }}>
               <div style={{ fontSize: 13.5, color: 'var(--text-2)', marginBottom: 8, fontWeight: 600 }}>解鎖功能：</div>
               <div style={featureRowStyle}>{checkIcon}<span>本人 / 配偶總所得</span></div>
               <div style={featureRowStyle}>{checkIcon}<span>所得淨額、應納稅額</span></div>
@@ -702,25 +704,18 @@ function EmptyState({ onUpload, onSampleData }) {
             </div>
           </div>
 
-          {/* 完整 — 證明書 + 清單 (推薦) */}
+          {/* 完整 — 證明書 + 清單 (相同格式, 不同按鈕色) */}
           <div style={{
-            background: 'linear-gradient(180deg, rgba(93, 196, 176, 0.08) 0%, var(--card) 60%)',
-            border: '1px solid rgba(93, 196, 176, 0.35)',
+            background: 'var(--card)',
+            border: '1px solid var(--card-border)',
             borderRadius: 16,
             padding: '24px 22px',
             display: 'flex',
             flexDirection: 'column',
-            position: 'relative',
-            boxShadow: '0 0 24px -8px rgba(93, 196, 176, 0.18)'
+            textAlign: 'center'
           }}>
-            <div style={{
-              position: 'absolute', top: -1, right: 18,
-              padding: '4px 10px', fontSize: 11, fontWeight: 700,
-              color: 'var(--bg)', background: 'var(--accent-2)',
-              borderRadius: '0 0 6px 6px', letterSpacing: '0.05em'
-            }}>推薦</div>
-            <div style={{ marginBottom: 18 }}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent-2)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <div style={{ marginBottom: 16 }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent-2)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block' }}>
                 <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                 <path d="M14 2v6h6" />
                 <path d="M9 13l2 2 4-4" />
@@ -733,18 +728,18 @@ function EmptyState({ onUpload, onSampleData }) {
               <span style={{ fontSize: 13.5, color: 'var(--text-3)', marginLeft: 8 }}>已婚則 3 份</span>
             </div>
             <div style={{ fontSize: 13, color: 'var(--text-3)', marginBottom: 18 }}>解鎖退稅 / 補繳完整資訊</div>
-            <button onClick={onUpload}
+            <button onClick={() => onUpload('full')}
               style={{
                 width: '100%', padding: '12px 16px', borderRadius: 10,
-                background: 'var(--accent-grad)', color: 'white',
+                background: 'linear-gradient(135deg, #5DC4B0 0%, #7AD9C6 100%)', color: '#0a1f1c',
                 border: '1px solid transparent', cursor: 'pointer',
                 fontSize: 14, fontWeight: 700, marginBottom: 20,
-                boxShadow: '0 8px 22px -8px rgba(85, 117, 200, 0.5)',
+                boxShadow: '0 8px 22px -8px rgba(93, 196, 176, 0.5)',
                 transition: 'all 0.15s'
               }}>
               匯入證明書 + 清單
             </button>
-            <div style={{ borderTop: '1px solid var(--card-border)', paddingTop: 16 }}>
+            <div style={{ borderTop: '1px solid var(--card-border)', paddingTop: 16, textAlign: 'left' }}>
               <div style={{ fontSize: 13.5, color: 'var(--text-2)', marginBottom: 8, fontWeight: 600 }}>含「基本」全部，再加：</div>
               <div style={featureRowStyle}>{checkIcon}<span><strong style={{ color: 'var(--text)' }}>全戶扣繳稅額</strong>（公司預扣的稅）</span></div>
               <div style={featureRowStyle}>{checkIcon}<span><strong style={{ color: 'var(--text)' }}>退稅 / 補繳金額</strong>（最重要！）</span></div>
@@ -769,34 +764,6 @@ function EmptyState({ onUpload, onSampleData }) {
           paddingTop: 20,
           borderTop: '1px solid var(--divider)',
         }}>
-          {/* 匯入流程說明 */}
-          <div style={{
-            textAlign: 'left',
-            background: 'rgba(124, 128, 201, 0.08)',
-            border: '1px solid var(--card-border)',
-            borderRadius: 8,
-            padding: '12px 14px',
-            marginBottom: 18,
-            fontSize: 13.5,
-            color: 'var(--text-2)',
-            lineHeight: 1.6
-          }}>
-            <div style={{ fontWeight: 600, color: 'var(--text)', marginBottom: 8 }}>📋 怎麼匯入（一次完成）</div>
-            <div style={{ marginBottom: 4 }}>
-              <strong style={{ color: 'var(--text)' }}>① 拖入全部 PDF</strong>（不用分批）
-            </div>
-            <div style={{ marginBottom: 6 }}>
-              <strong style={{ color: 'var(--text)' }}>② 填密碼：</strong>
-            </div>
-            <div style={{ marginLeft: 14, marginBottom: 4 }}>
-              ・<strong style={{ color: 'var(--good)' }}>單身</strong> → 證明書 + 清單，<strong style={{ color: 'var(--text)' }}>只填本人身分證</strong>（配偶欄空）
-            </div>
-            <div style={{ marginLeft: 14, marginBottom: 6 }}>
-              ・<strong style={{ color: 'var(--accent-1)' }}>已婚</strong> → 證明書 + 本人清單 + 配偶清單，<strong style={{ color: 'var(--text)' }}>兩格都填</strong>
-            </div>
-            <div style={{ color: 'var(--text-3)', marginTop: 6, fontSize: 13 }}>※ 系統對每份 PDF 會自動嘗試兩個密碼，省去分批操作。預設密碼 = 該人身分證（含英文字母大寫）</div>
-          </div>
-
           {/* 下載入口 — 兩種文件合在一張卡, 同走 etax 入口網; 路徑用 chip 突顯 */}
           <div style={{
             background: 'var(--card)',
