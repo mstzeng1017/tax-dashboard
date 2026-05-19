@@ -774,7 +774,7 @@ function EmptyState({ onUpload, onSampleData }) {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 14 }}>
               <div style={{ fontWeight: 700, color: 'var(--text)', fontSize: 17 }}>📥 還沒下載？到 etax 入口網抓</div>
-              <a href="https://www.etax.nat.gov.tw/etwmain/"
+              <a href="https://www.etax.nat.gov.tw/etwmain/etw108w"
                  target="_blank" rel="noopener noreferrer"
                  style={{
                    display: 'inline-flex', alignItems: 'center', gap: 6,

@@ -1414,7 +1414,7 @@ function EmptyState({
       fontSize: 17
     }
   }, "\uD83D\uDCE5 \u9084\u6C92\u4E0B\u8F09\uFF1F\u5230 etax \u5165\u53E3\u7DB2\u6293"), /*#__PURE__*/React.createElement("a", {
-    href: "https://www.etax.nat.gov.tw/etwmain/",
+    href: "https://www.etax.nat.gov.tw/etwmain/etw108w",
     target: "_blank",
     rel: "noopener noreferrer",
     style: {
