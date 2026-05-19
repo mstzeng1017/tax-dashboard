@@ -652,7 +652,7 @@ function EmptyState({ onUpload, onSampleData }) {
 
   return (
     <div className="empty">
-      <div style={{ width: '100%', maxWidth: 1200 }}>
+      <div style={{ width: '100%', maxWidth: 720, marginLeft: 'auto', marginRight: 'auto' }}>
         <PrivacyBanner />
 
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
@@ -660,11 +660,8 @@ function EmptyState({ onUpload, onSampleData }) {
           <p style={{ marginBottom: 0, color: 'var(--text-2)', textAlign: 'center' }}>選擇要用哪種模式匯入</p>
         </div>
 
-        {/* 左右兩區: 左 = 選模式, 右 = 下載教學 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: 24, alignItems: 'start' }}>
-        <div>
-        {/* 2 卡選擇 (左區內部, narrower 因此直排) */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16, marginBottom: 20 }}>
+        {/* 2 卡選擇 (同格式, 橫排) */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(310px, 1fr))', gap: 16, marginBottom: 20 }}>
           {/* 基本 — 只證明書 */}
           <div style={{
             background: 'var(--card)',
@@ -769,10 +766,8 @@ function EmptyState({ onUpload, onSampleData }) {
             載入範例資料看 demo
           </button>
         </div>
-        </div>{/* end LEFT 區 */}
 
-        <div>
-          {/* 下載入口 — 兩種文件合在一張卡, 同走 etax 入口網; 路徑用 chip 突顯 */}
+        {/* 下載入口 — 兩種文件合在一張卡, 同走 etax 入口網; 路徑用 chip 突顯 */}
           <div style={{
             background: 'var(--card)',
             border: '1px solid var(--card-border)',
@@ -849,8 +844,6 @@ function EmptyState({ onUpload, onSampleData }) {
               </div>
             </div>
           </div>
-        </div>{/* end RIGHT 區 */}
-        </div>{/* end 左右 grid */}
       </div>
     </div>
   );

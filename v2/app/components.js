@@ -1094,7 +1094,9 @@ function EmptyState({
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       width: '100%',
-      maxWidth: 1200
+      maxWidth: 720,
+      marginLeft: 'auto',
+      marginRight: 'auto'
     }
   }, /*#__PURE__*/React.createElement(PrivacyBanner, null), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -1114,14 +1116,7 @@ function EmptyState({
   }, "\u9078\u64C7\u8981\u7528\u54EA\u7A2E\u6A21\u5F0F\u532F\u5165")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))',
-      gap: 24,
-      alignItems: 'start'
-    }
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'grid',
-      gridTemplateColumns: '1fr',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(310px, 1fr))',
       gap: 16,
       marginBottom: 20
     }
@@ -1382,7 +1377,7 @@ function EmptyState({
       textDecoration: 'underline',
       padding: '0 4px'
     }
-  }, "\u8F09\u5165\u7BC4\u4F8B\u8CC7\u6599\u770B demo"))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+  }, "\u8F09\u5165\u7BC4\u4F8B\u8CC7\u6599\u770B demo")), /*#__PURE__*/React.createElement("div", {
     style: {
       background: 'var(--card)',
       border: '1px solid var(--card-border)',
@@ -1550,7 +1545,7 @@ function EmptyState({
       fontSize: 15,
       fontWeight: 700
     }
-  }, "2 \u4EFD"))))))));
+  }, "2 \u4EFD"))))));
 }
 Object.assign(window, {
   Sidebar,
