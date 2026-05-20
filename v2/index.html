@@ -1718,11 +1718,10 @@ setTimeout(() => {
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 
-<!-- PDF.js -->
-<script src="https://mozilla.github.io/pdf.js/build/pdf.mjs" type="module"></script>
+<!-- PDF.js (pin 固定版本; 用 mozilla.github.io nightly 會有 主檔/worker 版本錯位問題) -->
 <script type="module">
-  import * as pdfjsLib from 'https://mozilla.github.io/pdf.js/build/pdf.mjs';
-  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.mjs';
+  import * as pdfjsLib from 'https://unpkg.com/pdfjs-dist@5.7.284/build/pdf.min.mjs';
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@5.7.284/build/pdf.worker.min.mjs';
   window.pdfjsLib = pdfjsLib;
   window.dispatchEvent(new Event('pdfjs-ready'));
 </script>
