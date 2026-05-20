@@ -263,22 +263,25 @@
       out._fallbackUsed = 'grossIncomeOnly';
     }
 
-    // === byCategory + byPayer (v2 新增) ===
+    // === byCategory + byPayer ===
     // 證明書明細格式: F125236057  營利  7,820  22099131 台灣積體電路製造股份有限公司  11313H39B1003087
+    // detailRx 用結構偵測 (ID + word + amount + 8碼payerCode + name), 類別欄不限白名單
+    // 不在 INCOME_CATEGORIES 的類別 (e.g. 漁業/林業/國外所得 等) → 歸「其他」, 不丟資料
     {
       const byCategory = { main: {}, spouse: {} };
-      const payerMap = new Map(); // key=owner|name → { owner, name, amount, count }
-      const detailRx = new RegExp(
-        '([A-Z]\\d{9})\\s+(' + INCOME_CATEGORIES.join('|') + ')\\s+([\\d,]+)\\s+(\\d{8})\\s+(\\S+)'
-      );
+      const payerMap = new Map();
+      const CATEGORY_SET = new Set(INCOME_CATEGORIES);
+      const detailRx = /([A-Z]\d{9})\s+(\S+)\s+([\d,]+)\s+(\d{8})\s+(\S+)/;
       for (const line of lines) {
         const m = line.match(detailRx);
         if (!m) continue;
-        const id = m[1], cat = m[2], amt = num(m[3]), payerName = m[5];
+        const id = m[1], rawCat = m[2], amt = num(m[3]), payerName = m[5];
         if (!amt || amt <= 0) continue;
         const owner = idMatches(id, out.taxpayerId) ? 'main' :
                      (out.spouseId && idMatches(id, out.spouseId)) ? 'spouse' : null;
         if (!owner) continue;
+        // 白名單 fallback: 認得的歸該類, 認不得的歸「其他」(不丟資料)
+        const cat = CATEGORY_SET.has(rawCat) ? rawCat : '其他';
         byCategory[owner][cat] = (byCategory[owner][cat] || 0) + amt;
         const cleanName = payerName.trim();
         const key = owner + '|' + cleanName;
